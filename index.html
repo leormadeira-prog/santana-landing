@@ -11,10 +11,7 @@
 
 <!-- Favicon -->
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png">
 <meta name="theme-color" content="#1B2430">
 
 <!-- Open Graph (5511999841721, Facebook, Instagram, LinkedIn) -->
@@ -164,52 +161,65 @@
     font-family:'IBM Plex Mono', monospace;
   }
 
-  /* facade */
-  .facade-frame{
+  /* photography */
+  .photo-frame{
     position:relative;
     background:var(--ink);
     border-radius:4px;
-    padding:22px 22px 0;
+    padding:14px;
     overflow:hidden;
+    box-shadow:0 22px 55px rgba(27,36,48,0.18);
   }
-  .facade-label{
-    display:flex; justify-content:space-between; align-items:baseline;
+  .photo-frame::after{
+    content:"";
+    position:absolute; inset:14px;
+    border:1px solid rgba(217,189,142,0.28);
+    pointer-events:none;
+  }
+  .photo-frame img{
+    width:100%;
+    aspect-ratio:4/5;
+    height:auto;
+    object-fit:cover;
+    border-radius:2px;
+  }
+  .photo-caption{
+    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:14px 2px 0;
     font-family:'IBM Plex Mono', monospace;
     color:var(--brass-light);
     font-size:11px;
     letter-spacing:0.08em;
-    padding-bottom:16px;
-    border-bottom:1px solid rgba(217,189,142,0.25);
   }
-  .facade-grid{
+
+  /* ---------- GALERIA ---------- */
+  .gallery-grid{
     display:grid;
-    grid-template-columns:repeat(8, 1fr);
-    gap:9px;
-    padding:20px 0 0;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
   }
-  .window{
-    aspect-ratio:3/4;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(217,189,142,0.18);
-    border-radius:1px;
-    transition:background 1.1s ease, box-shadow 1.1s ease;
+  @media (max-width:900px){ .gallery-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .gallery-grid{grid-template-columns:1fr;} }
+  .gallery-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
   }
-  .window.lit{
-    background:var(--brass-light);
-    box-shadow:0 0 10px rgba(217,189,142,0.55);
+  .gallery-card img{
+    width:100%;
+    aspect-ratio:4/3;
+    height:auto;
+    object-fit:cover;
   }
-  .facade-ground{
-    margin-top:20px;
-    height:34px;
-    background:linear-gradient(180deg, rgba(176,141,87,0.35), rgba(176,141,87,0.12));
-    border-top:1px solid rgba(217,189,142,0.3);
-    display:flex; align-items:center; justify-content:center;
+  .gallery-card figcaption{
+    margin:0;
+    padding:14px 16px;
     font-family:'IBM Plex Mono', monospace;
-    color:var(--brass-light);
-    font-size:10px; letter-spacing:0.12em;
-  }
-  @media (prefers-reduced-motion: reduce){
-    .window{transition:none;}
+    font-size:12px;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
   }
 
   /* ---------- SECTION SHARED ---------- */
@@ -341,6 +351,16 @@
   .spec-table td{padding:13px 26px;}
   .spec-table td:first-child{color:var(--ink-soft);}
   .spec-table td:last-child{text-align:right; font-weight:600;}
+  .planta-image{
+    border-bottom:1px solid var(--line);
+    background:#fff;
+  }
+  .planta-image img{
+    width:100%;
+    aspect-ratio:16/10;
+    height:auto;
+    object-fit:contain;
+  }
   .planta-foot{padding:16px 26px; font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; border-top:1px solid var(--line);}
 
   /* ---------- LOCALIZAÇÃO ---------- */
@@ -443,14 +463,13 @@
       <div class="hero-note">SEM INTERMEDIÁRIOS · ATENDIMENTO DIRETO M&amp;L</div>
     </div>
 
-    <div class="facade-frame">
-      <div class="facade-label">
-        <span>EDIFÍCIO · SANTANA / SP</span>
-        <span id="lit-count">— UNIDADES OCUPADAS</span>
-      </div>
-      <div class="facade-grid" id="facadeGrid"></div>
-      <div class="facade-ground">TÉRREO — PORTARIA 24H</div>
-    </div>
+    <figure class="photo-frame">
+      <img src="assets/sala-ampliada.jpeg" alt="Sala ampliada do apartamento em Santana" width="900" height="1125" loading="eager" fetchpriority="high">
+      <figcaption class="photo-caption">
+        <span>SALA AMPLIADA</span>
+        <span>SANTANA / SP</span>
+      </figcaption>
+    </figure>
   </section>
 
   <!-- DIFERENCIAIS -->
@@ -484,6 +503,42 @@
     </div>
   </section>
 
+
+  <!-- GALERIA -->
+  <section id="galeria" class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Galeria</div>
+      <h2>Ambientes do apartamento.</h2>
+      <p>Conheça os espaços internos e a planta antes de agendar sua visita.</p>
+    </div>
+    <div class="gallery-grid">
+      <figure class="gallery-card">
+        <img src="assets/sala-ampliada.jpeg" alt="Sala ampliada" loading="lazy">
+        <figcaption>Sala ampliada</figcaption>
+      </figure>
+      <figure class="gallery-card">
+        <img src="assets/cozinha.jpeg" alt="Cozinha" loading="lazy">
+        <figcaption>Cozinha</figcaption>
+      </figure>
+      <figure class="gallery-card">
+        <img src="assets/dormitorio-casal.jpeg" alt="Dormitório de casal" loading="lazy">
+        <figcaption>Dormitório de casal</figcaption>
+      </figure>
+      <figure class="gallery-card">
+        <img src="assets/dormitorio-dois.jpeg" alt="Segundo dormitório" loading="lazy">
+        <figcaption>Segundo dormitório</figcaption>
+      </figure>
+      <figure class="gallery-card">
+        <img src="assets/banheiro.jpeg" alt="Banheiro" loading="lazy">
+        <figcaption>Banheiro</figcaption>
+      </figure>
+      <figure class="gallery-card">
+        <img src="assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
+        <figcaption>Planta</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <!-- ELEVATOR PANEL / BAIRRO -->
   <section class="wrap">
     <div class="elevator">
@@ -511,6 +566,9 @@
     </div>
     <div class="plantas-grid">
       <div class="planta-card">
+        <div class="planta-image">
+          <img src="assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
+        </div>
         <div class="planta-head">
           <h3>2 dormitórios</h3>
           <span class="planta-tag">DISPONÍVEL</span>
@@ -525,6 +583,9 @@
         <div class="planta-foot">DADOS ILUSTRATIVOS — CONFIRME METRAGEM REAL COM A M&amp;L</div>
       </div>
       <div class="planta-card">
+        <div class="planta-image">
+          <img src="assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
+        </div>
         <div class="planta-head">
           <h3>3 dormitórios</h3>
           <span class="planta-tag">DISPONÍVEL</span>
@@ -611,34 +672,6 @@
 </footer>
 
 <script>
-  // Facade windows: build grid, light up a random subset with a staggered reveal
-  (function(){
-    const grid = document.getElementById('facadeGrid');
-    const rows = 6, cols = 8;
-    const total = rows * cols;
-    const cells = [];
-    for(let i=0;i<total;i++){
-      const w = document.createElement('div');
-      w.className = 'window';
-      grid.appendChild(w);
-      cells.push(w);
-    }
-    const litIndexes = new Set();
-    while(litIndexes.size < Math.round(total*0.45)){
-      litIndexes.add(Math.floor(Math.random()*total));
-    }
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let count = 0;
-    litIndexes.forEach((idx, i)=>{
-      const delay = reduceMotion ? 0 : i * 45;
-      setTimeout(()=>{
-        cells[idx].classList.add('lit');
-        count++;
-        document.getElementById('lit-count').textContent = count + ' / ' + total + ' JANELAS ACESAS';
-      }, delay);
-    });
-  })();
-
   // Elevator panel
   (function(){
     const floors = [
