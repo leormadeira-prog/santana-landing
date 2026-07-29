@@ -212,10 +212,15 @@
     border-radius:4px;
     overflow:hidden;
   }
-  .gallery-card img{
+  .gallery-card img,
+  .gallery-card iframe{
+    display:block;
     width:100%;
     aspect-ratio:4/3;
     height:auto;
+    border:0;
+  }
+  .gallery-card img{
     object-fit:cover;
   }
   .gallery-card figcaption{
@@ -226,28 +231,6 @@
     letter-spacing:.06em;
     color:var(--ink-soft);
     text-transform:uppercase;
-  }
-
-  /* ---------- VIDEO ---------- */
-  .video-frame{
-    position:relative;
-    width:100%;
-    aspect-ratio:16/9;
-    overflow:hidden;
-    background:var(--ink);
-    border:14px solid var(--ink);
-    border-radius:6px;
-    box-shadow:0 22px 55px rgba(27,36,48,0.18);
-  }
-  .video-frame iframe{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    border:0;
-  }
-  @media (max-width:560px){
-    .video-frame{border-width:8px;}
   }
 
   /* ---------- SECTION SHARED ---------- */
@@ -470,7 +453,7 @@
     </a>
     <nav class="links">
       <a href="#diferenciais">Diferenciais</a>
-      <a href="#video">Vídeo</a>
+      <a href="#galeria">Galeria</a>
       <a href="#plantas">Plantas</a>
       <a href="#localizacao">Localização</a>
     </nav>
@@ -540,7 +523,7 @@
     <div class="section-head">
       <div class="eyebrow">Galeria</div>
       <h2>Ambientes do apartamento.</h2>
-      <p>Conheça os espaços internos e a planta antes de agendar sua visita.</p>
+      <p>Conheça os espaços internos em fotos e vídeo antes de agendar sua visita.</p>
     </div>
     <div class="gallery-grid">
       <figure class="gallery-card">
@@ -564,27 +547,15 @@
         <figcaption>Banheiro</figcaption>
       </figure>
       <figure class="gallery-card">
-        <img src="assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
-        <figcaption>Planta</figcaption>
+        <iframe
+          src="https://player.vimeo.com/video/1195677426?h=e7ffa7b884&amp;dnt=1"
+          title="Vídeo do apartamento em Santana"
+          loading="lazy"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        <figcaption>Vídeo</figcaption>
       </figure>
-    </div>
-  </section>
-
-  <!-- VIDEO -->
-  <section id="video" class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Conheça o apartamento</div>
-      <h2>Veja os ambientes em vídeo.</h2>
-      <p>Assista ao vídeo e conheça melhor os espaços antes de agendar sua visita.</p>
-    </div>
-    <div class="video-frame">
-      <iframe
-        src="https://player.vimeo.com/video/1195677426?h=e7ffa7b884&amp;dnt=1"
-        title="Vídeo do apartamento em Santana"
-        loading="lazy"
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowfullscreen>
-      </iframe>
     </div>
   </section>
 
