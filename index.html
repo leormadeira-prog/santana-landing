@@ -98,6 +98,12 @@
     border-radius:3px;
   }
   .logo .sep{color:var(--brass); font-weight:700;}
+  .header-logo{
+    display:block;
+    width:190px;
+    max-width:32vw;
+    height:auto;
+  }
   nav.links{display:flex; gap:32px; font-size:14px; font-weight:500;}
   nav.links a{text-decoration:none; color:var(--ink-soft); border-bottom:1px solid transparent; padding-bottom:2px; transition:.2s;}
   nav.links a:hover{color:var(--ink); border-color:var(--brick);}
@@ -437,7 +443,9 @@
 
 <header class="site">
   <div class="wrap nav">
-    <div class="logo"><span class="mark">M&L</span> M&L <span class="sep">&</span> EMPREENDIMENTOS</div>
+    <a href="#" aria-label="ZN Empreendimentos — início">
+      <img class="header-logo" src="assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220">
+    </a>
     <nav class="links">
       <a href="#diferenciais">Diferenciais</a>
       <a href="#plantas">Plantas</a>
