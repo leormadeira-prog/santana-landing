@@ -266,71 +266,32 @@
   }
   .dif-card p{font-size:14.5px; color:var(--ink-soft); margin-top:10px;}
 
-  /* ---------- ELEVATOR PANEL (signature) ---------- */
-  .elevator{
+  /* ---------- FEATURED VIDEO ---------- */
+  .featured-video{
     background:var(--ink);
     color:var(--paper);
     border-radius:6px;
-    padding:48px;
-    display:grid;
-    grid-template-columns:0.85fr 1.15fr;
-    gap:48px;
-    align-items:center;
+    padding:clamp(22px,4vw,48px);
   }
-  @media (max-width:840px){ .elevator{grid-template-columns:1fr; padding:32px 24px;} }
-
-  .elevator-copy .eyebrow{color:var(--brass-light);}
-  .elevator-copy .eyebrow::before{background:var(--brass-light);}
-  .elevator-copy h2{color:#FAF7F1; font-size:clamp(26px,3.2vw,34px); max-width:12ch;}
-  .elevator-copy p{color:#B9C0CC; margin-top:16px; font-size:15px; max-width:38ch;}
-
-  .panel-unit{
-    background:#131A24;
+  .featured-video .eyebrow{color:var(--brass-light);}
+  .featured-video .eyebrow::before{background:var(--brass-light);}
+  .featured-video h2{color:#FAF7F1; font-size:clamp(26px,3.2vw,38px); margin-bottom:10px;}
+  .featured-video p{color:#B9C0CC; margin-bottom:24px; font-size:15px; max-width:62ch;}
+  .featured-video-frame{
+    overflow:hidden;
     border:1px solid rgba(217,189,142,0.22);
     border-radius:5px;
-    padding:24px;
-  }
-  .panel-display{
     background:#0C1119;
-    border:1px solid rgba(217,189,142,0.3);
-    border-radius:3px;
-    padding:20px 22px;
-    min-height:110px;
-    display:flex; flex-direction:column; justify-content:center;
-    margin-bottom:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.28);
   }
-  .panel-display .fl{
-    font-family:'IBM Plex Mono', monospace;
-    color:var(--brass-light);
-    font-size:11px; letter-spacing:0.14em;
-    margin-bottom:8px;
-  }
-  .panel-display .msg{
-    font-family:'IBM Plex Sans', sans-serif;
-    color:#F3EFE7;
-    font-size:15.5px;
-    font-weight:500;
-  }
-  .panel-buttons{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-  }
-  .floor-btn{
-    background:#1B2430;
-    border:1px solid rgba(217,189,142,0.28);
-    color:var(--brass-light);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:14px; font-weight:600;
-    padding:14px 0;
-    border-radius:50%;
-    aspect-ratio:1/1;
+  .featured-video-frame video{
+    display:block;
     width:100%;
-    cursor:pointer;
-    transition:.15s ease;
+    height:auto;
+    aspect-ratio:16/9;
+    object-fit:contain;
+    background:#0C1119;
   }
-  .floor-btn:hover{background:var(--brass); color:var(--ink);}
-  .floor-btn.active{background:var(--brass); color:var(--ink); box-shadow:0 0 0 3px rgba(217,189,142,0.25);}
 
   /* ---------- PLANTAS ---------- */
   .plantas-grid{
@@ -559,20 +520,17 @@
     </div>
   </section>
 
-  <!-- ELEVATOR PANEL / BAIRRO -->
+  <!-- VÍDEO EM DESTAQUE -->
   <section class="wrap">
-    <div class="elevator">
-      <div class="elevator-copy">
-        <div class="eyebrow">O bairro, botão por botão</div>
-        <h2>Vila Mazzei em oito paradas.</h2>
-        <p>Aperte um botão do painel e veja o que existe pertinho de casa — do metrô ao parque.</p>
-      </div>
-      <div class="panel-unit">
-        <div class="panel-display">
-          <div class="fl" id="panelFloor">TÉRREO</div>
-          <div class="msg" id="panelMsg">Toque em um botão para ver o que tem por perto.</div>
-        </div>
-        <div class="panel-buttons" id="panelButtons"></div>
+    <div class="featured-video">
+      <div class="eyebrow">Tour pelo imóvel</div>
+      <h2>Conheça cada ambiente em detalhes.</h2>
+      <p>Assista ao tour completo e veja os principais espaços do imóvel antes de agendar sua visita.</p>
+      <div class="featured-video-frame">
+        <video controls playsinline preload="metadata" poster="assets/sala-ampliada.jpeg">
+          <source src="assets/tour-imobiliario.mp4" type="video/mp4">
+          Seu navegador não consegue reproduzir este vídeo.
+        </video>
       </div>
     </div>
   </section>
@@ -690,37 +648,6 @@
     </div>
   </div>
 </footer>
-
-<script>
-  // Elevator panel
-  (function(){
-    const floors = [
-      { label:'TÉRREO', msg:'Portaria 24h, salão de festas e área de lazer completa.' },
-      { label:'1º ANDAR', msg:'Estação Santana (Linha Azul) a 8 minutos a pé.' },
-      { label:'2º ANDAR', msg:'Parque da Juventude a 12 minutos a pé — ideal para o fim de tarde.' },
-      { label:'3º ANDAR', msg:'Shopping Center Norte a 10 minutos de carro.' },
-      { label:'4º ANDAR', msg:'Av. Cruzeiro do Sul: comércio, bancos e serviços a poucos passos.' },
-      { label:'5º ANDAR', msg:'Rede de saúde e escolas conceituadas nas proximidades.' },
-    ];
-    const buttonsEl = document.getElementById('panelButtons');
-    const floorEl = document.getElementById('panelFloor');
-    const msgEl = document.getElementById('panelMsg');
-    floors.forEach((f, i)=>{
-      const b = document.createElement('button');
-      b.className = 'floor-btn';
-      b.type = 'button';
-      b.textContent = i === 0 ? 'T' : i;
-      b.setAttribute('aria-label', f.label);
-      b.addEventListener('click', ()=>{
-        document.querySelectorAll('.floor-btn').forEach(el=>el.classList.remove('active'));
-        b.classList.add('active');
-        floorEl.textContent = f.label;
-        msgEl.textContent = f.msg;
-      });
-      buttonsEl.appendChild(b);
-    });
-  })();
-</script>
 
 </body>
 </html>
