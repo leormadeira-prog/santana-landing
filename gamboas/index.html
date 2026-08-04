@@ -296,9 +296,10 @@
   /* ---------- PLANTAS ---------- */
   .plantas-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(3,minmax(0,1fr));
     gap:28px;
   }
+  @media (max-width:1050px){ .plantas-grid{grid-template-columns:1fr 1fr;} }
   @media (max-width:760px){ .plantas-grid{grid-template-columns:1fr;} }
   .planta-card{
     background:var(--card);
@@ -311,7 +312,7 @@
     border-bottom:1px solid var(--line);
     display:flex; justify-content:space-between; align-items:center;
   }
-  .planta-head h3{font-family:'Fraunces',serif; font-size:22px; font-weight:600;}
+  .planta-head h3{font-family:'Fraunces',serif; font-size:20px; font-weight:600;}
   .planta-tag{
     font-family:'IBM Plex Mono', monospace;
     font-size:11px; background:var(--brick); color:#FAF3EC;
@@ -329,10 +330,11 @@
   }
   .planta-image img{
     width:100%;
-    aspect-ratio:16/10;
-    height:auto;
+    height:560px;
     object-fit:contain;
   }
+  .planta-image a{display:block; cursor:zoom-in;}
+  @media (max-width:760px){ .planta-image img{height:auto;} }
   .planta-foot{padding:16px 26px; font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; border-top:1px solid var(--line);}
 
   /* ---------- LOCALIZAÇÃO ---------- */
@@ -553,44 +555,136 @@
   <!-- PLANTAS -->
   <section id="plantas" class="wrap">
     <div class="section-head">
-      <div class="eyebrow">Unidades disponíveis</div>
-      <h2>Duas plantas, prontas para visita.</h2>
-      <p>Metragens e vagas variam por unidade — confirme a planta exata com um consultor da ZN Empreendimentos antes da visita.</p>
+      <div class="eyebrow">Plantas do empreendimento</div>
+      <h2>Sete tipologias reais.</h2>
+      <p>Consulte as unidades e áreas privativas indicadas no material técnico do Gamboas. Clique em uma planta para ampliar.</p>
     </div>
     <div class="plantas-grid">
       <div class="planta-card">
         <div class="planta-image">
-          <img src="../assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
+          <a href="../assets/planta-unidades-11-21-31.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidades-11-21-31.png" alt="Planta das unidades 11, 21 e 31, com 51,90 metros quadrados" loading="lazy">
+          </a>
         </div>
         <div class="planta-head">
-          <h3>2 dormitórios</h3>
-          <span class="planta-tag">DISPONÍVEL</span>
+          <h3>Unidades 11, 21 e 31</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
         </div>
         <table class="spec-table">
-          <tr><td>Área privativa</td><td>58 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2 (1 suíte)</td></tr>
-          <tr><td>Banheiros</td><td>2</td></tr>
-          <tr><td>Vagas de garagem</td><td>1</td></tr>
-          <tr><td>Andar</td><td>a definir</td></tr>
+          <tr><td>Área privativa</td><td>51,90 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Sacada</td><td>Coberta</td></tr>
         </table>
-        <div class="planta-foot">DADOS ILUSTRATIVOS — CONFIRME METRAGEM REAL COM A ZN EMPREENDIMENTOS</div>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
       </div>
       <div class="planta-card">
         <div class="planta-image">
-          <img src="../assets/planta.jpeg" alt="Planta do apartamento" loading="lazy">
+          <a href="../assets/planta-unidades-12-a-14-22-a-24-32-a-34.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidades-12-a-14-22-a-24-32-a-34.png" alt="Planta das unidades 12 a 14, 22 a 24 e 32 a 34, com 39,00 ou 39,10 metros quadrados" loading="lazy">
+          </a>
         </div>
         <div class="planta-head">
-          <h3>3 dormitórios</h3>
-          <span class="planta-tag">DISPONÍVEL</span>
+          <h3>Unidades 12–14, 22–24 e 32–34</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
         </div>
         <table class="spec-table">
-          <tr><td>Área privativa</td><td>78 m²</td></tr>
-          <tr><td>Dormitórios</td><td>3 (1 suíte)</td></tr>
-          <tr><td>Banheiros</td><td>2</td></tr>
-          <tr><td>Vagas de garagem</td><td>2</td></tr>
-          <tr><td>Andar</td><td>a definir</td></tr>
+          <tr><td>Área privativa</td><td>39,00 / 39,10 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidades</td><td>9</td></tr>
         </table>
-        <div class="planta-foot">DADOS ILUSTRATIVOS — CONFIRME METRAGEM REAL COM A ZN EMPREENDIMENTOS</div>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
+      </div>
+      <div class="planta-card">
+        <div class="planta-image">
+          <a href="../assets/planta-unidade-15.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidade-15.png" alt="Planta da unidade 15, com 38 metros quadrados" loading="lazy">
+          </a>
+        </div>
+        <div class="planta-head">
+          <h3>Unidade 15</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Área privativa</td><td>38,00 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidade</td><td>15</td></tr>
+        </table>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
+      </div>
+      <div class="planta-card">
+        <div class="planta-image">
+          <a href="../assets/planta-unidade-16.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidade-16.png" alt="Planta da unidade 16, com 39,10 metros quadrados" loading="lazy">
+          </a>
+        </div>
+        <div class="planta-head">
+          <h3>Unidade 16</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Área privativa</td><td>39,10 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidade</td><td>16</td></tr>
+        </table>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
+      </div>
+      <div class="planta-card">
+        <div class="planta-image">
+          <a href="../assets/planta-unidade-17.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidade-17.png" alt="Planta da unidade 17, com 52,05 metros quadrados" loading="lazy">
+          </a>
+        </div>
+        <div class="planta-head">
+          <h3>Unidade 17</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Área privativa</td><td>52,05 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidade</td><td>17</td></tr>
+        </table>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
+      </div>
+      <div class="planta-card">
+        <div class="planta-image">
+          <a href="../assets/planta-unidades-25-35.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidades-25-35.png" alt="Planta das unidades 25 e 35, com 38 metros quadrados" loading="lazy">
+          </a>
+        </div>
+        <div class="planta-head">
+          <h3>Unidades 25 e 35</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Área privativa</td><td>38,00 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidades</td><td>2</td></tr>
+        </table>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
+      </div>
+      <div class="planta-card">
+        <div class="planta-image">
+          <a href="../assets/planta-unidade-27.png" target="_blank" rel="noopener">
+            <img src="../assets/planta-unidade-27.png" alt="Planta da unidade 27, com 52,05 metros quadrados" loading="lazy">
+          </a>
+        </div>
+        <div class="planta-head">
+          <h3>Unidade 27</h3>
+          <span class="planta-tag">TIPOLOGIA</span>
+        </div>
+        <table class="spec-table">
+          <tr><td>Área privativa</td><td>52,05 m²</td></tr>
+          <tr><td>Dormitórios</td><td>2</td></tr>
+          <tr><td>Banheiro</td><td>1</td></tr>
+          <tr><td>Unidade</td><td>27</td></tr>
+        </table>
+        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
       </div>
     </div>
   </section>
