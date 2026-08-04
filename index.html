@@ -358,7 +358,22 @@
     border-radius:4px;
     padding:20px;
   }
-  .map-box svg{width:100%; height:auto;}
+  .map-box iframe{
+    display:block;
+    width:100%;
+    height:auto;
+    aspect-ratio:4/3;
+    border:0;
+  }
+  .map-link{
+    display:inline-block;
+    margin-top:14px;
+    color:var(--brick);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.04em;
+  }
 
   /* ---------- CTA FINAL ---------- */
   .cta-final{
@@ -595,21 +610,14 @@
         </ul>
       </div>
       <div class="map-box">
-        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="400" height="300" fill="#FAF7F1"/>
-          <g stroke="#1B2430" stroke-opacity="0.14" stroke-width="2">
-            <line x1="0" y1="60" x2="400" y2="60"/>
-            <line x1="0" y1="140" x2="400" y2="140"/>
-            <line x1="0" y1="220" x2="400" y2="220"/>
-            <line x1="90" y1="0" x2="90" y2="300"/>
-            <line x1="200" y1="0" x2="200" y2="300"/>
-            <line x1="310" y1="0" x2="310" y2="300"/>
-          </g>
-          <line x1="0" y1="180" x2="400" y2="180" stroke="#B08D57" stroke-width="4" stroke-opacity="0.6"/>
-          <circle cx="200" cy="150" r="10" fill="#A8462E"/>
-          <path d="M200 130 L212 150 L200 178 L188 150 Z" fill="#A8462E"/>
-          <text x="214" y="146" font-family="IBM Plex Mono, monospace" font-size="11" fill="#1B2430">VILA MAZZEI</text>
-        </svg>
+        <iframe
+          src="https://www.google.com/maps?q=Rua+das+Gamboas,+Vila+Nova+Mazzei,+S%C3%A3o+Paulo,+SP&amp;output=embed"
+          title="Mapa da Rua das Gamboas, Vila Nova Mazzei, São Paulo"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen>
+        </iframe>
+        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+das+Gamboas,+Vila+Nova+Mazzei,+S%C3%A3o+Paulo,+SP" target="_blank" rel="noopener noreferrer">Abrir localização no Google Maps →</a>
       </div>
     </div>
   </section>
