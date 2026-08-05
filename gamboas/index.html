@@ -239,6 +239,36 @@
   .section-head .eyebrow{margin-bottom:14px;}
   .section-head h2{font-size:clamp(28px,3.6vw,38px);}
   .section-head p{margin-top:14px; color:var(--ink-soft); font-size:16px;}
+  .price-block{
+    margin-top:28px;
+    max-width:720px;
+    padding:24px 26px;
+    background:var(--card);
+    border-left:4px solid var(--brick);
+    box-shadow:0 10px 30px rgba(27,36,48,.08);
+  }
+  .section-head .price{
+    margin:0;
+    color:var(--brick);
+    font-family:'Fraunces',serif;
+    font-size:clamp(28px,4vw,40px);
+    font-weight:600;
+    line-height:1.1;
+  }
+  .section-head .price-copy{
+    margin:10px 0 0;
+    max-width:60ch;
+    color:var(--ink);
+    font-size:16px;
+  }
+  .section-head .price-note{
+    margin:14px 0 0;
+    max-width:70ch;
+    color:var(--ink-soft);
+    font-size:12px;
+    font-style:italic;
+    line-height:1.5;
+  }
 
   /* ---------- DIFERENCIAIS ---------- */
   .diferenciais{
@@ -436,7 +466,7 @@
       <a href="#localizacao">Localização</a>
     </nav>
     <div class="nav-cta">
-      <a class="btn btn-brick btn-sm" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20os%20apartamentos%20prontos%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <a class="btn btn-brick btn-sm" href="https://wa.me/5511994820184?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20os%20apartamentos%20prontos%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
 </header>
@@ -449,7 +479,7 @@
       <h1>Vila Mazzei.<br>As chaves na mão,<br><em>não na planta.</em></h1>
       <p class="lead">Apartamentos prontos para morar, com documentação regularizada e negociação direta com a incorporadora. Sem prazo de obra para esperar — só faltam as suas coisas.</p>
       <div class="hero-ctas">
-        <a class="btn btn-brick" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20agendar%20uma%20visita%20ao%20apartamento%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Quero visitar o apartamento</a>
+        <a class="btn btn-brick" href="https://wa.me/5511994820184?text=Ol%C3%A1!%20Quero%20agendar%20uma%20visita%20ao%20apartamento%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Quero visitar o apartamento</a>
         <a class="btn btn-ghost" href="#plantas">Ver plantas disponíveis</a>
       </div>
       <div class="hero-note">SEM INTERMEDIÁRIOS · ATENDIMENTO DIRETO ZN EMPREENDIMENTOS</div>
@@ -564,6 +594,11 @@
       <div class="eyebrow">Plantas do empreendimento</div>
       <h2>Sete tipologias reais.</h2>
       <p>Consulte as unidades e áreas privativas indicadas no material técnico do Gamboas. Clique em uma planta para ampliar.</p>
+      <div class="price-block" aria-label="Informações de preço">
+        <p class="price">A partir de R$ 295 mil</p>
+        <p class="price-copy">Unidades de 38 m² a 52 m², prontas para morar. Consulte condições de entrada facilitada e financiamento.</p>
+        <p class="price-note">Valor de tabela para algumas das unidades de 38 m², sujeito a disponibilidade. Consulte condições comerciais atualizadas com um consultor ZN Empreendimentos.</p>
+      </div>
     </div>
     <div class="plantas-grid">
       <div class="planta-card">
@@ -729,7 +764,7 @@
         <h2>Agende sua visita esta semana.</h2>
         <p>Deixe seus dados e um consultor ZN Empreendimentos entra em contato para marcar um horário de visita ao apartamento.</p>
       </div>
-      <form class="cta-form" onsubmit="event.preventDefault(); window.open('https://wa.me/5511999841721?text=' + encodeURIComponent('Olá! Meu nome é ' + document.getElementById('nome').value + '. Quero agendar uma visita ao apartamento na Vila Mazzei.'), '_blank');">
+      <form class="cta-form" onsubmit="event.preventDefault(); window.open('https://wa.me/5511994820184?text=' + encodeURIComponent('Olá! Meu nome é ' + document.getElementById('nome').value + '. Quero agendar uma visita ao apartamento na Vila Mazzei.'), '_blank');">
         <label for="nome">Nome</label>
         <input id="nome" type="text" placeholder="Seu nome completo" required>
         <label for="tel">WhatsApp</label>
@@ -745,9 +780,7 @@
     <div>
       <div class="logo">ZN EMPREENDIMENTOS</div>
       <div class="fine">
-        Vila Mazzei, São Paulo — SP<br>
-        CRECI-J [inserir número] · [inserir endereço do plantão]<br>
-        contato@mlempreendimentos.com.br · (11) 99999-9999
+        Contato: (11) 99482-0184
       </div>
     </div>
     <div class="fine" style="max-width:340px;">
