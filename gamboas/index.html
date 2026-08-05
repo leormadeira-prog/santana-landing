@@ -239,6 +239,36 @@
   .section-head .eyebrow{margin-bottom:14px;}
   .section-head h2{font-size:clamp(28px,3.6vw,38px);}
   .section-head p{margin-top:14px; color:var(--ink-soft); font-size:16px;}
+  .price-block{
+    margin-top:28px;
+    max-width:720px;
+    padding:24px 26px;
+    background:var(--card);
+    border-left:4px solid var(--brick);
+    box-shadow:0 10px 30px rgba(27,36,48,.08);
+  }
+  .section-head .price{
+    margin:0;
+    color:var(--brick);
+    font-family:'Fraunces',serif;
+    font-size:clamp(28px,4vw,40px);
+    font-weight:600;
+    line-height:1.1;
+  }
+  .section-head .price-copy{
+    margin:10px 0 0;
+    max-width:60ch;
+    color:var(--ink);
+    font-size:16px;
+  }
+  .section-head .price-note{
+    margin:14px 0 0;
+    max-width:70ch;
+    color:var(--ink-soft);
+    font-size:12px;
+    font-style:italic;
+    line-height:1.5;
+  }
 
   /* ---------- DIFERENCIAIS ---------- */
   .diferenciais{
@@ -564,6 +594,11 @@
       <div class="eyebrow">Plantas do empreendimento</div>
       <h2>Sete tipologias reais.</h2>
       <p>Consulte as unidades e áreas privativas indicadas no material técnico do Gamboas. Clique em uma planta para ampliar.</p>
+      <div class="price-block" aria-label="Informações de preço">
+        <p class="price">A partir de R$ 295 mil</p>
+        <p class="price-copy">Unidades de 38 m² a 52 m², prontas para morar. Consulte condições de entrada facilitada e financiamento.</p>
+        <p class="price-note">Valor de tabela para algumas das unidades de 38 m², sujeito a disponibilidade. Consulte condições comerciais atualizadas com um consultor ZN Empreendimentos.</p>
+      </div>
     </div>
     <div class="plantas-grid">
       <div class="planta-card">
