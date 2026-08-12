@@ -84,6 +84,8 @@
   footer{padding:38px 0;border-top:1px solid var(--line);}
   .footer-row{display:flex;align-items:center;justify-content:space-between;gap:24px;color:var(--ink-soft);font-size:13px;}
   .footer-logo{width:170px;height:auto;}
+  .footer-meta{display:grid;gap:4px;text-align:right;}
+  .footer-broker{color:var(--ink);font-weight:600;}
   @media(max-width:850px){
     .hero{grid-template-columns:1fr;min-height:0;padding:52px 0 72px;}
     .hero-media{margin:12px 18px 0;}
@@ -99,6 +101,7 @@
     .nav .btn{padding:10px 13px;font-size:12px;}
     .section{padding:70px 0;}
     .footer-row{align-items:flex-start;flex-direction:column;}
+    .footer-meta{text-align:left;}
   }
 </style>
 </head>
@@ -171,7 +174,10 @@
 <footer>
   <div class="wrap footer-row">
     <img class="footer-logo" src="assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220">
-    <div>© 2026 ZN Empreendimentos. Todos os direitos reservados.</div>
+    <div class="footer-meta">
+      <div class="footer-broker">Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</div>
+      <div>© 2026 ZN Empreendimentos. Todos os direitos reservados.</div>
+    </div>
   </div>
 </footer>
 </body>
