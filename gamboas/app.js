@@ -2,7 +2,7 @@
   "use strict";
 
   var META_PIXEL_ID = "28317074327887665";
-  var GA_MEASUREMENT_ID = "";
+  var GA_MEASUREMENT_ID = "G-GKLE6VCGWH";
   var LEAD_API_URL = "https://ed-gamboas-vila-mazzei.leo-r-madeira.chatgpt.site/api/leads";
   var CONSENT_KEY = "gamboas-analytics-consent";
   var UTM_KEY = "gamboas-campaign-attribution";
