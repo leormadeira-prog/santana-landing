@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "site.config.json"
-INDEX_PATH = ROOT / "index.html"
+INDEX_PATHS = (ROOT / "index.html", ROOT / "gamboas" / "index.html")
 CNAME_PATH = ROOT / "CNAME"
 
 
@@ -37,11 +37,14 @@ def main() -> int:
     if not re.fullmatch(r"55\d{10,11}", whatsapp):
         errors.append("O WhatsApp deve estar no formato 55 + DDD + número, somente dígitos.")
 
-    try:
-        html = INDEX_PATH.read_text(encoding="utf-8")
-    except OSError as exc:
-        annotation("error", f"Não foi possível ler index.html: {exc}")
-        return 1
+    pages: list[tuple[Path, str]] = []
+    for index_path in INDEX_PATHS:
+        try:
+            pages.append((index_path, index_path.read_text(encoding="utf-8")))
+        except OSError as exc:
+            annotation("error", f"Não foi possível ler {index_path.relative_to(ROOT)}: {exc}")
+            return 1
+    html = "\n".join(content for _, content in pages)
 
     try:
         cname = CNAME_PATH.read_text(encoding="utf-8").strip()
@@ -75,15 +78,23 @@ def main() -> int:
         if value in html:
             errors.append(f"Valor provisório encontrado no index.html: {value}")
 
-    local_paths = set()
-    for attribute in ("src", "href"):
-        for value in re.findall(rf'{attribute}=["\']([^"\']+)["\']', html):
-            parsed = urlparse(value)
-            if parsed.scheme or value.startswith(("#", "mailto:", "tel:", "javascript:")):
-                continue
-            clean = parsed.path.lstrip("/")
-            if clean and not clean.endswith("/"):
-                local_paths.add(clean)
+    local_paths: set[str] = set()
+    for index_path, page_html in pages:
+        for attribute in ("src", "href"):
+            for value in re.findall(rf'{attribute}=["\']([^"\']+)["\']', page_html):
+                parsed = urlparse(value)
+                if parsed.scheme or value.startswith(("#", "mailto:", "tel:", "javascript:")):
+                    continue
+                clean = parsed.path
+                if not clean or clean.endswith("/"):
+                    continue
+                target = (ROOT / clean.lstrip("/")) if clean.startswith("/") else (index_path.parent / clean)
+                try:
+                    relative = str(target.resolve().relative_to(ROOT.resolve()))
+                except ValueError:
+                    errors.append(f"Caminho local fora do repositório: {value}")
+                    continue
+                local_paths.add(relative)
 
     ignored_suffixes = (".html",)
     for relative_path in sorted(local_paths):
@@ -98,7 +109,8 @@ def main() -> int:
         "99999-9999": "Há um telefone visual possivelmente provisório.",
         "a definir": "Há informação comercial marcada como 'a definir'.",
     }
-    lower_html = html.lower()
+    visible_html = re.sub(r'<input\b[^>]*\bplaceholder=["\'][^"\']*["\'][^>]*>', '', html, flags=re.IGNORECASE)
+    lower_html = visible_html.lower()
     for pattern, message in warning_patterns.items():
         if pattern.lower() in lower_html:
             warnings.append(message)
