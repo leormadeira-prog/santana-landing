@@ -495,6 +495,14 @@ a {
   font-weight: 900;
 }
 
+.broker-note {
+  margin: 6px 0 0;
+  color: #4f5e59;
+  font-size: 0.67rem;
+  font-weight: 650;
+  text-align: center;
+}
+
 .trust-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -805,6 +813,16 @@ footer {
 footer p {
   margin: 0;
   text-align: center;
+}
+
+.footer-info {
+  display: grid;
+  gap: 4px;
+}
+
+footer .footer-broker {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 650;
 }
 
 footer a {
