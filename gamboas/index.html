@@ -1,1017 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gamboas — Apartamentos na Vila Nova Mazzei | ZN Empreendimentos</title>
-<meta name="description" content="Conheça o Gamboas, empreendimento da ZN Empreendimentos na Vila Nova Mazzei, São Paulo. Veja ambientes, plantas, tour em vídeo e localização.">
-
-<link rel="canonical" href="https://znempreendimentos.com.br/gamboas/">
-
-<!-- Favicon -->
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-<meta name="theme-color" content="#1B2430">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:locale" content="pt_BR">
-<meta property="og:site_name" content="ZN Empreendimentos">
-<meta property="og:title" content="Gamboas — Apartamentos na Vila Nova Mazzei | ZN Empreendimentos">
-<meta property="og:description" content="Chaves na entrega, documentação regularizada e venda direta com a incorporadora. Venda exclusiva ZN Empreendimentos.">
-<meta property="og:url" content="https://znempreendimentos.com.br/gamboas/">
-<meta property="og:image" content="https://znempreendimentos.com.br/assets/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Vila Mazzei. Pronto para morar. Venda exclusiva ZN Empreendimentos.">
-
-<!-- Twitter/X Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Gamboas — Apartamentos na Vila Nova Mazzei | ZN Empreendimentos">
-<meta name="twitter:description" content="Chaves na entrega, documentação regularizada e venda direta com a incorporadora.">
-<meta name="twitter:image" content="https://znempreendimentos.com.br/assets/og-image.png">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#1B2430;
-    --ink-soft:#586173;
-    --paper:#EDE8DF;
-    --card:#FAF7F1;
-    --brass:#B08D57;
-    --brass-light:#D9BD8E;
-    --brick:#A8462E;
-    --brick-dark:#8A3722;
-    --line: rgba(27,36,48,0.14);
-    --radius: 2px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
-    line-height:1.5;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    line-height:1.05;
-    margin:0;
-    letter-spacing:-0.01em;
-  }
-  .mono{font-family:'IBM Plex Mono', monospace;}
-  a{color:inherit;}
-  img,svg{display:block;max-width:100%;}
-  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
-  :focus-visible{outline:2px solid var(--brick); outline-offset:3px;}
-
-  /* ---------- NAV ---------- */
-  header.site{
-    position:sticky; top:0; z-index:50;
-    background:rgba(237,232,223,0.92);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:18px 0;
-  }
-  .logo{
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    font-size:15px;
-    letter-spacing:0.06em;
-    display:flex; align-items:center; gap:10px;
-  }
-  .logo .mark{
-    width:28px;height:28px;
-    background:var(--ink);
-    color:var(--brass-light);
-    display:flex;align-items:center;justify-content:center;
-    font-size:13px; font-weight:700;
-    border-radius:3px;
-  }
-  .logo .sep{color:var(--brass); font-weight:700;}
-  .header-logo{
-    display:block;
-    width:190px;
-    max-width:32vw;
-    height:auto;
-  }
-  nav.links{display:flex; gap:32px; font-size:14px; font-weight:500;}
-  nav.links a{text-decoration:none; color:var(--ink-soft); border-bottom:1px solid transparent; padding-bottom:2px; transition:.2s;}
-  nav.links a:hover{color:var(--ink); border-color:var(--brick);}
-  .nav-cta{display:flex; align-items:center; gap:18px;}
-  @media (max-width:760px){ nav.links{display:none;} }
-
-  .btn{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:13px 22px;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-weight:600; font-size:14px;
-    text-decoration:none;
-    border-radius:var(--radius);
-    border:1px solid transparent;
-    cursor:pointer;
-    transition:transform .15s ease, background .2s ease;
-  }
-  .btn:hover{transform:translateY(-1px);}
-  .btn-brick{background:var(--brick); color:#FAF3EC;}
-  .btn-brick:hover{background:var(--brick-dark);}
-  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--ink);}
-  .btn-ghost:hover{background:var(--ink); color:var(--paper);}
-  .btn-sm{padding:10px 16px; font-size:13px;}
-
-  /* ---------- HERO ---------- */
-  .hero{
-    padding:76px 0 40px;
-    display:grid;
-    grid-template-columns:1.05fr 0.95fr;
-    gap:56px;
-    align-items:center;
-  }
-  @media (max-width:900px){ .hero{grid-template-columns:1fr; padding-top:48px;} }
-
-  .eyebrow{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px; font-weight:600;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--brick);
-    display:flex; align-items:center; gap:10px;
-    margin-bottom:18px;
-  }
-  .eyebrow::before{content:""; width:22px; height:1px; background:var(--brick);}
-
-  .hero h1{
-    font-size:clamp(34px, 5vw, 58px);
-    color:var(--ink);
-    max-width:12ch;
-  }
-  .hero h1 em{font-style:italic; color:var(--brick);}
-  .hero p.lead{
-    margin-top:20px;
-    font-size:clamp(16px,1.6vw,18px);
-    color:var(--ink-soft);
-    max-width:46ch;
-  }
-  .hero-ctas{display:flex; gap:16px; align-items:center; margin-top:32px; flex-wrap:wrap;}
-  .hero-note{
-    margin-top:18px; font-size:13px; color:var(--ink-soft);
-    font-family:'IBM Plex Mono', monospace;
-  }
-
-  /* photography */
-  .photo-frame{
-    position:relative;
-    background:var(--ink);
-    border-radius:4px;
-    padding:14px;
-    overflow:hidden;
-    box-shadow:0 22px 55px rgba(27,36,48,0.18);
-  }
-  .photo-frame::after{
-    content:"";
-    position:absolute; inset:14px;
-    border:1px solid rgba(217,189,142,0.28);
-    pointer-events:none;
-  }
-  .photo-frame img{
-    width:100%;
-    aspect-ratio:3/2;
-    height:auto;
-    object-fit:cover;
-    border-radius:2px;
-  }
-  .photo-caption{
-    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    padding:14px 2px 0;
-    font-family:'IBM Plex Mono', monospace;
-    color:var(--brass-light);
-    font-size:11px;
-    letter-spacing:0.08em;
-  }
-
-  /* ---------- GALERIA ---------- */
-  .gallery-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:18px;
-  }
-  @media (max-width:900px){ .gallery-grid{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:560px){ .gallery-grid{grid-template-columns:1fr;} }
-  .gallery-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    overflow:hidden;
-  }
-  .gallery-card img,
-  .gallery-card iframe{
-    display:block;
-    width:100%;
-    aspect-ratio:4/3;
-    height:auto;
-    border:0;
-  }
-  .gallery-card img{
-    object-fit:cover;
-  }
-  .gallery-card figcaption{
-    margin:0;
-    padding:14px 16px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    letter-spacing:.06em;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-  }
-
-  /* ---------- SECTION SHARED ---------- */
-  section{padding:88px 0;}
-  .section-head{max-width:640px; margin-bottom:52px;}
-  .section-head .eyebrow{margin-bottom:14px;}
-  .section-head h2{font-size:clamp(28px,3.6vw,38px);}
-  .section-head p{margin-top:14px; color:var(--ink-soft); font-size:16px;}
-  .price-block{
-    margin-top:28px;
-    max-width:720px;
-    padding:24px 26px;
-    background:var(--card);
-    border-left:4px solid var(--brick);
-    box-shadow:0 10px 30px rgba(27,36,48,.08);
-  }
-  .section-head .price{
-    margin:0;
-    color:var(--brick);
-    font-family:'Fraunces',serif;
-    font-size:clamp(28px,4vw,40px);
-    font-weight:600;
-    line-height:1.1;
-  }
-  .section-head .price-copy{
-    margin:10px 0 0;
-    max-width:60ch;
-    color:var(--ink);
-    font-size:16px;
-  }
-  .section-head .price-note{
-    margin:14px 0 0;
-    max-width:70ch;
-    color:var(--ink-soft);
-    font-size:12px;
-    font-style:italic;
-    line-height:1.5;
-  }
-
-  /* ---------- CAPTURA DE LEAD ---------- */
-  .conversion-grid{
-    display:grid;
-    grid-template-columns:minmax(0,.82fr) minmax(360px,1.18fr);
-    gap:44px;
-    align-items:start;
-    margin-bottom:48px;
-  }
-  .conversion-grid .section-head{margin-bottom:0;}
-  @media (max-width:900px){
-    .conversion-grid{grid-template-columns:1fr; gap:30px;}
-  }
-  .lead-form{
-    background:var(--ink);
-    color:#FAF7F1;
-    border-radius:6px;
-    padding:clamp(24px,4vw,36px);
-    box-shadow:0 22px 55px rgba(27,36,48,.18);
-  }
-  .form-heading{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:18px;
-  }
-  .form-heading h2{font-size:clamp(25px,3vw,34px); color:#FAF7F1; max-width:14ch;}
-  .form-kicker{
-    display:block;
-    margin-bottom:8px;
-    color:var(--brass-light);
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-  }
-  .step-indicator{
-    min-width:42px;
-    color:var(--brass-light);
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    text-align:right;
-  }
-  .progress{
-    height:3px;
-    margin:22px 0 24px;
-    overflow:hidden;
-    background:rgba(255,255,255,.14);
-  }
-  .progress i{display:block; width:33.333%; height:100%; background:var(--brass-light); transition:width .25s ease;}
-  .form-step{display:flex; flex-direction:column; gap:15px;}
-  .form-step[hidden]{display:none;}
-  .form-helper{margin:0 0 2px; color:#C8CDD5; font-size:14px;}
-  .field{display:flex; flex-direction:column; gap:7px;}
-  .field > span{
-    color:#EDE8DF;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-  }
-  .field input,.field select{
-    width:100%;
-    min-height:48px;
-    padding:12px 14px;
-    border:1px solid rgba(255,255,255,.2);
-    border-radius:3px;
-    background:#fff;
-    color:var(--ink);
-    font:15px 'IBM Plex Sans',sans-serif;
-  }
-  .field small{color:#B9C0CC; font-size:12px;}
-  .field input[aria-invalid="true"]{border-color:#F39B83; box-shadow:0 0 0 2px rgba(243,155,131,.2);}
-  .form-button,.back-button{
-    min-height:48px;
-    border-radius:2px;
-    font:600 14px 'IBM Plex Sans',sans-serif;
-    cursor:pointer;
-  }
-  .form-button{border:1px solid var(--brick); background:var(--brick); color:#fff;}
-  .form-button:hover{background:var(--brick-dark);}
-  .form-button:disabled{opacity:.65; cursor:wait;}
-  .back-button{border:1px solid rgba(255,255,255,.45); background:transparent; color:#FAF7F1;}
-  .form-actions{display:grid; grid-template-columns:.65fr 1.35fr; gap:12px;}
-  .review-list{display:grid; gap:0; margin:0; border:1px solid rgba(255,255,255,.16);}
-  .review-list div{display:grid; grid-template-columns:110px 1fr; gap:14px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.12);}
-  .review-list div:last-child{border-bottom:0;}
-  .review-list dt{color:#B9C0CC; font:11px 'IBM Plex Mono',monospace; text-transform:uppercase;}
-  .review-list dd{margin:0; font-size:14px;}
-  .consent-field{display:flex; align-items:flex-start; gap:10px; color:#CDD2D9; font-size:12.5px; line-height:1.5;}
-  .consent-field input{margin-top:3px; accent-color:var(--brick);}
-  .consent-field a{color:#fff;}
-  .form-error{display:none; margin:14px 0 0; color:#FFD0C4; font-size:13px;}
-  .form-error.visible{display:block;}
-  .secure-note{margin:16px 0 0; color:#AEB5C0; font-size:11.5px;}
-  .secure-note span{color:var(--brass-light);}
-
-  /* ---------- DIFERENCIAIS ---------- */
-  .diferenciais{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:1px;
-    background:var(--line);
-    border:1px solid var(--line);
-  }
-  @media (max-width:900px){ .diferenciais{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:520px){ .diferenciais{grid-template-columns:1fr;} }
-  .dif-card{
-    background:var(--card);
-    padding:32px 26px;
-  }
-  .dif-num{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px; color:var(--brass);
-    font-weight:600; letter-spacing:.08em;
-  }
-  .dif-card h3{
-    font-family:'IBM Plex Sans', sans-serif;
-    font-weight:700; font-size:17px;
-    margin-top:14px;
-  }
-  .dif-card p{font-size:14.5px; color:var(--ink-soft); margin-top:10px;}
-
-  /* ---------- FEATURED VIDEO ---------- */
-  .featured-video{
-    background:var(--ink);
-    color:var(--paper);
-    border-radius:6px;
-    padding:clamp(22px,4vw,48px);
-  }
-  .featured-video .eyebrow{color:var(--brass-light);}
-  .featured-video .eyebrow::before{background:var(--brass-light);}
-  .featured-video h2{color:#FAF7F1; font-size:clamp(26px,3.2vw,38px); margin-bottom:10px;}
-  .featured-video p{color:#B9C0CC; margin-bottom:24px; font-size:15px; max-width:62ch;}
-  .featured-video-frame{
-    overflow:hidden;
-    border:1px solid rgba(217,189,142,0.22);
-    border-radius:5px;
-    background:#0C1119;
-    box-shadow:0 20px 50px rgba(0,0,0,.28);
-  }
-  .featured-video-frame video{
-    display:block;
-    width:100%;
-    height:auto;
-    aspect-ratio:16/9;
-    object-fit:contain;
-    background:#0C1119;
-  }
-
-  /* ---------- PLANTAS ---------- */
-  .plantas-grid{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:28px;
-  }
-  @media (max-width:1050px){ .plantas-grid{grid-template-columns:1fr 1fr;} }
-  @media (max-width:760px){ .plantas-grid{grid-template-columns:1fr;} }
-  .planta-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    overflow:hidden;
-  }
-  .planta-head{
-    padding:24px 26px;
-    border-bottom:1px solid var(--line);
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .planta-head h3{font-family:'Fraunces',serif; font-size:20px; font-weight:600;}
-  .planta-tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px; background:var(--brick); color:#FAF3EC;
-    padding:4px 10px; border-radius:20px; letter-spacing:.06em;
-  }
-  .spec-table{width:100%; border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:13.5px;}
-  .spec-table tr{border-bottom:1px solid var(--line);}
-  .spec-table tr:last-child{border-bottom:none;}
-  .spec-table td{padding:13px 26px;}
-  .spec-table td:first-child{color:var(--ink-soft);}
-  .spec-table td:last-child{text-align:right; font-weight:600;}
-  .planta-image{
-    border-bottom:1px solid var(--line);
-    background:#fff;
-  }
-  .planta-image img{
-    width:100%;
-    height:560px;
-    object-fit:contain;
-  }
-  .planta-image a{display:block; cursor:zoom-in;}
-  @media (max-width:760px){ .planta-image img{height:auto;} }
-  .planta-foot{padding:16px 26px; font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; border-top:1px solid var(--line);}
-
-  /* ---------- LOCALIZAÇÃO ---------- */
-  .local{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:56px;
-    align-items:center;
-  }
-  @media (max-width:840px){ .local{grid-template-columns:1fr;} }
-  .local-list{list-style:none; margin:24px 0 0; padding:0; display:flex; flex-direction:column; gap:0;}
-  .local-list li{
-    display:flex; justify-content:space-between; gap:16px;
-    padding:16px 0;
-    border-bottom:1px solid var(--line);
-    font-size:15px;
-  }
-  .local-list li span.dist{font-family:'IBM Plex Mono', monospace; color:var(--brick); font-weight:600; white-space:nowrap;}
-
-  .map-box{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    padding:20px;
-  }
-  .map-box iframe{
-    display:block;
-    width:100%;
-    height:auto;
-    aspect-ratio:4/3;
-    border:0;
-  }
-  .map-link{
-    display:inline-block;
-    margin-top:14px;
-    color:var(--brick);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:.04em;
-  }
-
-  /* ---------- CTA FINAL ---------- */
-  .cta-final{
-    background:var(--ink);
-    border-radius:6px;
-    padding:56px 48px;
-    display:grid;
-    grid-template-columns:1.1fr 0.9fr;
-    gap:40px;
-    align-items:center;
-  }
-  @media (max-width:840px){ .cta-final{grid-template-columns:1fr; padding:40px 26px;} }
-  .cta-final h2{color:#FAF7F1; font-size:clamp(26px,3.4vw,36px); max-width:14ch;}
-  .cta-final p{color:#B9C0CC; margin-top:14px; font-size:15px; max-width:40ch;}
-  .cta-final-actions{display:flex; flex-direction:column; align-items:flex-start; gap:12px;}
-  .cta-final-actions .btn{justify-content:center; min-width:220px;}
-
-  /* ---------- CONSENTIMENTO E CTA MÓVEL ---------- */
-  .cookie-banner{
-    position:fixed;
-    left:20px;
-    right:20px;
-    bottom:20px;
-    z-index:100;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:24px;
-    max-width:980px;
-    margin:0 auto;
-    padding:18px 20px;
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:5px;
-    background:#111923;
-    color:#EDE8DF;
-    box-shadow:0 18px 50px rgba(0,0,0,.28);
-  }
-  .cookie-banner[hidden]{display:none;}
-  .cookie-banner p{margin:0; font-size:13px; line-height:1.5;}
-  .cookie-banner a{color:#fff;}
-  .cookie-actions{display:flex; gap:10px; flex-shrink:0;}
-  .cookie-actions button{padding:10px 14px; border-radius:2px; font:600 12px 'IBM Plex Sans',sans-serif; cursor:pointer;}
-  .cookie-secondary{border:1px solid #8992A0; color:#fff; background:transparent;}
-  .cookie-primary{border:1px solid var(--brick); color:#fff; background:var(--brick);}
-  .mobile-cta{display:none;}
-  @media (max-width:680px){
-    body{padding-bottom:74px;}
-    .nav{padding:12px 0;}
-    .header-logo{width:154px; max-width:48vw;}
-    .nav-cta{display:none;}
-    .cookie-banner{bottom:86px; left:10px; right:10px; flex-direction:column; align-items:stretch; gap:14px;}
-    .cookie-actions{display:grid; grid-template-columns:1fr 1fr;}
-    .mobile-cta{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:90;
-      display:grid;
-      grid-template-columns:.9fr 1.1fr;
-      gap:10px;
-      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      border-top:1px solid rgba(255,255,255,.15);
-      background:rgba(27,36,48,.97);
-      box-shadow:0 -8px 24px rgba(0,0,0,.18);
-    }
-    .mobile-cta a{min-height:46px; padding:11px 10px; justify-content:center; font-size:13px;}
-    .review-list div{grid-template-columns:92px 1fr;}
-  }
-
-  /* ---------- FOOTER ---------- */
-  footer{
-    border-top:1px solid var(--line);
-    padding:36px 0;
-  }
-  .footer-row{
-    display:flex; justify-content:space-between; align-items:flex-start;
-    flex-wrap:wrap; gap:20px;
-    font-size:13px; color:var(--ink-soft);
-  }
-  .footer-row .logo{margin-bottom:8px;}
-  footer .fine{font-family:'IBM Plex Mono', monospace; font-size:11.5px; line-height:1.7; max-width:520px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edifício Gamboas | Apartamentos prontos na Vila Mazzei</title>
+  <meta name="description" content="Apartamentos prontos para morar na Vila Mazzei, com 2 dormitórios, sacada integrada e rooftop. Venda direta ZN Empreendimentos.">
+  <link rel="canonical" href="https://znempreendimentos.com.br/gamboas/">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#15231f">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="ZN Empreendimentos">
+  <meta property="og:title" content="Edifício Gamboas | Pronto para morar">
+  <meta property="og:description" content="2 dormitórios, sacada integrada e rooftop com churrasqueira na Vila Mazzei.">
+  <meta property="og:url" content="https://znempreendimentos.com.br/gamboas/">
+  <meta property="og:image" content="https://znempreendimentos.com.br/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <main>
+    <header class="site-header">
+      <a href="#inicio" class="brand" aria-label="Edifício Gamboas — início">
+        <img src="../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220">
+      </a>
+      <nav aria-label="Navegação principal">
+        <a href="#apartamento">O apartamento</a>
+        <a href="#localizacao">Localização</a>
+        <a href="#formulario" class="header-cta">Quero conhecer</a>
+      </nav>
+    </header>
 
-<header class="site">
-  <div class="wrap nav">
-    <a href="/" aria-label="ZN Empreendimentos — página inicial">
-      <img class="header-logo" src="../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220">
-    </a>
-    <nav class="links">
-      <a href="#diferenciais">Diferenciais</a>
-      <a href="#galeria">Galeria</a>
-      <a href="#plantas">Plantas</a>
-      <a href="#localizacao">Localização</a>
-    </nav>
-    <div class="nav-cta">
-      <a class="btn btn-brick btn-sm" data-track="Contact" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20os%20apartamentos%20prontos%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Falar no WhatsApp</a>
-    </div>
-  </div>
-</header>
-
-<main>
-  <!-- HERO -->
-  <section class="hero wrap" style="padding-top:76px;">
-    <div>
-      <div class="eyebrow">Venda direta ZN Empreendimentos</div>
-      <h1>Vila Mazzei.<br>As chaves na mão,<br><em>não na planta.</em></h1>
-      <p class="lead">Apartamentos prontos para morar, com documentação regularizada e negociação direta com a incorporadora. Sem prazo de obra para esperar — só faltam as suas coisas.</p>
-      <div class="hero-ctas">
-        <a class="btn btn-brick" data-track="Schedule" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20agendar%20uma%20visita%20ao%20apartamento%20na%20Vila%20Mazzei." target="_blank" rel="noopener">Quero visitar o apartamento</a>
-        <a class="btn btn-ghost" href="#plantas">Ver plantas disponíveis</a>
-      </div>
-      <div class="hero-note">SEM INTERMEDIÁRIOS · ATENDIMENTO DIRETO ZN EMPREENDIMENTOS</div>
-    </div>
-
-    <figure class="photo-frame">
-      <img src="../assets/fachada-gamboas.png" alt="Fachada do empreendimento Gamboas" width="1536" height="1024" loading="eager" fetchpriority="high">
-      <figcaption class="photo-caption">
-        <span>FACHADA DO GAMBOAS</span>
-        <span>VILA NOVA MAZZEI / SP</span>
-      </figcaption>
-    </figure>
-  </section>
-
-  <!-- DIFERENCIAIS -->
-  <section id="diferenciais" class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Por que comprar pronto</div>
-      <h2>Menos espera, mais segurança.</h2>
-      <p>Comprar um imóvel pronto elimina o maior risco da planta: o tempo. Veja o que muda na prática.</p>
-    </div>
-    <div class="diferenciais">
-      <div class="dif-card">
-        <div class="dif-num mono">PRONTO</div>
-        <h3>Pronto para morar</h3>
-        <p>Chaves na entrega. Você se muda quando quiser, sem cronograma de obra para acompanhar.</p>
-      </div>
-      <div class="dif-card">
-        <div class="dif-num mono">DOC.</div>
-        <h3>Documentação regularizada</h3>
-        <p>Habite-se emitido e matrícula individualizada — segurança jurídica completa desde o dia um.</p>
-      </div>
-      <div class="dif-card">
-        <div class="dif-num mono">DIRETO</div>
-        <h3>Venda direta ZN Empreendimentos</h3>
-        <p>Negociação direta com a incorporadora, sem repasse de comissão para intermediários.</p>
-      </div>
-      <div class="dif-card">
-        <div class="dif-num mono">COND.</div>
-        <h3>Condições facilitadas</h3>
-        <p>Entrada parcelada e financiamento facilitado, direto com a ZN Empreendimentos ou bancos parceiros.</p>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- GALERIA -->
-  <section id="galeria" class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Galeria</div>
-      <h2>Ambientes do apartamento.</h2>
-      <p>Conheça os ambientes e áreas do Gamboas pelas fotos do empreendimento.</p>
-    </div>
-    <div class="gallery-grid">
-      <figure class="gallery-card">
-        <img src="../assets/sala-ampliada.jpeg" alt="Sala ampliada" loading="lazy">
-        <figcaption>Sala ampliada</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/cozinha.jpeg" alt="Cozinha" loading="lazy">
-        <figcaption>Cozinha</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/dormitorio-casal.jpeg" alt="Dormitório de casal" loading="lazy">
-        <figcaption>Dormitório de casal</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/dormitorio-dois.jpeg" alt="Segundo dormitório" loading="lazy">
-        <figcaption>Segundo dormitório</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/banheiro.jpeg" alt="Banheiro" loading="lazy">
-        <figcaption>Banheiro</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/area-de-servicos.png" alt="Área de serviços" loading="lazy">
-        <figcaption>Área de serviços</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/sacada-integrada-dos-quartos.png" alt="Sacada integrada dos dois quartos" loading="lazy">
-        <figcaption>Sacada integrada dos quartos</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/rooftop.png" alt="Rooftop com área de estar e churrasqueira" loading="lazy">
-        <figcaption>Rooftop</figcaption>
-      </figure>
-      <figure class="gallery-card">
-        <img src="../assets/rooftop-outro-lado.png" alt="Rooftop visto do lado oposto" loading="lazy">
-        <figcaption>Rooftop — outro ângulo</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- VÍDEO EM DESTAQUE -->
-  <section class="wrap">
-    <div class="featured-video">
-      <div class="eyebrow">Tour pelo imóvel</div>
-      <h2>Conheça cada ambiente em detalhes.</h2>
-      <p>Assista ao tour completo e veja os principais espaços do imóvel antes de agendar sua visita.</p>
-      <div class="featured-video-frame">
-        <video controls playsinline preload="metadata" poster="../assets/fachada-gamboas.png">
-          <source src="../assets/tour-imobiliario.mp4" type="video/mp4">
-          Seu navegador não consegue reproduzir este vídeo.
-        </video>
-      </div>
-    </div>
-  </section>
-
-  <!-- PLANTAS -->
-  <section id="plantas" class="wrap">
-    <div class="conversion-grid">
-      <div class="section-head">
-        <div class="eyebrow">Plantas do empreendimento</div>
-        <h2>Sete tipologias reais.</h2>
-        <p>Consulte as unidades e áreas privativas indicadas no material técnico do Gamboas. Clique em uma planta para ampliar.</p>
-        <div class="price-block" aria-label="Informações de preço">
-          <p class="price">A partir de R$ 295 mil</p>
-          <p class="price-copy">Unidades de 38 m² a 52 m², prontas para morar. Consulte condições de entrada facilitada e financiamento.</p>
-          <p class="price-note">Valor de tabela para algumas das unidades de 38 m², sujeito a disponibilidade. Consulte condições comerciais atualizadas com um consultor ZN Empreendimentos.</p>
-        </div>
-      </div>
-
-      <form class="lead-form" id="formulario" novalidate>
-        <div class="form-heading">
-          <div>
-            <span class="form-kicker">Atendimento personalizado</span>
-            <h2 id="form-title">Receba valores e disponibilidade</h2>
-          </div>
-          <span class="step-indicator" id="step-indicator">1/3</span>
-        </div>
-        <div class="progress" aria-label="Etapa 1 de 3"><i id="form-progress"></i></div>
-
-        <div class="form-step" data-step="1">
-          <p class="form-helper">Comece pelo seu contato. Leva menos de 1 minuto.</p>
-          <label class="field">
-            <span>Nome completo</span>
-            <input id="full-name" name="fullName" type="text" autocomplete="name" maxlength="120" placeholder="Como podemos chamar você?" required>
-          </label>
-          <label class="field">
-            <span>WhatsApp</span>
-            <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" aria-describedby="phone-help" required>
-            <small id="phone-help">Usaremos este número apenas para responder ao seu interesse.</small>
-          </label>
-          <button class="form-button" type="button" data-next="2">Continuar</button>
-        </div>
-
-        <div class="form-step" data-step="2" hidden>
-          <p class="form-helper">Agora conte um pouco sobre o seu momento de compra.</p>
-          <label class="field">
-            <span>Em quanto tempo pretende comprar?</span>
-            <select name="purchaseTimeline" required>
-              <option value="" selected disabled>Selecione uma opção</option>
-              <option>Imediatamente</option><option>Em até 3 meses</option><option>De 3 a 6 meses</option><option>Apenas pesquisando</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Como pretende comprar?</span>
-            <select name="purchaseMethod" required>
-              <option value="" selected disabled>Selecione uma opção</option>
-              <option>Financiamento bancário</option><option>Entrada + financiamento</option><option>Recursos próprios</option><option>Ainda preciso avaliar</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Possui valor para entrada?</span>
-            <select name="downPayment" required>
-              <option value="" selected disabled>Selecione uma opção</option>
-              <option>Até R$ 30 mil</option><option>De R$ 30 mil a R$ 60 mil</option><option>Acima de R$ 60 mil</option><option>Ainda não possuo</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Gostaria de agendar uma visita?</span>
-            <select name="visitInterest" required>
-              <option value="" selected disabled>Selecione uma opção</option>
-              <option>Sim, nesta semana</option><option>Sim, nas próximas semanas</option><option>Primeiro quero receber informações</option>
-            </select>
-          </label>
-          <div class="form-actions">
-            <button class="back-button" type="button" data-back="1">Voltar</button>
-            <button class="form-button" type="button" data-next="3">Revisar</button>
+    <section class="hero" id="inicio">
+      <div class="hero-media">
+        <img src="../assets/gamboas-sala-mobiliada.jpg" alt="Sugestão de decoração da sala integrada do Edifício Gamboas" class="hero-image" width="1450" height="1086" fetchpriority="high">
+        <div class="hero-gradient"></div>
+        <span class="image-disclaimer">Imagem ilustrativa • sugestão de decoração</span>
+        <div class="hero-copy">
+          <span class="eyebrow light">Vila Mazzei • São Paulo</span>
+          <h1>Seu apartamento pronto, do seu jeito.</h1>
+          <p>2 dormitórios, sacada integrada e rooftop com churrasqueira em um endereço tranquilo da Zona Norte.</p>
+          <div class="hero-facts" aria-label="Destaques do empreendimento">
+            <span><strong>2</strong> dormitórios</span>
+            <span><strong>1</strong> sacada integrada</span>
+            <span><strong>100%</strong> pronto</span>
           </div>
         </div>
+      </div>
 
-        <div class="form-step" data-step="3" hidden>
-          <dl class="review-list" id="review-list"></dl>
-          <label class="consent-field">
-            <input name="consent" type="checkbox" required>
-            <span>Autorizo a ZN Empreendimentos a usar estes dados para responder ao meu interesse, conforme a <a href="./privacidade/" target="_blank" rel="noopener">Política de Privacidade</a>.</span>
-          </label>
-          <div class="form-actions">
-            <button class="back-button" type="button" data-back="2">Editar</button>
-            <button class="form-button" type="submit">Enviar meu interesse</button>
+      <div class="hero-conversion">
+        <div class="price-block">
+          <span class="eyebrow">Venda direta • unidades disponíveis</span>
+          <p class="price-label">A partir de</p>
+          <p class="price">R$ 295 mil</p>
+          <p class="price-note">Condições facilitadas e possibilidade de financiamento.</p>
+        </div>
+
+        <form class="lead-form" id="formulario" novalidate>
+          <div class="form-heading">
+            <div>
+              <span class="form-kicker">Atendimento personalizado</span>
+              <h2 id="form-title">Receba valores e disponibilidade</h2>
+            </div>
+            <span class="step-indicator" id="step-indicator">1/3</span>
           </div>
-        </div>
+          <div class="progress" aria-label="Etapa 1 de 3"><i id="form-progress"></i></div>
 
-        <p class="form-error" id="form-error" role="alert"></p>
-        <p class="secure-note"><span aria-hidden="true">✓</span> Seus dados ficam protegidos e não serão vendidos.</p>
-      </form>
-    </div>
-    <div class="plantas-grid">
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidades-11-21-31.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidades-11-21-31.png" alt="Planta das unidades 11, 21 e 31, com 51,90 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidades 11, 21 e 31</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>51,90 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Sacada</td><td>Coberta</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidades-12-a-14-22-a-24-32-a-34.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidades-12-a-14-22-a-24-32-a-34.png" alt="Planta das unidades 12 a 14, 22 a 24 e 32 a 34, com 39,00 ou 39,10 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidades 12–14, 22–24 e 32–34</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>39,00 / 39,10 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidades</td><td>9</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidade-15.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidade-15.png" alt="Planta da unidade 15, com 38 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidade 15</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>38,00 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidade</td><td>15</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidade-16.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidade-16.png" alt="Planta da unidade 16, com 39,10 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidade 16</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>39,10 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidade</td><td>16</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidade-17.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidade-17.png" alt="Planta da unidade 17, com 52,05 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidade 17</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>52,05 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidade</td><td>17</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidades-25-35.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidades-25-35.png" alt="Planta das unidades 25 e 35, com 38 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidades 25 e 35</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>38,00 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidades</td><td>2</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-      <div class="planta-card">
-        <div class="planta-image">
-          <a href="../assets/planta-unidade-27.png" target="_blank" rel="noopener">
-            <img src="../assets/planta-unidade-27.png" alt="Planta da unidade 27, com 52,05 metros quadrados" loading="lazy">
-          </a>
-        </div>
-        <div class="planta-head">
-          <h3>Unidade 27</h3>
-          <span class="planta-tag">TIPOLOGIA</span>
-        </div>
-        <table class="spec-table">
-          <tr><td>Área privativa</td><td>52,05 m²</td></tr>
-          <tr><td>Dormitórios</td><td>2</td></tr>
-          <tr><td>Banheiro</td><td>1</td></tr>
-          <tr><td>Unidade</td><td>27</td></tr>
-        </table>
-        <div class="planta-foot">PLANTA SEM ESCALA · IMAGEM ILUSTRATIVA</div>
-      </div>
-    </div>
-  </section>
+          <div class="form-step" data-step="1">
+            <p class="form-helper">Comece pelo seu contato. Leva menos de 1 minuto.</p>
+            <label class="field"><span>Nome completo</span><input id="full-name" name="fullName" autocomplete="name" maxlength="120" placeholder="Como podemos chamar você?" required></label>
+            <label class="field"><span>WhatsApp</span><input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" aria-describedby="phone-help" required><small id="phone-help">Usaremos este número apenas para responder ao seu interesse.</small></label>
+            <button class="form-button" type="button" data-next="2">Continuar</button>
+          </div>
 
-  <!-- LOCALIZAÇÃO -->
-  <section id="localizacao" class="wrap">
-    <div class="local">
-      <div>
-        <div class="eyebrow">Localização</div>
-        <h2>No coração da Zona Norte.</h2>
-        <ul class="local-list">
-          <li>Estação Santana (Linha Azul) <span class="dist">8 min a pé</span></li>
-          <li>Parque da Juventude <span class="dist">12 min a pé</span></li>
-          <li>Shopping Center Norte <span class="dist">10 min de carro</span></li>
-          <li>Av. Cruzeiro do Sul — comércio <span class="dist">5 min a pé</span></li>
-          <li>Rede de saúde e escolas <span class="dist">nas proximidades</span></li>
-        </ul>
+          <div class="form-step" data-step="2" hidden>
+            <p class="form-helper">Agora conte um pouco sobre o seu momento de compra.</p>
+            <label class="field"><span>Em quanto tempo pretende comprar?</span><select name="purchaseTimeline" required><option value="" selected disabled>Selecione uma opção</option><option>Imediatamente</option><option>Em até 3 meses</option><option>De 3 a 6 meses</option><option>Apenas pesquisando</option></select></label>
+            <label class="field"><span>Como pretende comprar?</span><select name="purchaseMethod" required><option value="" selected disabled>Selecione uma opção</option><option>Financiamento bancário</option><option>Entrada + financiamento</option><option>Recursos próprios</option><option>Ainda preciso avaliar</option></select></label>
+            <label class="field"><span>Possui valor para entrada?</span><select name="downPayment" required><option value="" selected disabled>Selecione uma opção</option><option>Até R$ 30 mil</option><option>De R$ 30 mil a R$ 60 mil</option><option>Acima de R$ 60 mil</option><option>Ainda não possuo</option></select></label>
+            <label class="field"><span>Gostaria de agendar uma visita?</span><select name="visitInterest" required><option value="" selected disabled>Selecione uma opção</option><option>Sim, nesta semana</option><option>Sim, nas próximas semanas</option><option>Primeiro quero receber informações</option></select></label>
+            <div class="form-actions"><button class="back-button" type="button" data-back="1">Voltar</button><button class="form-button" type="button" data-next="3">Revisar</button></div>
+          </div>
+
+          <div class="form-step" data-step="3" hidden>
+            <dl class="review-list" id="review-list"></dl>
+            <label class="consent-field"><input name="consent" type="checkbox" required><span>Autorizo a ZN Empreendimentos a usar estes dados para responder ao meu interesse, conforme a <a href="./privacidade/" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+            <div class="form-actions"><button class="back-button" type="button" data-back="2">Editar</button><button class="form-button" type="submit">Enviar meu interesse</button></div>
+          </div>
+
+          <p class="form-error" id="form-error" role="alert"></p>
+          <p class="secure-note"><span aria-hidden="true">✓</span> Seus dados ficam protegidos e não serão vendidos.</p>
+        </form>
       </div>
-      <div class="map-box">
-        <iframe
-          src="https://www.google.com/maps?q=Rua+das+Gamboas,+Vila+Nova+Mazzei,+S%C3%A3o+Paulo,+SP&amp;output=embed"
-          title="Mapa da Rua das Gamboas, Vila Nova Mazzei, São Paulo"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen>
-        </iframe>
-        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+das+Gamboas,+Vila+Nova+Mazzei,+S%C3%A3o+Paulo,+SP" target="_blank" rel="noopener noreferrer">Abrir localização no Google Maps →</a>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CTA FINAL -->
-  <section class="wrap">
-    <div class="cta-final">
-      <div>
-        <h2>Agende sua visita esta semana.</h2>
-        <p>Preencha o formulário e um consultor ZN Empreendimentos entra em contato para apresentar disponibilidade, condições e horários de visita.</p>
-      </div>
-      <div class="cta-final-actions">
-        <a class="btn btn-brick" href="#formulario">Preencher formulário</a>
-        <a class="btn btn-ghost" data-track="Schedule" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20agendar%20uma%20visita%20ao%20Gamboas." target="_blank" rel="noopener">Falar agora no WhatsApp</a>
-      </div>
-    </div>
-  </section>
-</main>
+    <section class="trust-strip" aria-label="Vantagens">
+      <article><span class="trust-number">01</span><div><h2>Pronto para morar</h2><p>Visite, conheça e planeje sua mudança sem esperar a obra.</p></div></article>
+      <article><span class="trust-number">02</span><div><h2>Documentação regularizada</h2><p>Mais tranquilidade para analisar financiamento e escritura.</p></div></article>
+      <article><span class="trust-number">03</span><div><h2>Venda direta</h2><p>Converse sem intermediários sobre entrada e condições facilitadas.</p></div></article>
+    </section>
 
-<footer>
-  <div class="wrap footer-row">
-    <div>
-      <div class="logo">ZN EMPREENDIMENTOS</div>
-      <div class="fine">
-        Contato: (11) 99984-1721 · <a href="./privacidade/">Política de Privacidade</a>
-      </div>
-    </div>
-    <div class="fine" style="max-width:340px;">
-      Imagens e metragens meramente ilustrativas. Venda sujeita a disponibilidade de unidades. Consulte condições comerciais com um consultor ZN Empreendimentos.<br>
-      © 2026 ZN Empreendimentos. Todos os direitos reservados.
-    </div>
-  </div>
-</footer>
+    <section class="intro-section" id="apartamento">
+      <div class="section-heading"><span class="eyebrow">Conheça por dentro</span><h2>Espaços bem resolvidos para a vida real.</h2></div>
+      <div class="section-intro-wrap"><p class="section-intro">Ambientes integrados, boa entrada de luz e uma planta que aproveita cada metro. Veja como os espaços podem ganhar vida com uma decoração acolhedora.</p><small>Imagens ilustrativas com sugestão de decoração. Móveis e objetos não integram a unidade.</small></div>
+    </section>
 
-<aside class="cookie-banner" id="cookie-banner" aria-label="Preferências de privacidade" hidden>
-  <p>Usamos cookies opcionais de medição para entender as campanhas e melhorar esta página. Você pode aceitar ou continuar sem medição. <a href="./privacidade/">Saiba mais</a>.</p>
-  <div class="cookie-actions">
-    <button class="cookie-secondary" id="cookie-reject" type="button">Recusar</button>
-    <button class="cookie-primary" id="cookie-accept" type="button">Aceitar</button>
-  </div>
-</aside>
+    <section class="gallery" aria-label="Fotos do empreendimento">
+      <figure class="gallery-featured"><img src="../assets/gamboas-cozinha-mobiliada.jpg" alt="Sugestão de decoração da cozinha integrada" loading="lazy"><figcaption>Cozinha integrada</figcaption></figure>
+      <figure class="gallery-bedroom"><img src="../assets/gamboas-dormitorio-casal.jpg" alt="Sugestão de decoração do dormitório de casal com acesso à sacada" loading="lazy"><figcaption>Dormitório com sacada</figcaption></figure>
+      <figure class="gallery-bedroom-two"><img src="../assets/gamboas-dormitorio-dois.jpg" alt="Sugestão de decoração do segundo dormitório" loading="lazy"><figcaption>Segundo dormitório</figcaption></figure>
+      <figure class="gallery-portrait"><img src="../assets/gamboas-banheiro-mobiliado.jpg" alt="Sugestão de decoração do banheiro" loading="lazy"><figcaption>Banheiro</figcaption></figure>
+      <figure class="gallery-portrait"><img src="../assets/gamboas-area-servicos-mobiliada.jpg" alt="Sugestão de decoração da área de serviços" loading="lazy"><figcaption>Área de serviços</figcaption></figure>
+      <figure class="gallery-portrait"><img src="../assets/gamboas-sacada-integrada.jpg" alt="Sugestão de decoração da sacada integrada aos dois dormitórios" loading="lazy"><figcaption>Sacada integrada</figcaption></figure>
+      <figure class="gallery-facade"><img src="../assets/gamboas-fachada-ambientada.jpg" alt="Fachada do Edifício Gamboas com sugestão de paisagismo" loading="lazy"><figcaption>Fachada do empreendimento</figcaption></figure>
+    </section>
 
-<div class="mobile-cta" aria-label="Ações rápidas">
-  <a class="btn btn-ghost" data-track="Contact" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20o%20Gamboas." target="_blank" rel="noopener">WhatsApp</a>
-  <a class="btn btn-brick" href="#formulario">Receber informações</a>
-</div>
+    <section class="floorplan-section">
+      <div class="floorplan-copy"><span class="eyebrow">Planta inteligente</span><h2>Dois quartos e uma sacada que conecta os ambientes.</h2><p>A distribuição favorece a circulação, aproxima sala e cozinha e cria uma área externa agradável para o dia a dia.</p><ul class="check-list"><li>Sala e cozinha integradas</li><li>Dois dormitórios</li><li>Sacada integrada</li><li>Área de serviços funcional</li></ul><a href="#formulario" class="text-link">Receber condições e disponibilidade →</a></div>
+      <div class="floorplan-image"><img src="../assets/gamboas-planta.jpg" alt="Planta do apartamento do Edifício Gamboas" loading="lazy"></div>
+    </section>
 
-<script src="./app.js" defer></script>
+    <section class="location-section" id="localizacao">
+      <div class="location-card"><span class="eyebrow light">Vila Mazzei</span><h2>Rua das Gamboas, 423.</h2><p>Um endereço residencial na Zona Norte de São Paulo, com acesso à estrutura de comércio, serviços e mobilidade da região.</p><a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+das+Gamboas+423+Sao+Paulo" target="_blank" rel="noopener" data-track="Contact" class="light-link">Abrir localização no mapa ↗</a></div>
+      <div class="location-visual"><iframe title="Mapa interativo da Rua das Gamboas, 423, Vila Mazzei, São Paulo" src="https://www.google.com/maps?q=Rua%20das%20Gamboas%2C%20423%2C%20Vila%20Mazzei%2C%20S%C3%A3o%20Paulo%20-%20SP&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    </section>
 
+    <section class="final-cta"><div><span class="eyebrow">Próximo passo</span><h2>Descubra se este apartamento cabe no seu plano.</h2><p>Responda algumas perguntas. A equipe entra em contato com informações de disponibilidade e caminhos de compra adequados ao seu momento.</p></div><a href="#formulario" class="primary-button">Quero receber as informações</a></section>
+
+    <footer><img src="../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220"><p>Edifício Gamboas • Vila Mazzei • São Paulo</p><a href="./privacidade/">Política de privacidade</a></footer>
+
+    <a href="#formulario" class="mobile-sticky-cta">Tenho interesse</a>
+  </main>
+
+  <aside class="cookie-banner" id="cookie-banner" aria-label="Preferências de privacidade" hidden><p>Usamos cookies de medição para entender a campanha e melhorar esta página. Você pode aceitar ou continuar sem medição. <a href="./privacidade/">Saiba mais</a>.</p><div><button class="cookie-secondary" id="cookie-reject" type="button">Recusar</button><button class="cookie-primary" id="cookie-accept" type="button">Aceitar</button></div></aside>
+  <script src="./app.js" defer></script>
 </body>
 </html>
