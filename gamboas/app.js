@@ -2,7 +2,7 @@
   "use strict";
 
   var META_PIXEL_ID = "28317074327887665";
-  var GA_MEASUREMENT_ID = "G-GKLE6VCGWH";
+  var GA_MEASUREMENT_ID = "G-NFEM9HPFLR";
   var LEAD_API_URL = "https://script.google.com/macros/s/AKfycbyWacS4ejnYS5dBpKwOdtSDiivDBIRehFG59-0Wx-33GToMnz3Ha7zLhrg96Soi4hRi/exec";
   var CONSENT_KEY = "gamboas-analytics-consent";
   var UTM_KEY = "gamboas-campaign-attribution";
