@@ -115,10 +115,9 @@
 
   document.querySelectorAll("a[data-track]").forEach(function (link) {
     link.addEventListener("click", function () {
-      track("Contact", { content_name: "Edifício Gamboas", method: "WhatsApp" });
-      if (link.dataset.track === "Schedule") {
-        track("Schedule", { content_name: "Edifício Gamboas", method: "WhatsApp" });
-      }
+      var eventName = link.dataset.track;
+      var method = link.dataset.trackMethod || "Link";
+      track(eventName, { content_name: "Edifício Gamboas", method: method });
     });
   });
 
