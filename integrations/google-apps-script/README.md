@@ -23,7 +23,7 @@ A URL `/dev` é somente de teste e exige login; ela não funciona para visitante
 
 ## 3. Conectar a landing
 
-Forneça a URL `/exec` para atualizar `LEAD_API_URL` em `gamboas/app.js`. A URL só deve ser publicada depois de:
+O endpoint do Gamboas está configurado em `LEAD_API_URL`, dentro de `gamboas/app.js`. Antes de substituir essa URL no futuro, confirme:
 
 1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`;
 2. enviar um lead controlado pela landing;
