@@ -3,7 +3,7 @@
 
   var META_PIXEL_ID = "1580854386761765";
   var GA_MEASUREMENT_ID = "G-GKLE6VCGWH";
-  var LEAD_API_URL = "./submit.php";
+  var LEAD_API_URL = "https://script.google.com/macros/s/AKfycbyWacS4ejnYS5dBpKwOdtSDiivDBIRehFG59-0Wx-33GToMnz3Ha7zLhrg96Soi4hRi/exec";
   var CONSENT_KEY = "gamboas-analytics-consent";
   var UTM_KEY = "gamboas-campaign-attribution";
   var UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
@@ -243,12 +243,13 @@
     try {
       var response = await fetch(LEAD_API_URL, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(Object.assign({}, data, attribution, {
           eventId: eventId,
           sourceUrl: window.location.href,
           fbp: getCookie("_fbp"),
-          fbc: getCookie("_fbc")
+          fbc: getCookie("_fbc"),
+          userAgent: navigator.userAgent
         }))
       });
       var result = await response.json();
@@ -256,7 +257,7 @@
 
       track("Lead", { content_name: "Edifício Gamboas", value: 295000, currency: "BRL" }, eventId);
       if (data.visitInterest.indexOf("Sim") === 0) {
-        track("Schedule", { content_name: "Edifício Gamboas", method: "Formulário" });
+        track("Schedule", { content_name: "Edifício Gamboas", method: "Formulário" }, eventId + "-schedule");
       }
       sessionStorage.setItem("gamboas-lead-summary", JSON.stringify({
         fullName: data.fullName,
