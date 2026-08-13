@@ -35,7 +35,7 @@ O navegador precisa fazer uma requisição simples para evitar o preflight CORS.
 
 No projeto do Apps Script, abra **Configurações do projeto → Propriedades do script** e crie:
 
-- `META_PIXEL_ID`: `1580854386761765`
+- `META_PIXEL_ID`: `28317074327887665`
 - `META_ACCESS_TOKEN`: token gerado pelo Gerenciador de Eventos
 - `META_TEST_EVENT_CODE`: código temporário mostrado em **Eventos de teste**; remova esta propriedade depois da validação
 
