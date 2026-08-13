@@ -58,10 +58,17 @@
   <script>
     (function(){
       if(localStorage.getItem('gamboas-analytics-consent')==='accepted'){
-        var q=function(){q.queue.push(arguments)};q.queue=[];q.loaded=true;q.version='2.0';window.fbq=q;window._fbq=q;q('init','1580854386761765');
+        var q=function(){if(q.callMethod){q.callMethod.apply(q,arguments)}else{q.queue.push(arguments)}};q.queue=[];q.loaded=true;q.version='2.0';window.fbq=q;window._fbq=q;q('init','1580854386761765');
         var s=document.createElement('script');s.async=true;s.src='https://connect.facebook.net/pt_BR/fbevents.js';document.head.appendChild(s);
+        q('track','PageView');
+        window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-GKLE6VCGWH',{anonymize_ip:true});
+        var g=document.createElement('script');g.async=true;g.src='https://www.googletagmanager.com/gtag/js?id=G-GKLE6VCGWH';document.head.appendChild(g);
       }
-      document.getElementById('thanks-whatsapp').addEventListener('click',function(){if(window.fbq){fbq('track','Contact',{content_name:'Edifício Gamboas',method:'WhatsApp'});}});
+      document.getElementById('thanks-whatsapp').addEventListener('click',function(){
+        var details={content_name:'Edifício Gamboas',method:'WhatsApp'};
+        if(window.fbq){fbq('track','Contact',details)}
+        if(window.gtag){gtag('event','contact',details)}
+      });
     })();
   </script>
 </body>
