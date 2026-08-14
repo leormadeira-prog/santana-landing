@@ -11,8 +11,10 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "site.config.json"
-INDEX_PATHS = (ROOT / "index.html", ROOT / "gamboas" / "index.html")
 CNAME_PATH = ROOT / "CNAME"
+APPS_SCRIPT_PATH = ROOT / "integrations" / "google-apps-script" / "Code.gs"
+MEASUREMENT_DOC_PATH = ROOT / "docs" / "growth" / "measurement.md"
+MULTI_PROPERTY_DOC_PATH = ROOT / "docs" / "growth" / "multi-property.md"
 
 
 def annotation(level: str, message: str) -> None:
@@ -31,20 +33,154 @@ def main() -> int:
 
     domain = str(config.get("domain", "")).strip()
     whatsapp = re.sub(r"\D", "", str(config.get("whatsapp", "")))
+    meta_pixel_id = str(config.get("metaPixelId", "")).strip()
+    ga_measurement_id = str(config.get("gaMeasurementId", "")).strip()
+    attribution_version = str(config.get("attributionVersion", "")).strip()
+    properties = config.get("properties", {})
 
     if not domain:
         errors.append("O domínio está vazio em site.config.json.")
     if not re.fullmatch(r"55\d{10,11}", whatsapp):
         errors.append("O WhatsApp deve estar no formato 55 + DDD + número, somente dígitos.")
+    if not re.fullmatch(r"\d{10,25}", meta_pixel_id):
+        errors.append("O Meta Pixel ID está ausente ou inválido em site.config.json.")
+    if not re.fullmatch(r"G-[A-Z0-9]+", ga_measurement_id):
+        errors.append("O ID do GA4 está ausente ou inválido em site.config.json.")
+    if attribution_version != "growth-v1":
+        errors.append("A versão de atribuição deve ser 'growth-v1'.")
+    if not isinstance(properties, dict) or not properties:
+        errors.append("site.config.json deve declarar ao menos um empreendimento em 'properties'.")
+        properties = {}
+
+    property_pages: dict[str, Path] = {}
+    for property_id, property_data in properties.items():
+        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,119}", str(property_id)):
+            errors.append(f"ID de empreendimento inválido: {property_id}")
+            continue
+        if not isinstance(property_data, dict):
+            errors.append(f"Configuração inválida para o empreendimento {property_id}.")
+            continue
+        property_path = str(property_data.get("path", ""))
+        if not re.fullmatch(r"/[a-z0-9/_-]+/", property_path) or ".." in property_path:
+            errors.append(f"Caminho inválido para o empreendimento {property_id}: {property_path}")
+            continue
+        if str(property_data.get("slug", "")) != property_id:
+            errors.append(f"O slug do empreendimento {property_id} deve coincidir com seu ID.")
+        if not str(property_data.get("name", "")).strip():
+            errors.append(f"Nome ausente para o empreendimento {property_id}.")
+        if not isinstance(property_data.get("priceFrom"), (int, float)):
+            errors.append(f"Preço inicial inválido para o empreendimento {property_id}.")
+        if not re.fullmatch(r"[A-Z]{3}", str(property_data.get("currency", ""))):
+            errors.append(f"Moeda inválida para o empreendimento {property_id}.")
+        if not isinstance(property_data.get("trackingCtas"), list):
+            errors.append(f"CTAs de tracking ausentes para o empreendimento {property_id}.")
+        property_pages[property_id] = ROOT / property_path.strip("/") / "index.html"
 
     pages: list[tuple[Path, str]] = []
-    for index_path in INDEX_PATHS:
+    page_paths = [ROOT / "index.html"]
+    for property_page in property_pages.values():
+        page_paths.extend((property_page, property_page.parent / "obrigado" / "index.html"))
+    for index_path in page_paths:
         try:
             pages.append((index_path, index_path.read_text(encoding="utf-8")))
         except OSError as exc:
             annotation("error", f"Não foi possível ler {index_path.relative_to(ROOT)}: {exc}")
             return 1
     html = "\n".join(content for _, content in pages)
+
+    property_app_paths = tuple(page.parent / "app.js" for page in property_pages.values())
+    privacy_paths = tuple(page.parent / "privacidade" / "index.html" for page in property_pages.values())
+    source_paths = property_app_paths + privacy_paths + (
+        APPS_SCRIPT_PATH,
+        MEASUREMENT_DOC_PATH,
+        MULTI_PROPERTY_DOC_PATH,
+    )
+    sources: dict[Path, str] = {}
+    for source_path in source_paths:
+        try:
+            sources[source_path] = source_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"Não foi possível ler {source_path.relative_to(ROOT)}: {exc}")
+
+    app_js = "\n".join(sources.get(path, "") for path in property_app_paths)
+    apps_script = sources.get(APPS_SCRIPT_PATH, "")
+    privacy_html = "\n".join(sources.get(path, "") for path in privacy_paths)
+    measurement_doc = sources.get(MEASUREMENT_DOC_PATH, "")
+    multi_property_doc = sources.get(MULTI_PROPERTY_DOC_PATH, "")
+
+    if meta_pixel_id and meta_pixel_id not in app_js:
+        errors.append("O Meta Pixel ID do site.config.json não coincide com os scripts das landings.")
+    if ga_measurement_id and ga_measurement_id not in app_js:
+        errors.append("O ID do GA4 do site.config.json não coincide com os scripts das landings.")
+    if attribution_version and attribution_version not in app_js:
+        errors.append("A versão de atribuição do site.config.json não coincide com os scripts das landings.")
+    if attribution_version and attribution_version not in apps_script:
+        errors.append("A versão de atribuição do site.config.json não coincide com o Apps Script.")
+
+    attribution_fields = (
+        "measurementConsent",
+        "firstPageUrl",
+        "initialReferrer",
+        "contentOrigin",
+        "ctaOrigin",
+        "firstTouchAt",
+        "lastTouchUrl",
+        "attributionVersion",
+    )
+    for field in attribution_fields:
+        if field not in app_js:
+            errors.append(f"Campo de atribuição ausente nos scripts das landings: {field}")
+        if field not in apps_script:
+            errors.append(f"Campo de atribuição ausente no Apps Script: {field}")
+
+    if 'lead.measurementConsent !== "accepted"' not in apps_script:
+        errors.append("A CAPI precisa estar condicionada ao consentimento de medição aceito.")
+    if 'measurementIdentifiers = measurement === "accepted"' not in app_js:
+        errors.append("Identificadores de medição só podem ser enviados depois do aceite.")
+    if "OPERATION_HEADERS" not in apps_script or "ATTRIBUTION_HEADERS" not in apps_script:
+        errors.append("O Apps Script não protege as colunas operacionais e de atribuição.")
+    if "independente da escolha de medição" not in privacy_html:
+        errors.append("A política não diferencia consentimento de atendimento e de medição.")
+    if attribution_version and attribution_version not in measurement_doc:
+        errors.append("A documentação de medição não registra a versão de atribuição atual.")
+    if "property_id" not in app_js or "property_id" not in apps_script or "property_id" not in measurement_doc:
+        errors.append("O contrato multiempreendimento deve carregar property_id no cliente, servidor e documentação.")
+    if "O Gamboas é o piloto, não a infraestrutura" not in multi_property_doc:
+        errors.append("A auditoria multiempreendimento está ausente ou incompleta.")
+    if 'FormStart: "form_start"' not in app_js:
+        errors.append("O evento form_start com contexto do empreendimento está ausente.")
+    if re.search(r"\bTEST\d{3,}\b", "\n".join(sources.values())):
+        errors.append("Código temporário META_TEST_EVENT_CODE encontrado no repositório.")
+
+    page_content = dict(pages)
+    for property_id, property_page in property_pages.items():
+        property_data = properties[property_id]
+        property_html = page_content.get(property_page, "")
+        expected_attributes = {
+            "data-property-id": property_id,
+            "data-property-name": str(property_data.get("name", "")),
+            "data-property-price": str(property_data.get("priceFrom", "")),
+            "data-property-currency": str(property_data.get("currency", "")),
+        }
+        for attribute, expected_value in expected_attributes.items():
+            if not re.search(rf'{attribute}=["\']{re.escape(expected_value)}["\']', property_html):
+                errors.append(f"{attribute} do empreendimento {property_id} não coincide com site.config.json.")
+        cta_ids = set(re.findall(r'data-attribution-cta=["\']([^"\']+)["\']', property_html))
+        expected_ctas = set(property_data.get("trackingCtas", []))
+        missing_ctas = expected_ctas.difference(cta_ids)
+        if missing_ctas:
+            errors.append(
+                f"CTAs sem atribuição estável em {property_id}: " + ", ".join(sorted(missing_ctas))
+            )
+        server_markers = (
+            f"{property_id}: {{",
+            f'path: "{property_data.get("path", "")}"',
+            f'name: "{property_data.get("name", "")}"',
+            f'priceFrom: {property_data.get("priceFrom", "")}',
+            f'currency: "{property_data.get("currency", "")}"',
+        )
+        if any(marker not in apps_script for marker in server_markers):
+            errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
 
     try:
         cname = CNAME_PATH.read_text(encoding="utf-8").strip()

@@ -34,7 +34,7 @@
     @media(max-width:820px){main{grid-template-columns:1fr;padding-top:18px;gap:32px}figure{min-height:390px;order:-1}header img{width:160px}.actions{display:grid}.btn{width:100%}}
   </style>
 </head>
-<body>
+<body data-property-id="gamboas" data-property-name="Edifício Gamboas">
   <header>
     <a href="../" aria-label="Voltar para a página do Edifício Gamboas"><img src="../../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220"></a>
   </header>
@@ -57,7 +57,10 @@
   </main>
   <script>
     (function(){
-      if(localStorage.getItem('gamboas-analytics-consent')==='accepted'){
+      var propertyId=document.body.dataset.propertyId;
+      var propertyName=document.body.dataset.propertyName;
+      var consent=localStorage.getItem('zn-measurement-consent')||localStorage.getItem('gamboas-analytics-consent');
+      if(consent==='accepted'){
         var q=function(){if(q.callMethod){q.callMethod.apply(q,arguments)}else{q.queue.push(arguments)}};q.queue=[];q.loaded=true;q.version='2.0';window.fbq=q;window._fbq=q;q('init','28317074327887665');
         var s=document.createElement('script');s.async=true;s.src='https://connect.facebook.net/pt_BR/fbevents.js';document.head.appendChild(s);
         q('track','PageView');
@@ -65,7 +68,7 @@
         var g=document.createElement('script');g.async=true;g.src='https://www.googletagmanager.com/gtag/js?id=G-NFEM9HPFLR';document.head.appendChild(g);
       }
       document.getElementById('thanks-whatsapp').addEventListener('click',function(){
-        var details={content_name:'Edifício Gamboas',method:'WhatsApp'};
+        var details={property_id:propertyId,content_ids:[propertyId],content_name:propertyName,content_type:'product',method:'WhatsApp'};
         if(window.fbq){fbq('track','Contact',details)}
         if(window.gtag){gtag('event','contact',details)}
       });
