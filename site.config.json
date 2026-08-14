@@ -4,5 +4,20 @@
   "metaPixelId": "28317074327887665",
   "gaMeasurementId": "G-NFEM9HPFLR",
   "attributionVersion": "growth-v1",
+  "properties": {
+    "gamboas": {
+      "slug": "gamboas",
+      "path": "/gamboas/",
+      "name": "Edifício Gamboas",
+      "priceFrom": 295000,
+      "currency": "BRL",
+      "trackingCtas": [
+        "cabecalho",
+        "planta",
+        "cta-final",
+        "cta-fixo-mobile"
+      ]
+    }
+  },
   "productionBranch": "main"
 }

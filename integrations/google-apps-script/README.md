@@ -1,6 +1,6 @@
-# Captura de leads do Edifício Gamboas
+# Captura de leads dos empreendimentos
 
-Esta integração transforma uma Planilha Google em um endpoint para a landing estática publicada no GitHub Pages. Ela grava o lead antes de disparar `Lead` e `Schedule` no navegador e inclui suporte à Conversions API condicionado à escolha de medição do visitante.
+Esta integração transforma uma Planilha Google em um endpoint compartilhado para as landings estáticas publicadas no GitHub Pages. O Gamboas é o primeiro empreendimento configurado. A integração grava o lead antes de disparar `Lead` e `Schedule` no navegador e inclui suporte à Conversions API condicionado à escolha de medição do visitante.
 
 ## 1. Criar a planilha
 
@@ -11,7 +11,7 @@ Esta integração transforma uma Planilha Google em um endpoint para a landing e
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
 6. Autorize o acesso à planilha. A aba **Leads Gamboas** e os cabeçalhos serão criados automaticamente.
 
-O `setup()` preserva as colunas operacionais **U:AB** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações) e cria a atribuição do Growth Engine a partir da coluna **AC**. Execute `setup()` novamente depois de instalar esta versão para adicionar os novos cabeçalhos sem apagar os leads existentes.
+O `setup()` preserva as colunas operacionais **U:AB** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações), grava o **ID do empreendimento em AC** e cria a atribuição do Growth Engine em **AD:AK**. Execute `setup()` novamente depois de instalar esta versão para adicionar os novos cabeçalhos sem apagar os leads existentes. Se a versão anterior da atribuição já tiver criado AC:AJ, o próprio `setup()` desloca esses dados uma coluna para a direita antes de inserir o empreendimento.
 
 ## 2. Publicar como app da Web
 
@@ -27,7 +27,7 @@ A URL `/dev` é somente de teste e exige login; ela não funciona para visitante
 
 O endpoint do Gamboas está configurado em `LEAD_API_URL`, dentro de `gamboas/app.js`. Antes de substituir essa URL no futuro, confirme:
 
-1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true` e `"version": "growth-v1"`;
+1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v1"` e `"properties": ["gamboas"]`;
 2. enviar um lead controlado pela landing;
 3. confirmar que a linha apareceu na aba **Leads Gamboas**.
 
@@ -41,7 +41,9 @@ No projeto do Apps Script, abra **Configurações do projeto → Propriedades do
 - `META_ACCESS_TOKEN`: token gerado pelo Gerenciador de Eventos
 - `META_TEST_EVENT_CODE`: código temporário mostrado em **Eventos de teste**; remova esta propriedade depois da validação
 
-O servidor envia `Lead` e, quando a pessoa escolhe uma opção afirmativa de visita, também `Schedule`. O token fica nas propriedades privadas do Apps Script e nunca é exposto no JavaScript da landing ou no GitHub.
+O servidor envia `Lead` e, quando a pessoa escolhe uma opção afirmativa de visita, também `Schedule`. Cada evento leva `property_id`, e a configuração `PROPERTY_CONFIGS` valida a URL, o nome, o preço e a moeda do empreendimento. Para adicionar outro imóvel, inclua uma nova entrada nessa configuração; não duplique a integração. O token fica nas propriedades privadas do Apps Script e nunca é exposto no JavaScript da landing ou no GitHub.
+
+Durante a transição, uma landing antiga que ainda não envie `property_id` continua aceita: o servidor infere o empreendimento pelo caminho cadastrado em `PROPERTY_CONFIGS`. Isso permite publicar primeiro o Apps Script e somente depois fazer o merge da landing, sem interromper a captura. Landings novas devem sempre enviar o campo explicitamente.
 
 A CAPI só é acionada quando a pessoa escolhe **Aceitar** no aviso de medição. O consentimento para receber atendimento no formulário continua independente: um lead que recusar a medição será gravado normalmente na planilha, mas as colunas **CAPI enviada** e **Resposta CAPI** registrarão que o evento não foi enviado.
 
@@ -53,7 +55,7 @@ Antes do merge ou de uma nova campanha:
 2. envie um lead controlado depois de aceitar a medição e confirme `CAPI enviada: Sim`;
 3. verifique `Lead` e, se aplicável, `Schedule` como navegador e servidor no Gerenciador de Eventos;
 4. envie um segundo lead controlado após recusar a medição e confirme que ele foi salvo, mas a CAPI não foi enviada;
-5. confira as colunas a partir de **AC**: escolha de medição, primeira página, referência, conteúdo, CTA, horário e última página.
+5. confira **AC:AK**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário e última página.
 
 O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes controlados. Nenhum código `TEST...` deve ficar gravado no repositório ou nas propriedades da implantação de produção.
 

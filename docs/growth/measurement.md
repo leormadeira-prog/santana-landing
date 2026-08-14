@@ -9,6 +9,12 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 - Conversions API: Apps Script, com token em `META_ACCESS_TOKEN`
 - Planilha oficial: aba `Leads Gamboas`
 
+## Multiempreendimento
+
+O contrato obrigatório de identificação é `property_id`. O piloto usa `property_id = gamboas`. Novos empreendimentos devem receber outro identificador estável, sem criar nomes de evento diferentes.
+
+Os dados básicos do Gamboas ficam em `site.config.json` e nos atributos `data-property-*` da landing. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. Essa pequena duplicação é validada automaticamente e evita introduzir uma etapa de build antes de existir um segundo empreendimento.
+
 ## Consentimentos independentes
 
 1. **Atendimento:** o checkbox do formulário autoriza o uso dos dados para responder ao interesse. Sem ele, o lead não é enviado.
@@ -20,12 +26,15 @@ Recusar a medição não impede o envio do formulário nem o registro do lead na
 
 | Ação | Meta | GA4 | Navegador | Servidor | Identificador |
 |---|---|---|---|---|---|
-| Visualizar Gamboas | `ViewContent` | `view_item` | Sim | Não | — |
+| Visualizar empreendimento | `ViewContent` | `view_item` | Sim | Não | — |
+| Iniciar formulário | `FormStart` | `form_start` | Sim | Não | — |
 | Enviar formulário | `Lead` | `generate_lead` | Sim | Sim | UUID do envio |
 | Pedir visita | `Schedule` | `schedule_visit` | Sim | Sim | UUID + `-schedule` |
 | Abrir WhatsApp | `Contact` | `contact` | Sim | Não | — |
 
-Eventos do navegador dependem da escolha de medição. `Lead` e `Schedule` usam o mesmo `event_id` no navegador e no servidor para deduplicação.
+Eventos do navegador dependem da escolha de medição. Todos carregam `property_id`; `Lead` e `Schedule` usam o mesmo `event_id` no navegador e no servidor para deduplicação.
+
+Para comparar empreendimentos nos relatórios do GA4, registre `property_id` como dimensão personalizada com escopo de evento. Isso é uma configuração administrativa única; não crie um evento novo para cada imóvel.
 
 ## Modelo de atribuição
 
@@ -50,7 +59,8 @@ O Search Console fornece consultas orgânicas de forma agregada. Não se deve pr
 
 - **A:T:** dados do lead, campanha e resposta da CAPI;
 - **U:AB:** operação comercial manual;
-- **AC:AJ:** consentimento de medição e atribuição `growth-v1`.
+- **AC:** `property_id` do empreendimento;
+- **AD:AK:** consentimento de medição e atribuição `growth-v1`.
 
 ## Checklist de produção
 
@@ -61,3 +71,5 @@ O Search Console fornece consultas orgânicas de forma agregada. Não se deve pr
 5. `generate_lead` e `schedule_visit` visíveis no GA4;
 6. primeira página, referência, conteúdo e CTA preenchidos conforme o percurso;
 7. nenhuma credencial ou token presente no GitHub.
+8. `property_id` igual na landing, planilha, GA4 e Meta.
+9. dimensão personalizada `property_id` criada no GA4 antes de comparar empreendimentos.

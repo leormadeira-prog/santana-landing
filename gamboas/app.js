@@ -4,13 +4,23 @@
   var META_PIXEL_ID = "28317074327887665";
   var GA_MEASUREMENT_ID = "G-NFEM9HPFLR";
   var LEAD_API_URL = "https://script.google.com/macros/s/AKfycbyWacS4ejnYS5dBpKwOdtSDiivDBIRehFG59-0Wx-33GToMnz3Ha7zLhrg96Soi4hRi/exec";
-  var CONSENT_KEY = "gamboas-analytics-consent";
-  var UTM_KEY = "gamboas-campaign-attribution";
+  var PROPERTY = Object.freeze({
+    id: safeAttributionToken(document.body.dataset.propertyId),
+    name: String(document.body.dataset.propertyName || "").trim().slice(0, 120),
+    priceFrom: Number(document.body.dataset.propertyPrice) || 0,
+    currency: String(document.body.dataset.propertyCurrency || "BRL").trim().slice(0, 3)
+  });
+  var CONSENT_KEY = "zn-measurement-consent";
+  var LEGACY_CONSENT_KEY = "gamboas-analytics-consent";
+  var UTM_KEY = "zn-campaign-attribution";
+  var LEGACY_UTM_KEY = "gamboas-campaign-attribution";
   var ATTRIBUTION_KEY = "zn-growth-attribution";
   var ATTRIBUTION_VERSION = "growth-v1";
+  var LEAD_SUMMARY_KEY = "zn-lead-summary:" + PROPERTY.id;
   var UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
   var gaEventNames = {
     ViewContent: "view_item",
+    FormStart: "form_start",
     Lead: "generate_lead",
     Contact: "contact",
     Schedule: "schedule_visit"
@@ -39,8 +49,29 @@
     return match ? match.slice(prefix.length) : "";
   }
 
-  function readSessionObject(key) {
-    try { return JSON.parse(sessionStorage.getItem(key) || "{}"); } catch (_) { return {}; }
+  function readLocalValue(key, legacyKey) {
+    try {
+      var value = localStorage.getItem(key) || (legacyKey ? localStorage.getItem(legacyKey) : "");
+      if (value && !localStorage.getItem(key)) localStorage.setItem(key, value);
+      return value;
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function writeLocalValue(key, value) {
+    try { localStorage.setItem(key, value); } catch (_) {}
+  }
+
+  function readSessionObject(key, legacyKey) {
+    try {
+      var raw = sessionStorage.getItem(key) || (legacyKey ? sessionStorage.getItem(legacyKey) : "") || "{}";
+      var value = JSON.parse(raw);
+      if (!sessionStorage.getItem(key)) sessionStorage.setItem(key, JSON.stringify(value));
+      return value;
+    } catch (_) {
+      return {};
+    }
   }
 
   function writeSessionObject(key, value) {
@@ -77,12 +108,12 @@
   }
 
   function measurementConsent() {
-    var value = localStorage.getItem(CONSENT_KEY);
+    var value = readLocalValue(CONSENT_KEY, LEGACY_CONSENT_KEY);
     return value === "accepted" || value === "rejected" ? value : "unknown";
   }
 
   function campaignData() {
-    var stored = readSessionObject(UTM_KEY);
+    var stored = readSessionObject(UTM_KEY, LEGACY_UTM_KEY);
     var params = new URLSearchParams(window.location.search);
     UTM_FIELDS.forEach(function (key) {
       var value = params.get(key);
@@ -108,6 +139,10 @@
     if (!stored.contentOrigin) {
       stored.contentOrigin = contentId || contentOriginFromUrl(sameSiteReferrer);
     }
+    if (stored.currentPropertyId && stored.currentPropertyId !== PROPERTY.id) {
+      stored.ctaOrigin = "formulario-direto";
+    }
+    stored.currentPropertyId = PROPERTY.id;
     stored.lastTouchUrl = currentUrl;
     stored.ctaOrigin = stored.ctaOrigin || "formulario-direto";
     stored.attributionVersion = ATTRIBUTION_VERSION;
@@ -155,34 +190,40 @@
   }
 
   function track(eventName, parameters, eventId) {
-    var data = parameters || {};
+    var data = Object.assign({
+      property_id: PROPERTY.id,
+      content_ids: [PROPERTY.id],
+      content_name: PROPERTY.name,
+      content_type: "product"
+    }, parameters || {});
     if (window.gtag) window.gtag("event", gaEventNames[eventName], data);
-    if (window.fbq) window.fbq("track", eventName, data, eventId ? { eventID: eventId } : undefined);
+    if (window.fbq) {
+      var method = eventName === "FormStart" ? "trackCustom" : "track";
+      window.fbq(method, eventName, data, eventId ? { eventID: eventId } : undefined);
+    }
   }
 
   function activateMeasurement() {
     installGoogleAnalytics();
     installMetaPixel();
     track("ViewContent", {
-      content_name: "Edifício Gamboas",
-      content_type: "product",
-      value: 295000,
-      currency: "BRL"
+      value: PROPERTY.priceFrom,
+      currency: PROPERTY.currency
     });
   }
 
   var banner = document.getElementById("cookie-banner");
-  var consent = localStorage.getItem(CONSENT_KEY);
+  var consent = measurementConsent();
   if (consent === "accepted") activateMeasurement();
   else if (consent !== "rejected") banner.hidden = false;
 
   document.getElementById("cookie-accept").addEventListener("click", function () {
-    localStorage.setItem(CONSENT_KEY, "accepted");
+    writeLocalValue(CONSENT_KEY, "accepted");
     banner.hidden = true;
     activateMeasurement();
   });
   document.getElementById("cookie-reject").addEventListener("click", function () {
-    localStorage.setItem(CONSENT_KEY, "rejected");
+    writeLocalValue(CONSENT_KEY, "rejected");
     banner.hidden = true;
   });
 
@@ -190,7 +231,7 @@
     link.addEventListener("click", function () {
       var eventName = link.dataset.track;
       var method = link.dataset.trackMethod || "Link";
-      track(eventName, { content_name: "Edifício Gamboas", method: method });
+      track(eventName, { method: method });
     });
   });
 
@@ -209,6 +250,13 @@
   var progress = document.getElementById("form-progress");
   var reviewList = document.getElementById("review-list");
   var submitButton = form.querySelector('button[type="submit"]');
+  var formStarted = false;
+
+  form.addEventListener("focusin", function () {
+    if (formStarted || measurementConsent() !== "accepted") return;
+    formStarted = true;
+    track("FormStart", { method: "Formulário" });
+  });
 
   phoneInput.addEventListener("input", function () {
     phoneInput.value = formatPhone(phoneInput.value);
@@ -334,6 +382,7 @@
         method: "POST",
         headers: { "content-type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(Object.assign({}, data, campaign, growthAttribution, measurementIdentifiers, {
+          property_id: PROPERTY.id,
           eventId: eventId,
           sourceUrl: window.location.href,
           measurementConsent: measurement
@@ -342,11 +391,11 @@
       var result = await response.json();
       if (!response.ok || !result.id) throw new Error(result.error || "Não foi possível enviar.");
 
-      track("Lead", { content_name: "Edifício Gamboas", value: 295000, currency: "BRL" }, eventId);
+      track("Lead", { value: PROPERTY.priceFrom, currency: PROPERTY.currency }, eventId);
       if (data.visitInterest.indexOf("Sim") === 0) {
-        track("Schedule", { content_name: "Edifício Gamboas", method: "Formulário" }, eventId + "-schedule");
+        track("Schedule", { method: "Formulário" }, eventId + "-schedule");
       }
-      sessionStorage.setItem("gamboas-lead-summary", JSON.stringify({
+      sessionStorage.setItem(LEAD_SUMMARY_KEY, JSON.stringify({
         fullName: data.fullName,
         whatsapp: formatPhone(data.whatsapp),
         visitInterest: data.visitInterest

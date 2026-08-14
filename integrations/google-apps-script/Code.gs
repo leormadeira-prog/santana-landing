@@ -1,5 +1,5 @@
 /**
- * Recebe os leads do Edifício Gamboas e os grava na aba "Leads Gamboas".
+ * Recebe os leads dos empreendimentos e os grava na aba operacional.
  *
  * Instalação:
  * 1. Crie uma Planilha Google e abra Extensões > Apps Script.
@@ -13,6 +13,14 @@
 var SHEET_NAME = "Leads Gamboas";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v1";
+var PROPERTY_CONFIGS = {
+  gamboas: {
+    path: "/gamboas/",
+    name: "Edifício Gamboas",
+    priceFrom: 295000,
+    currency: "BRL"
+  }
+};
 var BASE_HEADERS = [
   "Recebido em",
   "ID do evento",
@@ -46,6 +54,7 @@ var OPERATION_HEADERS = [
   "Observações"
 ];
 var ATTRIBUTION_HEADERS = [
+  "ID do empreendimento",
   "Consentimento de medição",
   "Primeira página da sessão",
   "Referência inicial",
@@ -62,14 +71,19 @@ function setup() {
   var sheet = getLeadSheet_();
   ensureHeaders_(sheet, 1, BASE_HEADERS, true);
   ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
-  ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
+  ensureAttributionHeaders_(sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length - 1);
   return "Integração preparada na aba \"" + SHEET_NAME + "\".";
 }
 
 function doGet() {
-  return json_({ ok: true, service: "ZN Empreendimentos - Leads Gamboas", version: INTEGRATION_VERSION });
+  return json_({
+    ok: true,
+    service: "ZN Empreendimentos - Leads",
+    version: INTEGRATION_VERSION,
+    properties: Object.keys(PROPERTY_CONFIGS)
+  });
 }
 
 function doPost(event) {
@@ -82,7 +96,7 @@ function doPost(event) {
     var sheet = getLeadSheet_();
     ensureHeaders_(sheet, 1, BASE_HEADERS, true);
     ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
-    ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
+    ensureAttributionHeaders_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
       return json_({ ok: true, id: lead.eventId, duplicate: true });
@@ -113,6 +127,7 @@ function doPost(event) {
       safeCell_(capiResults.details)
     ]]);
     sheet.getRange(row, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length).setValues([[
+      safeCell_(lead.property_id),
       lead.measurementConsent === "accepted" ? "Aceito" : lead.measurementConsent === "rejected" ? "Recusado" : "Não informado",
       safeCell_(lead.firstPageUrl),
       safeCell_(lead.initialReferrer),
@@ -145,6 +160,9 @@ function validateLead_(lead) {
   var name = text_(lead.fullName, 120);
   var phone = text_(lead.whatsapp, 20).replace(/\D/g, "");
   var source = text_(lead.sourceUrl, 1000);
+  var propertyId = text_(lead.property_id, 120).toLowerCase();
+  if (!propertyId) propertyId = inferPropertyId_(source);
+  var propertyConfig = PROPERTY_CONFIGS[propertyId];
   var measurement = text_(lead.measurementConsent, 20) || "unknown";
   var firstPage = text_(lead.firstPageUrl, 1000) || source;
   var lastTouch = text_(lead.lastTouchUrl, 1000) || source;
@@ -161,7 +179,8 @@ function validateLead_(lead) {
   if (!/^[0-9]{10,11}$/.test(phone) || /^(\d)\1+$/.test(phone)) throw new Error("INVALID_PHONE");
   if (lead.consent !== true) throw new Error("CONSENT_REQUIRED");
   if (!text_(lead.eventId, 100)) throw new Error("EVENT_ID_REQUIRED");
-  if (source.indexOf(ALLOWED_ORIGIN + "/gamboas/") !== 0) throw new Error("INVALID_SOURCE");
+  if (!propertyConfig || !/^[a-z0-9][a-z0-9_-]{0,119}$/.test(propertyId)) throw new Error("INVALID_PROPERTY");
+  if (source.indexOf(ALLOWED_ORIGIN + propertyConfig.path) !== 0) throw new Error("INVALID_SOURCE");
   if (["accepted", "rejected", "unknown"].indexOf(measurement) === -1) throw new Error("INVALID_MEASUREMENT_CONSENT");
   if (firstPage.indexOf(ALLOWED_ORIGIN + "/") !== 0 || lastTouch.indexOf(ALLOWED_ORIGIN + "/") !== 0) {
     throw new Error("INVALID_ATTRIBUTION");
@@ -177,6 +196,7 @@ function validateLead_(lead) {
 
   lead.fullName = name;
   lead.whatsapp = phone;
+  lead.property_id = propertyId;
   lead.eventId = text_(lead.eventId, 100);
   lead.sourceUrl = source;
   lead.measurementConsent = measurement;
@@ -195,6 +215,19 @@ function getLeadSheet_() {
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
 }
 
+function getPropertyConfig_(propertyId) {
+  var config = PROPERTY_CONFIGS[propertyId];
+  if (!config) throw new Error("INVALID_PROPERTY");
+  return config;
+}
+
+function inferPropertyId_(sourceUrl) {
+  var matches = Object.keys(PROPERTY_CONFIGS).filter(function (propertyId) {
+    return sourceUrl.indexOf(ALLOWED_ORIGIN + PROPERTY_CONFIGS[propertyId].path) === 0;
+  });
+  return matches.length === 1 ? matches[0] : "";
+}
+
 function ensureHeaders_(sheet, startColumn, headers, strict) {
   var range = sheet.getRange(1, startColumn, 1, headers.length);
   var existing = range.getValues()[0];
@@ -207,6 +240,26 @@ function ensureHeaders_(sheet, startColumn, headers, strict) {
   if (sheet.getLastRow() <= 1) {
     range.setFontWeight("bold");
   }
+}
+
+function ensureAttributionHeaders_(sheet) {
+  var legacyHeaders = ATTRIBUTION_HEADERS.slice(1);
+  var legacyRange = sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, legacyHeaders.length);
+  var existing = legacyRange.getValues()[0].map(function (value) { return text_(value, 200); });
+  var isLegacy = legacyHeaders.every(function (header, index) { return existing[index] === header; });
+  if (isLegacy) {
+    var dataRows = Math.max(sheet.getLastRow() - 1, 0);
+    if (dataRows) {
+      var legacyValues = sheet.getRange(2, ATTRIBUTION_START_COLUMN, dataRows, legacyHeaders.length).getValues();
+      sheet.getRange(2, ATTRIBUTION_START_COLUMN + 1, dataRows, legacyHeaders.length).setValues(legacyValues);
+      sheet.getRange(2, ATTRIBUTION_START_COLUMN, dataRows, 1).clearContent();
+    }
+    sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length)
+      .setValues([ATTRIBUTION_HEADERS])
+      .setFontWeight("bold");
+    return;
+  }
+  ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
 }
 
 function findEventRow_(sheet, eventId) {
@@ -223,6 +276,7 @@ function sendCapiEvents_(lead) {
     return { sent: false, details: "CAPI não enviada: medição não autorizada" };
   }
   var properties = PropertiesService.getScriptProperties();
+  var propertyConfig = getPropertyConfig_(lead.property_id);
   var pixelId = properties.getProperty("META_PIXEL_ID");
   var token = properties.getProperty("META_ACCESS_TOKEN");
   if (!pixelId || !token) return { sent: false, details: "CAPI ainda não configurada" };
@@ -245,7 +299,14 @@ function sendCapiEvents_(lead) {
       action_source: "website",
       event_source_url: lead.sourceUrl,
       user_data: userData,
-      custom_data: { currency: "BRL", value: 295000, content_name: "Edifício Gamboas" }
+      custom_data: {
+        property_id: lead.property_id,
+        content_ids: [lead.property_id],
+        content_type: "product",
+        currency: propertyConfig.currency,
+        value: propertyConfig.priceFrom,
+        content_name: propertyConfig.name
+      }
   }];
   if (lead.visitInterest.indexOf("Sim") === 0) {
     events.push({
@@ -255,7 +316,13 @@ function sendCapiEvents_(lead) {
       action_source: "website",
       event_source_url: lead.sourceUrl,
       user_data: userData,
-      custom_data: { content_name: "Edifício Gamboas", method: "Formulário" }
+      custom_data: {
+        property_id: lead.property_id,
+        content_ids: [lead.property_id],
+        content_type: "product",
+        content_name: propertyConfig.name,
+        method: "Formulário"
+      }
     });
   }
   var payload = { data: events };
@@ -299,6 +366,7 @@ function publicError_(error) {
     CONSENT_REQUIRED: "O consentimento é obrigatório.",
     INVALID_MEASUREMENT_CONSENT: "Preferência de medição inválida.",
     INVALID_ATTRIBUTION: "Dados de origem inválidos.",
+    INVALID_PROPERTY: "Empreendimento inválido.",
     EVENT_ID_REQUIRED: "Identificador do envio ausente.",
     INVALID_SOURCE: "Origem do envio não autorizada.",
     HEADER_MISMATCH: "A estrutura da planilha precisa ser revisada."

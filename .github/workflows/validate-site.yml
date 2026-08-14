@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   validate:
-    name: Domínio, WhatsApp e arquivos
+    name: Site, JavaScript e integração
     runs-on: ubuntu-latest
     steps:
       - name: Baixar repositório
@@ -23,5 +23,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Executar validação
         run: python3 scripts/validate_site.py
+
+      - name: Validar JavaScript e migração da planilha
+        run: |
+          node --check gamboas/app.js
+          node scripts/test_apps_script_migration.js
