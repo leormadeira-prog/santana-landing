@@ -6,6 +6,8 @@
   var LEAD_API_URL = "https://script.google.com/macros/s/AKfycbyWacS4ejnYS5dBpKwOdtSDiivDBIRehFG59-0Wx-33GToMnz3Ha7zLhrg96Soi4hRi/exec";
   var CONSENT_KEY = "gamboas-analytics-consent";
   var UTM_KEY = "gamboas-campaign-attribution";
+  var ATTRIBUTION_KEY = "zn-growth-attribution";
+  var ATTRIBUTION_VERSION = "growth-v1";
   var UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
   var gaEventNames = {
     ViewContent: "view_item",
@@ -37,19 +39,90 @@
     return match ? match.slice(prefix.length) : "";
   }
 
+  function readSessionObject(key) {
+    try { return JSON.parse(sessionStorage.getItem(key) || "{}"); } catch (_) { return {}; }
+  }
+
+  function writeSessionObject(key, value) {
+    try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+  }
+
+  function safeUrl(value) {
+    if (!value) return "";
+    try { return new URL(value, window.location.href).href.slice(0, 1000); } catch (_) { return ""; }
+  }
+
+  function isSameOrigin(value) {
+    if (!value) return false;
+    try { return new URL(value).origin === window.location.origin; } catch (_) { return false; }
+  }
+
+  function safeAttributionToken(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 120);
+  }
+
+  function contentOriginFromUrl(value) {
+    if (!isSameOrigin(value)) return "";
+    try {
+      var match = new URL(value).pathname.match(/^\/conteudos\/([^/]+)\/?$/);
+      return match ? safeAttributionToken(decodeURIComponent(match[1])) : "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function measurementConsent() {
+    var value = localStorage.getItem(CONSENT_KEY);
+    return value === "accepted" || value === "rejected" ? value : "unknown";
+  }
+
   function campaignData() {
-    var stored = {};
-    try { stored = JSON.parse(sessionStorage.getItem(UTM_KEY) || "{}"); } catch (_) { stored = {}; }
+    var stored = readSessionObject(UTM_KEY);
     var params = new URLSearchParams(window.location.search);
     UTM_FIELDS.forEach(function (key) {
       var value = params.get(key);
-      if (value) stored[key] = value.slice(0, 500);
+      if (value && !stored[key]) stored[key] = value.slice(0, 500);
     });
-    sessionStorage.setItem(UTM_KEY, JSON.stringify(stored));
+    writeSessionObject(UTM_KEY, stored);
     return stored;
   }
 
-  var attribution = campaignData();
+  function attributionData() {
+    var stored = readSessionObject(ATTRIBUTION_KEY);
+    var params = new URLSearchParams(window.location.search);
+    var currentUrl = safeUrl(window.location.href);
+    var referrer = safeUrl(document.referrer);
+    var sameSiteReferrer = isSameOrigin(referrer) ? referrer : "";
+    var contentId = safeAttributionToken(params.get("content_id"));
+
+    if (!stored.firstPageUrl) {
+      stored.firstPageUrl = sameSiteReferrer || currentUrl;
+      stored.initialReferrer = referrer;
+      stored.firstTouchAt = new Date().toISOString();
+    }
+    if (!stored.contentOrigin) {
+      stored.contentOrigin = contentId || contentOriginFromUrl(sameSiteReferrer);
+    }
+    stored.lastTouchUrl = currentUrl;
+    stored.ctaOrigin = stored.ctaOrigin || "formulario-direto";
+    stored.attributionVersion = ATTRIBUTION_VERSION;
+    writeSessionObject(ATTRIBUTION_KEY, stored);
+    return stored;
+  }
+
+  function setCtaOrigin(value) {
+    growthAttribution.ctaOrigin = safeAttributionToken(value) || "formulario-direto";
+    growthAttribution.lastTouchUrl = safeUrl(window.location.href);
+    writeSessionObject(ATTRIBUTION_KEY, growthAttribution);
+  }
+
+  var campaign = campaignData();
+  var growthAttribution = attributionData();
 
   function installGoogleAnalytics() {
     if (!GA_MEASUREMENT_ID || window.gtag) return;
@@ -118,6 +191,12 @@
       var eventName = link.dataset.track;
       var method = link.dataset.trackMethod || "Link";
       track(eventName, { content_name: "Edifício Gamboas", method: method });
+    });
+  });
+
+  document.querySelectorAll("a[data-attribution-cta]").forEach(function (link) {
+    link.addEventListener("click", function () {
+      setCtaOrigin(link.dataset.attributionCta);
     });
   });
 
@@ -239,17 +318,25 @@
     submitButton.textContent = "Enviando…";
     clearError();
     var eventId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : "lead-" + Date.now();
+    var measurement = measurementConsent();
+    var measurementIdentifiers = measurement === "accepted" ? {
+      fbp: getCookie("_fbp"),
+      fbc: getCookie("_fbc"),
+      userAgent: navigator.userAgent
+    } : {
+      fbp: "",
+      fbc: "",
+      userAgent: ""
+    };
 
     try {
       var response = await fetch(LEAD_API_URL, {
         method: "POST",
         headers: { "content-type": "text/plain;charset=UTF-8" },
-        body: JSON.stringify(Object.assign({}, data, attribution, {
+        body: JSON.stringify(Object.assign({}, data, campaign, growthAttribution, measurementIdentifiers, {
           eventId: eventId,
           sourceUrl: window.location.href,
-          fbp: getCookie("_fbp"),
-          fbc: getCookie("_fbc"),
-          userAgent: navigator.userAgent
+          measurementConsent: measurement
         }))
       });
       var result = await response.json();
@@ -264,7 +351,7 @@
         whatsapp: formatPhone(data.whatsapp),
         visitInterest: data.visitInterest
       }));
-      var search = new URLSearchParams(attribution).toString();
+      var search = new URLSearchParams(campaign).toString();
       window.location.assign("./obrigado/" + (search ? "?" + search : ""));
     } catch (caught) {
       showError(caught && caught.message ? caught.message : "Não foi possível enviar. Tente novamente.");

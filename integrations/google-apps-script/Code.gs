@@ -12,7 +12,8 @@
 
 var SHEET_NAME = "Leads Gamboas";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
-var HEADERS = [
+var INTEGRATION_VERSION = "growth-v1";
+var BASE_HEADERS = [
   "Recebido em",
   "ID do evento",
   "Nome completo",
@@ -34,17 +35,41 @@ var HEADERS = [
   "CAPI enviada",
   "Resposta CAPI"
 ];
+var OPERATION_HEADERS = [
+  "Status",
+  "Data do primeiro contato",
+  "Qualificado?",
+  "Visita confirmada?",
+  "Compareceu?",
+  "Proposta?",
+  "Venda?",
+  "Observações"
+];
+var ATTRIBUTION_HEADERS = [
+  "Consentimento de medição",
+  "Primeira página da sessão",
+  "Referência inicial",
+  "Conteúdo de origem",
+  "CTA de origem",
+  "Primeiro acesso em",
+  "Última página antes da conversão",
+  "Versão da atribuição"
+];
+var OPERATION_START_COLUMN = BASE_HEADERS.length + 1;
+var ATTRIBUTION_START_COLUMN = OPERATION_START_COLUMN + OPERATION_HEADERS.length;
 
 function setup() {
   var sheet = getLeadSheet_();
-  ensureHeader_(sheet);
+  ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+  ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
+  ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
   sheet.setFrozenRows(1);
-  sheet.autoResizeColumns(1, HEADERS.length);
+  sheet.autoResizeColumns(1, ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length - 1);
   return "Integração preparada na aba \"" + SHEET_NAME + "\".";
 }
 
 function doGet() {
-  return json_({ ok: true, service: "ZN Empreendimentos - Leads Gamboas" });
+  return json_({ ok: true, service: "ZN Empreendimentos - Leads Gamboas", version: INTEGRATION_VERSION });
 }
 
 function doPost(event) {
@@ -55,14 +80,17 @@ function doPost(event) {
     validateLead_(lead);
 
     var sheet = getLeadSheet_();
-    ensureHeader_(sheet);
+    ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+    ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
+    ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
       return json_({ ok: true, id: lead.eventId, duplicate: true });
     }
 
     var capiResults = sendCapiEvents_(lead);
-    sheet.appendRow([
+    var row = sheet.getLastRow() + 1;
+    sheet.getRange(row, 1, 1, BASE_HEADERS.length).setValues([[
       new Date(),
       safeCell_(lead.eventId),
       safeCell_(lead.fullName),
@@ -83,7 +111,17 @@ function doPost(event) {
       safeCell_(lead.sourceUrl),
       capiResults.sent ? "Sim" : "Não",
       safeCell_(capiResults.details)
-    ]);
+    ]]);
+    sheet.getRange(row, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length).setValues([[
+      lead.measurementConsent === "accepted" ? "Aceito" : lead.measurementConsent === "rejected" ? "Recusado" : "Não informado",
+      safeCell_(lead.firstPageUrl),
+      safeCell_(lead.initialReferrer),
+      safeCell_(lead.contentOrigin),
+      safeCell_(lead.ctaOrigin),
+      safeCell_(lead.firstTouchAt),
+      safeCell_(lead.lastTouchUrl),
+      safeCell_(lead.attributionVersion)
+    ]]);
 
     return json_({ ok: true, id: lead.eventId });
   } catch (error) {
@@ -107,6 +145,11 @@ function validateLead_(lead) {
   var name = text_(lead.fullName, 120);
   var phone = text_(lead.whatsapp, 20).replace(/\D/g, "");
   var source = text_(lead.sourceUrl, 1000);
+  var measurement = text_(lead.measurementConsent, 20) || "unknown";
+  var firstPage = text_(lead.firstPageUrl, 1000) || source;
+  var lastTouch = text_(lead.lastTouchUrl, 1000) || source;
+  var contentOrigin = text_(lead.contentOrigin, 120).toLowerCase();
+  var ctaOrigin = text_(lead.ctaOrigin, 120).toLowerCase();
   var allowedOptions = {
     purchaseTimeline: ["Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
     purchaseMethod: ["Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
@@ -119,6 +162,12 @@ function validateLead_(lead) {
   if (lead.consent !== true) throw new Error("CONSENT_REQUIRED");
   if (!text_(lead.eventId, 100)) throw new Error("EVENT_ID_REQUIRED");
   if (source.indexOf(ALLOWED_ORIGIN + "/gamboas/") !== 0) throw new Error("INVALID_SOURCE");
+  if (["accepted", "rejected", "unknown"].indexOf(measurement) === -1) throw new Error("INVALID_MEASUREMENT_CONSENT");
+  if (firstPage.indexOf(ALLOWED_ORIGIN + "/") !== 0 || lastTouch.indexOf(ALLOWED_ORIGIN + "/") !== 0) {
+    throw new Error("INVALID_ATTRIBUTION");
+  }
+  if (contentOrigin && !/^[a-z0-9][a-z0-9_-]{0,119}$/.test(contentOrigin)) throw new Error("INVALID_ATTRIBUTION");
+  if (ctaOrigin && !/^[a-z0-9][a-z0-9_-]{0,119}$/.test(ctaOrigin)) throw new Error("INVALID_ATTRIBUTION");
 
   Object.keys(allowedOptions).forEach(function (field) {
     if (allowedOptions[field].indexOf(text_(lead[field], 200)) === -1) {
@@ -130,6 +179,14 @@ function validateLead_(lead) {
   lead.whatsapp = phone;
   lead.eventId = text_(lead.eventId, 100);
   lead.sourceUrl = source;
+  lead.measurementConsent = measurement;
+  lead.firstPageUrl = firstPage;
+  lead.initialReferrer = text_(lead.initialReferrer, 1000);
+  lead.contentOrigin = contentOrigin;
+  lead.ctaOrigin = ctaOrigin || "formulario-direto";
+  lead.firstTouchAt = text_(lead.firstTouchAt, 50);
+  lead.lastTouchUrl = lastTouch;
+  lead.attributionVersion = text_(lead.attributionVersion, 50) || "legacy";
 }
 
 function getLeadSheet_() {
@@ -138,9 +195,17 @@ function getLeadSheet_() {
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
 }
 
-function ensureHeader_(sheet) {
-  if (sheet.getLastRow() === 0) {
-    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight("bold");
+function ensureHeaders_(sheet, startColumn, headers, strict) {
+  var range = sheet.getRange(1, startColumn, 1, headers.length);
+  var existing = range.getValues()[0];
+  var values = headers.map(function (header, index) {
+    var current = text_(existing[index], 200);
+    if (strict && current && current !== header) throw new Error("HEADER_MISMATCH");
+    return current || header;
+  });
+  range.setValues([values]);
+  if (sheet.getLastRow() <= 1) {
+    range.setFontWeight("bold");
   }
 }
 
@@ -154,6 +219,9 @@ function findEventRow_(sheet, eventId) {
 }
 
 function sendCapiEvents_(lead) {
+  if (lead.measurementConsent !== "accepted") {
+    return { sent: false, details: "CAPI não enviada: medição não autorizada" };
+  }
   var properties = PropertiesService.getScriptProperties();
   var pixelId = properties.getProperty("META_PIXEL_ID");
   var token = properties.getProperty("META_ACCESS_TOKEN");
@@ -229,8 +297,11 @@ function publicError_(error) {
     INVALID_NAME: "Nome completo inválido.",
     INVALID_PHONE: "WhatsApp inválido.",
     CONSENT_REQUIRED: "O consentimento é obrigatório.",
+    INVALID_MEASUREMENT_CONSENT: "Preferência de medição inválida.",
+    INVALID_ATTRIBUTION: "Dados de origem inválidos.",
     EVENT_ID_REQUIRED: "Identificador do envio ausente.",
-    INVALID_SOURCE: "Origem do envio não autorizada."
+    INVALID_SOURCE: "Origem do envio não autorizada.",
+    HEADER_MISMATCH: "A estrutura da planilha precisa ser revisada."
   };
   return messages[code] || "Não foi possível registrar o interesse.";
 }
