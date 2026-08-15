@@ -58,13 +58,13 @@ Ao chegar a uma landing pelo mesmo domínio, o mecanismo `growth-v1` identifica 
 
 ## Primeiro cluster
 
-O primeiro cluster é intencionalmente pequeno. Somente o artigo piloto foi publicado; os demais temas permanecem como pauta até haver revisão editorial e oportunidade real de busca.
+O primeiro cluster é intencionalmente pequeno e cresce um artigo por vez, sempre após revisão editorial, validação técnica e publicação controlada.
 
 | Papel | Tema | Palavra principal | Estado |
 | --- | --- | --- | --- |
 | Piloto comercial | Apartamento novo na Vila Mazzei: o que avaliar antes de comprar | apartamento novo Vila Mazzei | Implementado |
-| Apoio local | Morar no Tucuruvi: o que avaliar na rotina e na localização | morar no Tucuruvi | Pauta |
-| Apoio financeiro | Como organizar entrada e financiamento de um apartamento | entrada e financiamento de apartamento | Pauta |
+| Apoio local | Morar no Tucuruvi: o que avaliar na rotina e na localização | morar no Tucuruvi | Implementado |
+| Apoio financeiro | Como organizar entrada e financiamento de um apartamento | entrada e financiamento de apartamento | Implementado |
 | Apoio de decisão | Apartamento novo ou usado: como comparar o custo total | apartamento novo ou usado | Pauta |
 
 ## Regras de qualidade

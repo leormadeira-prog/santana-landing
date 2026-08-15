@@ -1,0 +1,196 @@
+{
+  "slug": "entrada-financiamento-apartamento",
+  "title": "Como organizar entrada e financiamento de um apartamento",
+  "metaTitle": "Entrada e financiamento de apartamento | ZN Empreendimentos",
+  "description": "Aprenda a organizar entrada e financiamento de apartamento: orçamento, CET, documentos, simulações, análise de crédito e custos da compra.",
+  "excerpt": "Um roteiro para separar recursos, comparar o custo do crédito e preparar documentos antes de assumir uma proposta de compra.",
+  "publishedAt": "2026-08-15",
+  "updatedAt": "2026-08-15",
+  "author": {
+    "name": "Leonardo Madeira",
+    "jobTitle": "Corretor de Imóveis",
+    "credential": "CRECI-SP 331393"
+  },
+  "category": "Planejamento financeiro",
+  "primaryKeyword": "entrada e financiamento de apartamento",
+  "secondaryKeywords": [
+    "como financiar apartamento",
+    "entrada para comprar imóvel",
+    "planejamento para comprar apartamento"
+  ],
+  "searchIntent": "informational",
+  "heroImage": "/assets/gamboas-planta.jpg",
+  "imageAlt": "Planta de apartamento usada como referência para organizar entrada e financiamento da compra",
+  "heroCaption": "Planta de referência do Edifício Gamboas, empreendimento relacionado a este guia de planejamento financeiro.",
+  "relatedContent": [
+    "apartamento-novo-vila-mazzei",
+    "morar-no-tucuruvi"
+  ],
+  "relatedProperties": [
+    "gamboas"
+  ],
+  "intro": [
+    "Organizar a entrada e o financiamento de um apartamento começa antes de escolher a instituição financeira. Primeiro, é preciso entender quanto pode ser reservado para a compra sem comprometer despesas essenciais e qual parcela cabe na rotina depois da mudança.",
+    "A simulação ajuda a construir cenários, mas as condições definitivas dependem da análise de crédito, da documentação, da avaliação do imóvel e das regras vigentes na contratação. Este guia organiza essas etapas sem prometer aprovação ou um percentual fixo de entrada."
+  ],
+  "sections": [
+    {
+      "id": "entrada-nao-e-o-unico-custo",
+      "title": "A entrada não é o único valor a preparar",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A entrada é a parte do preço que não será coberta pelo financiamento, mas ela não representa todo o dinheiro necessário para concluir a compra. Separe também uma reserva para despesas de avaliação, tributos, registro, certidões, mudança e eventuais adaptações."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Recursos próprios disponíveis para a entrada.",
+            "Despesas de formalização e registro aplicáveis à negociação.",
+            "Custos cobrados durante a análise e contratação, quando houver.",
+            "Mudança, móveis, instalações e ajustes antes de morar.",
+            "Reserva financeira que permanecerá depois da compra."
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Evite usar toda a reserva",
+          "text": "Uma entrada maior pode reduzir o valor financiado, mas deixar a família sem margem para despesas previsíveis e imprevistos também cria risco. Compare cenários preservando uma reserva compatível com sua realidade."
+        }
+      ]
+    },
+    {
+      "id": "defina-parcela-sustentavel",
+      "title": "Defina uma parcela sustentável para o orçamento",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Não comece pelo maior valor que uma simulação permite. Registre renda líquida, gastos fixos, dívidas, despesas variáveis e objetivos futuros. A parcela precisa coexistir com condomínio, tributos do imóvel, seguros, manutenção e demais custos da moradia."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use a média de renda e despesas, evitando um único mês excepcional.",
+            "Inclua compromissos financeiros que continuarão depois da mudança.",
+            "Simule perda temporária de renda ou aumento de despesas essenciais.",
+            "Considere custos recorrentes do imóvel além da prestação.",
+            "Escolha uma margem que permita continuar poupando."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "simulacao-e-analise",
+      "title": "Entenda a diferença entre simulação e aprovação",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A simulação é uma estimativa baseada nos dados informados e nas condições disponíveis naquele momento. Ela não garante crédito, taxa, prazo ou valor financiado. A instituição ainda analisa cadastro, renda, documentos e capacidade de pagamento."
+        },
+        {
+          "type": "paragraph",
+          "text": "O imóvel também passa por análise. A avaliação pode influenciar o valor aceito como garantia e, consequentemente, o montante que poderá ser financiado. Por isso, evite assumir compromissos baseados apenas no primeiro resultado do simulador."
+        }
+      ]
+    },
+    {
+      "id": "compare-cet",
+      "title": "Compare o CET, e não apenas a taxa de juros",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "O Custo Efetivo Total, conhecido como CET, reúne juros, tarifas, impostos e outras despesas previstas na operação de crédito. Ele permite comparar propostas com estruturas de custos diferentes."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Solicite o CET e a planilha de cálculo antes da contratação.",
+            "Compare propostas com valores e prazos equivalentes.",
+            "Observe o valor total pago, não somente a primeira parcela.",
+            "Entenda o sistema de amortização e o indexador aplicável.",
+            "Confirme seguros, tarifas e condições para amortização antecipada."
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Mesma parcela não significa mesmo custo",
+          "text": "Prazos, encargos e evolução do saldo podem produzir custos totais diferentes. Guarde as simulações e compare todos os campos, não apenas o valor que aparece em destaque."
+        }
+      ]
+    },
+    {
+      "id": "documentos",
+      "title": "Prepare os documentos antes de escolher o imóvel",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A lista exata varia conforme a instituição e a situação de compradores, vendedores e imóvel. Ainda assim, organizar documentos pessoais, comprovantes de renda e informações fiscais com antecedência reduz atrasos e ajuda a identificar pendências."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Documento oficial de identificação e informações de estado civil.",
+            "Comprovantes de renda compatíveis com o perfil profissional.",
+            "Declaração de Imposto de Renda e recibo, quando solicitados.",
+            "Documentos do vendedor exigidos na análise.",
+            "Matrícula e demais documentos do imóvel aplicáveis ao processo."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Se pretende avaliar o uso de recursos vinculados, como o FGTS, confirme diretamente com a instituição se você, o imóvel e a operação atendem às regras vigentes."
+        }
+      ]
+    },
+    {
+      "id": "etapas-do-financiamento",
+      "title": "Organize as etapas até o registro",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "O processo costuma envolver simulação, análise de crédito, avaliação e análise documental do imóvel, assinatura e registro do contrato. Prazos e exigências variam, portanto alinhe a proposta de compra com as etapas reais da instituição escolhida."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Faça mais de uma simulação com os mesmos dados.",
+            "Envie documentos somente por canais oficiais ou autorizados.",
+            "Acompanhe pendências da análise de crédito e do imóvel.",
+            "Leia o contrato e esclareça dúvidas antes da assinatura.",
+            "Reserve recursos para os custos que vencem antes do registro.",
+            "Guarde contratos, comprovantes e protocolos do processo."
+          ]
+        }
+      ]
+    }
+  ],
+  "propertyCta": {
+    "propertyId": "gamboas",
+    "eyebrow": "Empreendimento relacionado",
+    "title": "Consulte as condições do Edifício Gamboas",
+    "text": "O Edifício Gamboas possui apartamentos prontos na Vila Mazzei. Solicite as informações comerciais atuais e use os critérios deste guia para organizar entrada, simulações e custo total antes de decidir.",
+    "buttonLabel": "Ver o Edifício Gamboas"
+  },
+  "faq": [
+    {
+      "question": "Existe um percentual fixo de entrada para financiar um apartamento?",
+      "answer": "Não existe um percentual único aplicável a todas as situações. A entrada depende da linha de crédito, do perfil aprovado, do valor de compra, da avaliação do imóvel e das regras vigentes na instituição."
+    },
+    {
+      "question": "A simulação garante a aprovação do financiamento?",
+      "answer": "Não. A simulação apresenta uma estimativa. A contratação depende da análise de crédito, da documentação, da avaliação do imóvel e do cumprimento das condições da instituição."
+    },
+    {
+      "question": "O que é o CET do financiamento?",
+      "answer": "É o Custo Efetivo Total da operação. Ele reúne juros, tarifas, impostos e outras despesas previstas e deve ser usado para comparar propostas de crédito."
+    },
+    {
+      "question": "Quais custos devo considerar além da entrada?",
+      "answer": "Considere despesas de análise e contratação quando aplicáveis, tributos, registro, certidões, mudança, adaptações e os custos recorrentes da nova moradia. Confirme os valores para sua operação."
+    },
+    {
+      "question": "Posso usar FGTS na compra do apartamento?",
+      "answer": "O uso pode ser possível quando comprador, imóvel e operação atendem às regras vigentes. A instituição responsável deve analisar o caso e confirmar a possibilidade."
+    }
+  ]
+}
