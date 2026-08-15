@@ -82,8 +82,12 @@ def render_article(article: dict, config: dict) -> str:
     property_id = article["propertyCta"]["propertyId"]
     property_data = config["properties"][property_id]
     whatsapp_text = quote(
-        f"Olá, li o conteúdo sobre apartamento novo na Vila Mazzei e gostaria de informações sobre {property_data['name']}.",
+        f"Olá, li o conteúdo \"{article['title']}\" e gostaria de informações sobre {property_data['name']}.",
         safe="",
+    )
+    hero_caption = article.get(
+        "heroCaption",
+        f"Imagem de referência de {property_data['name']}, empreendimento apresentado ao final deste guia.",
     )
     section_links = "".join(
         f'<li><a href="#{esc(section["id"])}">{text(section["title"])}</a></li>'
@@ -184,7 +188,7 @@ def render_article(article: dict, config: dict) -> str:
   <header class="site-header">
     <div class="wrap nav">
       <a href="/" aria-label="ZN Empreendimentos — início"><img class="logo" src="../../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220"></a>
-      <nav class="nav-links" aria-label="Navegação principal"><a href="/conteudos/">Conteúdos</a><a class="nav-cta" href="{esc(property_data['path'])}" data-content-cta="header" data-property-id="{esc(property_id)}">Conhecer o Gamboas</a></nav>
+      <nav class="nav-links" aria-label="Navegação principal"><a href="/conteudos/">Conteúdos</a><a class="nav-cta" href="{esc(property_data['path'])}" data-content-cta="header" data-property-id="{esc(property_id)}">Conhecer {text(property_data['name'])}</a></nav>
     </div>
   </header>
 
@@ -197,7 +201,7 @@ def render_article(article: dict, config: dict) -> str:
         <p class="article-deck">{text(article["excerpt"])}</p>
         <div class="article-meta"><span>Por {text(author["name"])}</span><span>Publicado em {published}</span><span>Atualizado em {updated}</span></div>
       </header>
-      <figure class="article-hero wrap"><img src="../..{esc(article["heroImage"])}" alt="{esc(article["imageAlt"])}" width="1450" height="1086" fetchpriority="high"><figcaption>Imagem de referência do Edifício Gamboas, empreendimento apresentado ao final deste guia.</figcaption></figure>
+      <figure class="article-hero wrap"><img src="../..{esc(article["heroImage"])}" alt="{esc(article["imageAlt"])}" width="1450" height="1086" fetchpriority="high"><figcaption>{text(hero_caption)}</figcaption></figure>
 
       <div class="article-grid wrap">
         <aside class="article-toc" aria-label="Neste guia"><strong>Neste guia</strong><ol>{section_links}<li><a href="#perguntas-frequentes">Perguntas frequentes</a></li></ol></aside>

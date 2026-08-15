@@ -1,0 +1,180 @@
+{
+  "slug": "morar-no-tucuruvi",
+  "title": "Morar no Tucuruvi: o que avaliar na rotina e na localização",
+  "metaTitle": "Morar no Tucuruvi: o que avaliar | ZN Empreendimentos",
+  "description": "Veja o que avaliar antes de morar no Tucuruvi: deslocamentos, comércio, ruídos, rotina, custos e um checklist prático para visitar a região.",
+  "excerpt": "Um guia prático para testar a região na vida real e comparar endereço, deslocamentos, serviços e custos antes de escolher um imóvel.",
+  "publishedAt": "2026-08-15",
+  "updatedAt": "2026-08-15",
+  "author": {
+    "name": "Leonardo Madeira",
+    "jobTitle": "Corretor de Imóveis",
+    "credential": "CRECI-SP 331393"
+  },
+  "category": "Bairros e localização",
+  "primaryKeyword": "morar no Tucuruvi",
+  "secondaryKeywords": [
+    "apartamento no Tucuruvi",
+    "imóvel na Zona Norte",
+    "Vila Mazzei Tucuruvi"
+  ],
+  "searchIntent": "informational",
+  "heroImage": "/assets/gamboas-fachada-ambientada.jpg",
+  "imageAlt": "Fachada residencial usada como referência para quem avalia morar na região do Tucuruvi",
+  "heroCaption": "Imagem de referência do Edifício Gamboas, empreendimento localizado na Vila Mazzei e relacionado a este guia.",
+  "relatedContent": [
+    "apartamento-novo-vila-mazzei"
+  ],
+  "relatedProperties": [
+    "gamboas"
+  ],
+  "intro": [
+    "Morar no Tucuruvi pode significar rotinas muito diferentes conforme o endereço, o horário e os trajetos que fazem parte da sua semana. Por isso, a decisão não deve se apoiar apenas no nome da região ou em uma lista de pontos próximos.",
+    "O melhor teste é transformar suas necessidades em verificações práticas. Este guia mostra como observar deslocamentos, serviços, movimento da rua, características do imóvel e custo total antes de decidir."
+  ],
+  "sections": [
+    {
+      "id": "comece-pela-rotina",
+      "title": "Comece pela sua rotina, não pelo nome do bairro",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Bairros e regiões próximas podem aparecer de formas diferentes nos anúncios. Em vez de decidir pela denominação, confirme a localização apresentada e liste os destinos que realmente importam: trabalho, estudo, saúde, compras e visitas frequentes."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Separe três a cinco trajetos que você faz toda semana.",
+            "Teste os caminhos nos horários em que pretende utilizá-los.",
+            "Compare alternativas a pé, de carro e por transporte público quando aplicável.",
+            "Observe se o retorno para casa funciona tão bem quanto a ida.",
+            "Registre tempo, custo e quantidade de conexões de cada opção."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deslocamentos-reais",
+      "title": "Avalie deslocamentos com dados da sua vida real",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Uma referência de localização ajuda a começar a pesquisa, mas não substitui o percurso completo. Um trajeto curto no mapa pode mudar com horário, chuva, trânsito, espera e necessidade de caminhar."
+        },
+        {
+          "type": "paragraph",
+          "text": "Faça pelo menos um teste presencial. Observe calçadas, travessias, iluminação, aclives e o movimento durante o caminho. Se outra pessoa da família também se desloca diariamente, inclua a rotina dela na comparação."
+        },
+        {
+          "type": "callout",
+          "title": "Planilha simples",
+          "text": "Crie uma linha para cada imóvel e colunas para os trajetos principais. Isso evita que uma boa impressão durante a visita esconda um deslocamento pouco funcional."
+        }
+      ]
+    },
+    {
+      "id": "entorno-em-horarios-diferentes",
+      "title": "Visite o entorno em horários diferentes",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A mesma rua pode ter níveis diferentes de movimento, ruído e facilidade de circulação ao longo do dia. Visite a região durante um período semelhante ao da sua saída de casa e, se possível, também à noite ou no fim de semana."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Observe sons de trânsito, comércio, obras e atividades próximas.",
+            "Confira a iluminação e a movimentação das ruas que você usaria.",
+            "Veja como funcionam embarque, desembarque e entregas no endereço.",
+            "Converse com moradores sem pedir dados pessoais ou tirar conclusões por uma única opinião.",
+            "Consulte fontes públicas quando precisar avaliar informações objetivas da região."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comercio-e-servicos",
+      "title": "Confirme comércio e serviços que você realmente usará",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Ter estabelecimentos na região não significa que todos atendam às suas necessidades. Verifique horários, acesso, variedade e o caminho até os serviços que fariam diferença na sua rotina."
+        },
+        {
+          "type": "paragraph",
+          "text": "Faça uma lista curta com mercado, farmácia, atendimento de saúde, escola ou academia, conforme seu perfil. Depois confirme cada item no mapa e presencialmente. Essa verificação é mais confiável do que depender de uma relação genérica de conveniências."
+        }
+      ]
+    },
+    {
+      "id": "imovel-e-custo-total",
+      "title": "Compare o imóvel e o custo total da mudança",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A localização precisa funcionar junto com a planta, a condição da unidade e o orçamento. Um imóvel bem localizado para sua rotina ainda precisa oferecer circulação adequada, iluminação, ventilação e custos compatíveis."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Confirme o que está incluído na unidade apresentada.",
+            "Avalie medidas e distribuição dos ambientes com seus móveis em mente.",
+            "Separe entrada, financiamento e despesas da formalização da compra.",
+            "Considere mudança, adaptações e itens necessários antes de morar.",
+            "Peça documentação e condições comerciais antes de assumir compromisso."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-visita",
+      "title": "Checklist para visitar um imóvel na região",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Organize a visita para verificar fatos, não apenas para conhecer a decoração. Leve perguntas registradas, faça medidas e anote o que precisa ser confirmado depois."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Chegue por um dos trajetos que faria no dia a dia.",
+            "Observe a rua antes de entrar e depois de sair do imóvel.",
+            "Abra janelas e perceba luz, ventilação e ruídos.",
+            "Confira áreas comuns, acessos e regras relevantes para sua rotina.",
+            "Peça informações por escrito quando elas influenciarem sua decisão.",
+            "Compare as anotações com pelo menos outra opção antes de concluir."
+          ]
+        }
+      ]
+    }
+  ],
+  "propertyCta": {
+    "propertyId": "gamboas",
+    "eyebrow": "Empreendimento relacionado",
+    "title": "Conheça o Edifício Gamboas",
+    "text": "O Edifício Gamboas oferece apartamentos prontos na Vila Mazzei, com dois dormitórios, sacada integrada e rooftop com churrasqueira. Consulte fotos, plantas, localização aproximada e condições para comparar com as prioridades deste guia.",
+    "buttonLabel": "Conhecer o Edifício Gamboas"
+  },
+  "faq": [
+    {
+      "question": "O que devo avaliar primeiro antes de morar no Tucuruvi?",
+      "answer": "Comece pelos trajetos da sua rotina e pela localização apresentada no imóvel. Depois avalie entorno, serviços, planta, condição da unidade e custo total da compra."
+    },
+    {
+      "question": "Uma visita à região é suficiente?",
+      "answer": "Uma visita ajuda, mas horários diferentes podem mudar trânsito, ruídos e movimento. Quando possível, retorne em outro período e faça um dos trajetos que usaria semanalmente."
+    },
+    {
+      "question": "Como comparar dois endereços próximos?",
+      "answer": "Use os mesmos critérios para ambos: tempo e custo dos trajetos, acesso aos serviços importantes, características da rua, planta do imóvel e custo total para comprar e morar."
+    },
+    {
+      "question": "Devo confiar apenas nas informações do anúncio?",
+      "answer": "Use o anúncio como ponto de partida. Confirme localização, características, documentos e condições com as fontes e profissionais responsáveis antes de tomar uma decisão."
+    },
+    {
+      "question": "Quando vale agendar uma visita ao imóvel?",
+      "answer": "Quando a localização, a faixa de investimento e as características principais já forem compatíveis com sua busca. A visita serve para validar o que ainda não pode ser decidido por fotos, plantas e mapas."
+    }
+  ]
+}
