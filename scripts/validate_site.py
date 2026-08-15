@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -15,10 +16,44 @@ CNAME_PATH = ROOT / "CNAME"
 APPS_SCRIPT_PATH = ROOT / "integrations" / "google-apps-script" / "Code.gs"
 MEASUREMENT_DOC_PATH = ROOT / "docs" / "growth" / "measurement.md"
 MULTI_PROPERTY_DOC_PATH = ROOT / "docs" / "growth" / "multi-property.md"
+CONTENTS_INDEX_PATH = ROOT / "conteudos" / "index.html"
+ROBOTS_PATH = ROOT / "robots.txt"
+SITEMAP_PATH = ROOT / "sitemap.xml"
 
 
 def annotation(level: str, message: str) -> None:
     print(f"::{level}::{message}")
+
+
+def json_ld_types(page_html: str, page_label: str, errors: list[str]) -> set[str]:
+    types: set[str] = set()
+    blocks = re.findall(
+        r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
+        page_html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if not blocks:
+        errors.append(f"Dados estruturados JSON-LD ausentes em {page_label}.")
+        return types
+
+    for block in blocks:
+        try:
+            payload = json.loads(block)
+        except json.JSONDecodeError as exc:
+            errors.append(f"JSON-LD inválido em {page_label}: {exc}")
+            continue
+        nodes = payload.get("@graph", []) if isinstance(payload, dict) else []
+        if isinstance(payload, dict):
+            nodes = [payload, *nodes]
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            node_type = node.get("@type")
+            if isinstance(node_type, str):
+                types.add(node_type)
+            elif isinstance(node_type, list):
+                types.update(value for value in node_type if isinstance(value, str))
+    return types
 
 
 def main() -> int:
@@ -77,7 +112,7 @@ def main() -> int:
         property_pages[property_id] = ROOT / property_path.strip("/") / "index.html"
 
     pages: list[tuple[Path, str]] = []
-    page_paths = [ROOT / "index.html"]
+    page_paths = [ROOT / "index.html", CONTENTS_INDEX_PATH]
     for property_page in property_pages.values():
         page_paths.extend((property_page, property_page.parent / "obrigado" / "index.html"))
     for index_path in page_paths:
@@ -87,6 +122,30 @@ def main() -> int:
             annotation("error", f"Não foi possível ler {index_path.relative_to(ROOT)}: {exc}")
             return 1
     html = "\n".join(content for _, content in pages)
+
+    indexable_pages = [ROOT / "index.html", CONTENTS_INDEX_PATH, *property_pages.values()]
+    page_content = dict(pages)
+    for index_path in indexable_pages:
+        page_html = page_content.get(index_path, "")
+        page_label = str(index_path.relative_to(ROOT))
+        required_patterns = {
+            r"<title>\s*[^<]+\s*</title>": "title",
+            r'<meta\s+name=["\']description["\']\s+content=["\'][^"\']+["\']': "meta description",
+            r'<link\s+rel=["\']canonical["\']\s+href=["\']https://[^"\']+["\']': "canonical",
+            r'<meta\s+property=["\']og:title["\']\s+content=["\'][^"\']+["\']': "og:title",
+            r'<meta\s+property=["\']og:description["\']\s+content=["\'][^"\']+["\']': "og:description",
+            r'<meta\s+property=["\']og:image["\']\s+content=["\']https://[^"\']+["\']': "og:image",
+        }
+        for pattern, label in required_patterns.items():
+            if not re.search(pattern, page_html, flags=re.IGNORECASE):
+                errors.append(f"{label} ausente ou inválido em {page_label}.")
+        if len(re.findall(r"<h1\b", page_html, flags=re.IGNORECASE)) != 1:
+            errors.append(f"{page_label} deve conter exatamente um H1.")
+        types = json_ld_types(page_html, page_label, errors)
+        if index_path == ROOT / "index.html" and not {"Organization", "WebSite"}.issubset(types):
+            errors.append("A página inicial deve declarar Organization e WebSite no JSON-LD.")
+        if index_path != ROOT / "index.html" and "BreadcrumbList" not in types:
+            errors.append(f"BreadcrumbList ausente no JSON-LD de {page_label}.")
 
     property_app_paths = tuple(page.parent / "app.js" for page in property_pages.values())
     privacy_paths = tuple(page.parent / "privacidade" / "index.html" for page in property_pages.values())
@@ -152,7 +211,6 @@ def main() -> int:
     if re.search(r"\bTEST\d{3,}\b", "\n".join(sources.values())):
         errors.append("Código temporário META_TEST_EVENT_CODE encontrado no repositório.")
 
-    page_content = dict(pages)
     for property_id, property_page in property_pages.items():
         property_data = properties[property_id]
         property_html = page_content.get(property_page, "")
@@ -190,6 +248,34 @@ def main() -> int:
 
     if cname != domain:
         errors.append(f"CNAME deve conter exatamente '{domain}', mas contém '{cname}'.")
+
+    try:
+        robots = ROBOTS_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"Não foi possível ler robots.txt: {exc}")
+        robots = ""
+    if f"Sitemap: https://{domain}/sitemap.xml" not in robots:
+        errors.append("robots.txt deve declarar a URL canônica do sitemap.")
+    if "Disallow: /gamboas/obrigado/" not in robots:
+        errors.append("robots.txt deve impedir o rastreamento da página de obrigado.")
+
+    try:
+        sitemap_root = ET.parse(SITEMAP_PATH).getroot()
+        sitemap_urls = {
+            (node.text or "").strip()
+            for node in sitemap_root.findall("{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+        }
+    except (OSError, ET.ParseError) as exc:
+        errors.append(f"Não foi possível validar sitemap.xml: {exc}")
+        sitemap_urls = set()
+    expected_sitemap_urls = {
+        f"https://{domain}/",
+        f"https://{domain}/conteudos/",
+        *(f"https://{domain}{data.get('path', '')}" for data in properties.values()),
+    }
+    missing_sitemap_urls = expected_sitemap_urls.difference(sitemap_urls)
+    if missing_sitemap_urls:
+        errors.append("URLs ausentes no sitemap.xml: " + ", ".join(sorted(missing_sitemap_urls)))
 
     expected_url = f"https://{domain}"
     if expected_url not in html:
