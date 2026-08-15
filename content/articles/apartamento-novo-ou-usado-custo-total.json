@@ -1,0 +1,198 @@
+{
+  "slug": "apartamento-novo-ou-usado-custo-total",
+  "title": "Apartamento novo ou usado: como comparar o custo total",
+  "metaTitle": "Apartamento novo ou usado: compare o custo total | ZN",
+  "description": "Compare apartamento novo ou usado considerando preço, reforma, manutenção, documentação, financiamento, condomínio e custos antes da mudança.",
+  "excerpt": "Um método prático para comparar preço, reforma, manutenção, financiamento e despesas antes da mudança.",
+  "publishedAt": "2026-08-15",
+  "updatedAt": "2026-08-15",
+  "author": {
+    "name": "Leonardo Madeira",
+    "jobTitle": "Corretor de Imóveis",
+    "credential": "CRECI-SP 331393"
+  },
+  "category": "Decisão de compra",
+  "primaryKeyword": "apartamento novo ou usado",
+  "secondaryKeywords": [
+    "comprar imóvel novo ou usado",
+    "custo total apartamento",
+    "comparar apartamento novo e usado"
+  ],
+  "searchIntent": "commercial investigation",
+  "heroImage": "/assets/gamboas-cozinha-mobiliada.jpg",
+  "imageAlt": "Cozinha mobiliada usada como referência para comparar o custo total de um apartamento novo ou usado",
+  "heroCaption": "Imagem de referência do Edifício Gamboas, empreendimento pronto relacionado a este guia de decisão.",
+  "relatedContent": [
+    "apartamento-novo-vila-mazzei",
+    "entrada-financiamento-apartamento"
+  ],
+  "relatedProperties": [
+    "gamboas"
+  ],
+  "intro": [
+    "Escolher entre apartamento novo ou usado exige mais do que comparar o preço anunciado. Reforma, manutenção, documentação, financiamento, condomínio e o tempo necessário até a mudança podem alterar bastante o custo real da decisão.",
+    "Este guia propõe uma comparação por etapas. O objetivo não é afirmar que uma categoria sempre vence, mas ajudar você a enxergar todos os valores, riscos e prazos antes de apresentar uma proposta."
+  ],
+  "sections": [
+    {
+      "id": "preco-nao-e-custo-total",
+      "title": "Preço anunciado não é custo total",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Dois apartamentos com preços próximos podem exigir volumes muito diferentes de recursos antes da mudança. Uma comparação útil soma os gastos previsíveis, reserva uma margem para incertezas e considera quanto tempo cada alternativa levará para ficar adequada à sua rotina."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Preço negociado e forma de pagamento.",
+            "Tributos, registro, certidões e custos de contratação aplicáveis.",
+            "Reforma, reparos, móveis, instalações e mudança.",
+            "Condomínio, tributos do imóvel, seguros e manutenção recorrente.",
+            "Prazo e custo de permanecer em outra moradia até a mudança."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "apartamento-novo",
+      "title": "O que observar em um apartamento novo",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Um apartamento novo ou pronto pode reduzir intervenções imediatas, mas isso não elimina a necessidade de vistoria, análise documental e planejamento. Confirme o que efetivamente acompanha a unidade, quais instalações já estão disponíveis e quais adaptações ficarão por sua conta."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Estado de acabamentos, portas, janelas, louças, metais e instalações.",
+            "Itens mostrados em imagens que são apenas sugestões de decoração.",
+            "Custos de marcenaria, iluminação, eletrodomésticos e mudança.",
+            "Regras, despesas e serviços do condomínio em funcionamento.",
+            "Documentação da unidade e condições comerciais atuais."
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Novo não significa custo zero",
+          "text": "Mesmo sem uma reforma estrutural, personalização, mobiliário e formalização da compra precisam entrar na conta. Solicite uma relação clara do que será entregue."
+        }
+      ]
+    },
+    {
+      "id": "apartamento-usado",
+      "title": "O que acrescentar na análise de um usado",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "No imóvel usado, o estado de conservação da unidade e do condomínio ganha peso. Evite calcular reforma apenas por aparência: instalações elétricas e hidráulicas, impermeabilização, esquadrias e revestimentos podem exigir avaliação técnica."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Vistoria técnica e orçamento detalhado dos reparos prioritários.",
+            "Prazo da obra e período em que o imóvel ficará indisponível.",
+            "Condições das áreas comuns e manutenções previstas pelo condomínio.",
+            "Atas, contas, regras e eventuais despesas extraordinárias a confirmar.",
+            "Documentação do vendedor, da unidade e da negociação."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "matriz-de-comparacao",
+      "title": "Monte uma matriz em três momentos",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Separe os valores por momento de pagamento. Essa estrutura evita que um custo futuro desapareça da comparação e ajuda a verificar se o caixa será suficiente em cada fase."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Antes da compra: sinal, entrada, avaliações, documentos e assessorias aplicáveis.",
+            "Antes da mudança: reforma, reparos, mobiliário, instalações e mudança.",
+            "Depois da mudança: financiamento, condomínio, tributos, seguros e manutenção."
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Trabalhe com cenários",
+          "text": "Registre uma estimativa provável e uma margem conservadora para cada alternativa. A decisão deve continuar viável mesmo quando um orçamento ou prazo não sair exatamente como previsto."
+        }
+      ]
+    },
+    {
+      "id": "financiamento-e-avaliacao",
+      "title": "Considere financiamento e avaliação do imóvel",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Imóveis novos e usados podem ser elegíveis a financiamento, conforme a linha escolhida, o perfil aprovado, a documentação e as condições do bem. A instituição analisa compradores, vendedores e imóvel antes da contratação."
+        },
+        {
+          "type": "paragraph",
+          "text": "A avaliação do imóvel pode influenciar o valor aceito como garantia e o montante financiável. Por isso, uma simulação inicial não garante aprovação, taxa, prazo ou recursos suficientes para concluir a compra."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Compare o Custo Efetivo Total das propostas de crédito.",
+            "Confirme quais despesas precisam ser pagas com recursos próprios.",
+            "Não assuma uma reforma contando com crédito ainda não aprovado.",
+            "Alinhe prazos da proposta, análise, contrato e registro."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visita-e-decisao",
+      "title": "Use a visita para reduzir incertezas",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Visite as alternativas com a mesma lista de verificação e registre evidências. Fotos autorizadas, medidas, documentos e orçamentos tornam a comparação mais confiável do que a memória de uma apresentação."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Teste iluminação, ventilação, ruídos e funcionamento dos ambientes.",
+            "Confirme medidas para móveis e circulação.",
+            "Pergunte o que permanece na unidade e registre a resposta na proposta.",
+            "Solicite documentos e informações do condomínio pertinentes à análise.",
+            "Some todos os custos antes de comparar o resultado final."
+          ]
+        }
+      ]
+    }
+  ],
+  "propertyCta": {
+    "propertyId": "gamboas",
+    "eyebrow": "Empreendimento relacionado",
+    "title": "Compare um apartamento pronto na Vila Mazzei",
+    "text": "O Edifício Gamboas possui apartamentos prontos. Consulte a disponibilidade e as condições comerciais atuais, visite a unidade e aplique esta matriz para comparar o custo total com outras opções.",
+    "buttonLabel": "Conhecer o Edifício Gamboas"
+  },
+  "faq": [
+    {
+      "question": "Apartamento novo sempre custa mais do que usado?",
+      "answer": "Não necessariamente. O preço depende de localização, área, estado, condomínio e negociação. Compare o valor final incluindo reforma, formalização, manutenção e tempo até a mudança."
+    },
+    {
+      "question": "Todo apartamento usado precisa de reforma?",
+      "answer": "Não. O estado varia de unidade para unidade. Uma vistoria e orçamentos ajudam a separar melhorias opcionais de reparos realmente necessários."
+    },
+    {
+      "question": "É possível financiar apartamento novo e usado?",
+      "answer": "Pode ser possível nos dois casos, conforme a linha de crédito, a análise do comprador, a documentação e a avaliação do imóvel. Confirme as regras vigentes com a instituição."
+    },
+    {
+      "question": "Quais valores entram no custo total da compra?",
+      "answer": "Inclua preço, entrada, crédito, tributos, registro, certidões, avaliações, reforma, reparos, móveis, mudança e despesas recorrentes. Os itens e valores variam conforme a operação."
+    },
+    {
+      "question": "Como comparar os custos do condomínio?",
+      "answer": "Compare a contribuição mensal, os serviços oferecidos, a situação das áreas comuns e as despesas previstas ou extraordinárias que puderem ser confirmadas em documentos e com a administração."
+    }
+  ]
+}

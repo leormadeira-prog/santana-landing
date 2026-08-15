@@ -21,7 +21,10 @@
   "searchIntent": "commercial investigation",
   "heroImage": "/assets/gamboas-sala-mobiliada.jpg",
   "imageAlt": "Sala integrada mobiliada usada como referência para avaliar um apartamento novo na Vila Mazzei",
-  "relatedContent": [],
+  "relatedContent": [
+    "morar-no-tucuruvi",
+    "apartamento-novo-ou-usado-custo-total"
+  ],
   "relatedProperties": ["gamboas"],
   "intro": [
     "Encontrar um apartamento novo na Vila Mazzei não é apenas comparar fotos e preços. A melhor escolha é a que funciona para sua rotina, cabe no planejamento financeiro e chega à assinatura com informações comerciais e documentais claras.",
