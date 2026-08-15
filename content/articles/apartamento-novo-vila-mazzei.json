@@ -1,0 +1,137 @@
+{
+  "slug": "apartamento-novo-vila-mazzei",
+  "title": "Apartamento novo na Vila Mazzei: o que avaliar antes de comprar",
+  "metaTitle": "Apartamento novo na Vila Mazzei: o que avaliar | ZN Empreendimentos",
+  "description": "Veja o que avaliar em um apartamento novo na Vila Mazzei: localização, planta, custos, documentação, visita e comparação com imóveis usados.",
+  "excerpt": "Um roteiro prático para comparar localização, planta, custos, documentação e condições antes de decidir.",
+  "publishedAt": "2026-08-15",
+  "updatedAt": "2026-08-15",
+  "author": {
+    "name": "Leonardo Madeira",
+    "jobTitle": "Corretor de Imóveis",
+    "credential": "CRECI-SP 331393"
+  },
+  "category": "Compra de imóvel",
+  "primaryKeyword": "apartamento novo Vila Mazzei",
+  "secondaryKeywords": [
+    "apartamento na Vila Mazzei",
+    "imóvel novo Zona Norte",
+    "comprar apartamento Vila Mazzei"
+  ],
+  "searchIntent": "commercial investigation",
+  "heroImage": "/assets/gamboas-sala-mobiliada.jpg",
+  "imageAlt": "Sala integrada mobiliada usada como referência para avaliar um apartamento novo na Vila Mazzei",
+  "relatedContent": [],
+  "relatedProperties": ["gamboas"],
+  "intro": [
+    "Encontrar um apartamento novo na Vila Mazzei não é apenas comparar fotos e preços. A melhor escolha é a que funciona para sua rotina, cabe no planejamento financeiro e chega à assinatura com informações comerciais e documentais claras.",
+    "Este guia organiza os pontos que merecem verificação antes da visita e mostra como transformar a comparação entre imóveis em uma decisão mais objetiva."
+  ],
+  "sections": [
+    {
+      "id": "o-que-avaliar",
+      "title": "O que avaliar antes de comprar",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Comece separando o que é indispensável do que é apenas desejável. Assim, uma boa apresentação visual não encobre limitações que podem pesar no dia a dia."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Localização e deslocamentos que realmente fazem parte da sua rotina.",
+            "Distribuição da planta, circulação, iluminação e ventilação dos ambientes.",
+            "Condição da unidade, acabamentos e itens incluídos na negociação.",
+            "Custos de entrada, financiamento, escritura, registro, impostos e mudança.",
+            "Documentação do imóvel e regras aplicáveis à compra.",
+            "Prazo de disponibilidade e condições comerciais formalizadas."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vila-mazzei-e-rotina",
+      "title": "Vila Mazzei, Tucuruvi e a sua rotina real",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Ao pesquisar na Zona Norte, nomes de bairros e regiões próximas podem aparecer juntos nos anúncios. Por isso, confirme o endereço exato e avalie o trajeto a partir dele, sem depender apenas do nome usado na divulgação."
+        },
+        {
+          "type": "paragraph",
+          "text": "Faça o percurso até os pontos importantes da sua semana, observe o entorno em horários diferentes e confira no mapa as alternativas de acesso. Essa verificação vale mais do que uma lista genérica de conveniências."
+        },
+        {
+          "type": "callout",
+          "title": "Teste simples",
+          "text": "Antes da visita, escolha três destinos frequentes e compare tempo, caminho e opções de deslocamento a partir do endereço do imóvel."
+        }
+      ]
+    },
+    {
+      "id": "novo-ou-usado",
+      "title": "Apartamento novo ou usado: como comparar",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "O apartamento novo tende a reduzir intervenções imediatas, mas isso não elimina a necessidade de vistoria. O usado pode oferecer outra configuração de planta ou acabamento, porém reformas e manutenções precisam entrar na conta."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Compare o custo total, e não apenas o valor anunciado.",
+            "Liste o que precisaria ser feito antes da mudança em cada opção.",
+            "Confirme o estado de instalações, acabamentos e áreas comuns.",
+            "Avalie se a planta atende ao uso atual e aos próximos anos."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-da-visita",
+      "title": "Checklist para uma visita produtiva",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Leve suas prioridades registradas e use a visita para confirmar fatos. Fotografias ajudam, mas medidas, ruídos, incidência de luz, circulação e sensação de espaço precisam ser observados presencialmente."
+        },
+        {
+          "type": "checklist",
+          "items": [
+            "Meça os ambientes essenciais para seus móveis.",
+            "Abra janelas e observe luz, ventilação e ruídos.",
+            "Pergunte o que acompanha a unidade e registre a resposta.",
+            "Peça a relação dos documentos disponíveis para conferência.",
+            "Solicite uma simulação com entrada, parcelas e demais custos separados.",
+            "Evite decidir durante a visita; revise as informações depois."
+          ]
+        }
+      ]
+    }
+  ],
+  "propertyCta": {
+    "propertyId": "gamboas",
+    "eyebrow": "Empreendimento relacionado",
+    "title": "Conheça o Edifício Gamboas",
+    "text": "Apartamentos prontos na Vila Mazzei, com dois dormitórios, sacada integrada e rooftop com churrasqueira. Veja fotos, plantas, localização e condições para avaliar se o empreendimento combina com a sua busca.",
+    "buttonLabel": "Conhecer o Edifício Gamboas"
+  },
+  "faq": [
+    {
+      "question": "O que devo verificar primeiro em um apartamento novo?",
+      "answer": "Comece pela compatibilidade com sua rotina, pela planta e pelo custo total da compra. Depois confirme estado da unidade, itens incluídos, documentação e condições comerciais."
+    },
+    {
+      "question": "Vale visitar a região em mais de um horário?",
+      "answer": "Sim. O entorno, os ruídos e os tempos de deslocamento podem mudar ao longo do dia. Visitas em horários diferentes ajudam a comparar a divulgação com sua rotina real."
+    },
+    {
+      "question": "Como comparar um imóvel novo com um usado?",
+      "answer": "Some ao preço os gastos necessários antes da mudança, avalie a planta e estime manutenções ou reformas. A comparação deve considerar custo total e adequação, não apenas o valor anunciado."
+    },
+    {
+      "question": "Quando devo pedir a documentação?",
+      "answer": "Peça as informações documentais antes de assumir qualquer compromisso e confirme com os profissionais responsáveis quais documentos e verificações se aplicam à negociação."
+    }
+  ]
+}
