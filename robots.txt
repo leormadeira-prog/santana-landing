@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /gamboas/obrigado/
+
+Sitemap: https://znempreendimentos.com.br/sitemap.xml
