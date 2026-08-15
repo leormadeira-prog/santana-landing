@@ -31,7 +31,7 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_article(article: dict, properties: dict) -> None:
+def validate_article(article: dict, properties: dict, article_slugs: set[str]) -> None:
     required = (
         "slug", "title", "metaTitle", "description", "excerpt", "publishedAt",
         "updatedAt", "author", "category", "primaryKeyword", "searchIntent",
@@ -41,6 +41,8 @@ def validate_article(article: dict, properties: dict) -> None:
     missing = [key for key in required if not article.get(key)]
     if missing:
         raise ValueError("Campos obrigatórios ausentes: " + ", ".join(missing))
+    if "relatedContent" not in article:
+        raise ValueError("Campos obrigatórios ausentes: relatedContent")
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", article["slug"]):
         raise ValueError(f"Slug inválido: {article['slug']}")
     for field in ("publishedAt", "updatedAt"):
@@ -50,6 +52,11 @@ def validate_article(article: dict, properties: dict) -> None:
     for property_id in article["relatedProperties"]:
         if property_id not in properties:
             raise ValueError(f"Empreendimento relacionado inexistente: {property_id}")
+    for related_slug in article["relatedContent"]:
+        if related_slug == article["slug"]:
+            raise ValueError(f"Conteúdo não pode indicar a si próprio: {related_slug}")
+        if related_slug not in article_slugs:
+            raise ValueError(f"Conteúdo relacionado inexistente: {related_slug}")
     cta_property = article["propertyCta"].get("propertyId")
     if cta_property not in properties:
         raise ValueError(f"Empreendimento do CTA inexistente: {cta_property}")
@@ -76,7 +83,7 @@ def render_blocks(blocks: list[dict]) -> str:
     return "\n".join(rendered)
 
 
-def render_article(article: dict, config: dict) -> str:
+def render_article(article: dict, config: dict, article_lookup: dict[str, dict]) -> str:
     domain = config["domain"]
     canonical = f"https://{domain}/conteudos/{article['slug']}/"
     property_id = article["propertyCta"]["propertyId"]
@@ -102,6 +109,23 @@ def render_article(article: dict, config: dict) -> str:
     faq = "".join(
         f'<details><summary>{text(item["question"])}</summary><p>{text(item["answer"])}</p></details>'
         for item in article["faq"]
+    )
+    related_cards = "".join(
+        '<a class="related-content-card" '
+        f'href="/conteudos/{esc(related["slug"])}/" '
+        f'data-content-cta="related" data-property-id="{esc(property_id)}">'
+        '<span>Conteúdo relacionado</span>'
+        f'<strong>{text(related["title"])}</strong>'
+        f'<p>{text(related["excerpt"])}</p>'
+        '</a>'
+        for related in (article_lookup[slug] for slug in article["relatedContent"])
+    )
+    related_content = (
+        '<section class="article-section related-content" aria-labelledby="related-content-title">'
+        '<h2 id="related-content-title">Continue sua pesquisa</h2>'
+        f'<div class="related-content-grid">{related_cards}</div>'
+        '</section>'
+        if related_cards else ""
     )
     published = date.fromisoformat(article["publishedAt"]).strftime("%d/%m/%Y")
     updated = date.fromisoformat(article["updatedAt"]).strftime("%d/%m/%Y")
@@ -208,6 +232,7 @@ def render_article(article: dict, config: dict) -> str:
         <div class="article-body">
           <div class="article-intro">{intro}</div>
           {sections}
+          {related_content}
 
           <section class="property-cta" aria-labelledby="property-cta-title">
             <span class="eyebrow">{text(article["propertyCta"]["eyebrow"])}</span>
@@ -271,16 +296,18 @@ def main() -> int:
     args = parser.parse_args()
     config = load_json(ROOT / "site.config.json")
     articles = [load_json(path) for path in sorted(ARTICLES_DIR.glob("*.json"))]
+    article_slugs = {article.get("slug") for article in articles if article.get("slug")}
+    article_lookup = {article["slug"]: article for article in articles if article.get("slug")}
     errors: list[str] = []
     seen: set[str] = set()
     for article in articles:
         try:
-            validate_article(article, config["properties"])
+            validate_article(article, config["properties"], article_slugs)
             if article["slug"] in seen:
                 raise ValueError(f"Slug editorial duplicado: {article['slug']}")
             seen.add(article["slug"])
             output = CONTENTS_DIR / article["slug"] / "index.html"
-            write_or_check(output, render_article(article, config), args.check, errors)
+            write_or_check(output, render_article(article, config, article_lookup), args.check, errors)
         except (KeyError, TypeError, ValueError) as exc:
             errors.append(str(exc))
 

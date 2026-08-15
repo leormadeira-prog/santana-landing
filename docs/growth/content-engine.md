@@ -41,7 +41,7 @@ Cada artigo declara, no mínimo:
 - `sections`, `faq`, `relatedContent` e `relatedProperties`;
 - `propertyCta` apontando para um ID existente em `site.config.json`.
 
-O gerador produz metadados sociais, canonical, `Article`, `BreadcrumbList`, autoria visível, CTA e navegação estrutural. O hub e o sitemap são atualizados a partir da mesma fonte para evitar duplicação de metadados.
+O gerador produz metadados sociais, canonical, `Article`, `BreadcrumbList`, autoria visível, CTA, navegação estrutural e cards de conteúdos relacionados. As referências de `relatedContent` são validadas entre os slugs existentes. O hub e o sitemap são atualizados a partir da mesma fonte para evitar duplicação de metadados.
 
 ## Medição e atribuição
 
@@ -65,7 +65,7 @@ O primeiro cluster é intencionalmente pequeno e cresce um artigo por vez, sempr
 | Piloto comercial | Apartamento novo na Vila Mazzei: o que avaliar antes de comprar | apartamento novo Vila Mazzei | Implementado |
 | Apoio local | Morar no Tucuruvi: o que avaliar na rotina e na localização | morar no Tucuruvi | Implementado |
 | Apoio financeiro | Como organizar entrada e financiamento de um apartamento | entrada e financiamento de apartamento | Implementado |
-| Apoio de decisão | Apartamento novo ou usado: como comparar o custo total | apartamento novo ou usado | Pauta |
+| Apoio de decisão | Apartamento novo ou usado: como comparar o custo total | apartamento novo ou usado | Implementado |
 
 ## Regras de qualidade
 
