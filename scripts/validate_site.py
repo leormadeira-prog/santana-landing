@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -17,6 +18,10 @@ APPS_SCRIPT_PATH = ROOT / "integrations" / "google-apps-script" / "Code.gs"
 MEASUREMENT_DOC_PATH = ROOT / "docs" / "growth" / "measurement.md"
 MULTI_PROPERTY_DOC_PATH = ROOT / "docs" / "growth" / "multi-property.md"
 CONTENTS_INDEX_PATH = ROOT / "conteudos" / "index.html"
+CONTENT_ARTICLES_DIR = ROOT / "content" / "articles"
+CONTENT_BUILD_SCRIPT = ROOT / "scripts" / "build_content.py"
+CONTENT_SCRIPT_PATH = ROOT / "conteudos" / "article.js"
+CONTENT_ENGINE_DOC_PATH = ROOT / "docs" / "growth" / "content-engine.md"
 ROBOTS_PATH = ROOT / "robots.txt"
 SITEMAP_PATH = ROOT / "sitemap.xml"
 
@@ -72,6 +77,8 @@ def main() -> int:
     ga_measurement_id = str(config.get("gaMeasurementId", "")).strip()
     attribution_version = str(config.get("attributionVersion", "")).strip()
     properties = config.get("properties", {})
+    content_articles: list[dict] = []
+    content_article_pages: dict[str, Path] = {}
 
     if not domain:
         errors.append("O domínio está vazio em site.config.json.")
@@ -111,8 +118,24 @@ def main() -> int:
             errors.append(f"CTAs de tracking ausentes para o empreendimento {property_id}.")
         property_pages[property_id] = ROOT / property_path.strip("/") / "index.html"
 
+    for article_path in sorted(CONTENT_ARTICLES_DIR.glob("*.json")):
+        try:
+            article = json.loads(article_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"Conteúdo editorial inválido em {article_path.relative_to(ROOT)}: {exc}")
+            continue
+        slug = str(article.get("slug", ""))
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+            errors.append(f"Slug editorial inválido em {article_path.relative_to(ROOT)}: {slug}")
+            continue
+        if slug in content_article_pages:
+            errors.append(f"Slug editorial duplicado: {slug}")
+            continue
+        content_articles.append(article)
+        content_article_pages[slug] = CONTENTS_INDEX_PATH.parent / slug / "index.html"
+
     pages: list[tuple[Path, str]] = []
-    page_paths = [ROOT / "index.html", CONTENTS_INDEX_PATH]
+    page_paths = [ROOT / "index.html", CONTENTS_INDEX_PATH, *content_article_pages.values()]
     for property_page in property_pages.values():
         page_paths.extend((property_page, property_page.parent / "obrigado" / "index.html"))
     for index_path in page_paths:
@@ -123,7 +146,12 @@ def main() -> int:
             return 1
     html = "\n".join(content for _, content in pages)
 
-    indexable_pages = [ROOT / "index.html", CONTENTS_INDEX_PATH, *property_pages.values()]
+    indexable_pages = [
+        ROOT / "index.html",
+        CONTENTS_INDEX_PATH,
+        *content_article_pages.values(),
+        *property_pages.values(),
+    ]
     page_content = dict(pages)
     for index_path in indexable_pages:
         page_html = page_content.get(index_path, "")
@@ -146,6 +174,8 @@ def main() -> int:
             errors.append("A página inicial deve declarar Organization e WebSite no JSON-LD.")
         if index_path != ROOT / "index.html" and "BreadcrumbList" not in types:
             errors.append(f"BreadcrumbList ausente no JSON-LD de {page_label}.")
+        if index_path in content_article_pages.values() and "Article" not in types:
+            errors.append(f"Article ausente no JSON-LD de {page_label}.")
 
     property_app_paths = tuple(page.parent / "app.js" for page in property_pages.values())
     privacy_paths = tuple(page.parent / "privacidade" / "index.html" for page in property_pages.values())
@@ -153,6 +183,8 @@ def main() -> int:
         APPS_SCRIPT_PATH,
         MEASUREMENT_DOC_PATH,
         MULTI_PROPERTY_DOC_PATH,
+        CONTENT_SCRIPT_PATH,
+        CONTENT_ENGINE_DOC_PATH,
     )
     sources: dict[Path, str] = {}
     for source_path in source_paths:
@@ -166,6 +198,8 @@ def main() -> int:
     privacy_html = "\n".join(sources.get(path, "") for path in privacy_paths)
     measurement_doc = sources.get(MEASUREMENT_DOC_PATH, "")
     multi_property_doc = sources.get(MULTI_PROPERTY_DOC_PATH, "")
+    content_js = sources.get(CONTENT_SCRIPT_PATH, "")
+    content_engine_doc = sources.get(CONTENT_ENGINE_DOC_PATH, "")
 
     if meta_pixel_id and meta_pixel_id not in app_js:
         errors.append("O Meta Pixel ID do site.config.json não coincide com os scripts das landings.")
@@ -210,6 +244,17 @@ def main() -> int:
         errors.append("O evento form_start com contexto do empreendimento está ausente.")
     if re.search(r"\bTEST\d{3,}\b", "\n".join(sources.values())):
         errors.append("Código temporário META_TEST_EVENT_CODE encontrado no repositório.")
+    content_measurement_markers = (
+        'CONSENT_KEY = "zn-measurement-consent"',
+        'window.gtag("event", "view_item"',
+        'window.gtag("event", "select_content"',
+        'window.fbq("track", "ViewContent"',
+        'window.fbq("trackCustom", "ContentCTAClick"',
+    )
+    if any(marker not in content_js for marker in content_measurement_markers):
+        errors.append("A medição consentida do Content Engine está ausente ou incompleta.")
+    if "O Gamboas é o primeiro destino comercial relacionado, mas não está embutido" not in content_engine_doc:
+        errors.append("A independência do Content Engine não está documentada.")
 
     for property_id, property_page in property_pages.items():
         property_data = properties[property_id]
@@ -239,6 +284,25 @@ def main() -> int:
         )
         if any(marker not in apps_script for marker in server_markers):
             errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
+
+    for article in content_articles:
+        slug = str(article.get("slug", ""))
+        article_page = content_article_pages.get(slug)
+        article_html = page_content.get(article_page, "") if article_page else ""
+        expected_article_values = {
+            "data-content-id": slug,
+            "data-ga-measurement-id": ga_measurement_id,
+            "data-meta-pixel-id": meta_pixel_id,
+        }
+        for attribute, expected_value in expected_article_values.items():
+            if not re.search(rf'{attribute}=["\']{re.escape(expected_value)}["\']', article_html):
+                errors.append(f"{attribute} do conteúdo {slug} não coincide com a configuração.")
+        related_properties = article.get("relatedProperties", [])
+        if not isinstance(related_properties, list) or not related_properties:
+            errors.append(f"O conteúdo {slug} deve declarar ao menos um empreendimento relacionado.")
+        for property_id in related_properties if isinstance(related_properties, list) else []:
+            if property_id not in properties:
+                errors.append(f"Empreendimento relacionado inexistente em {slug}: {property_id}")
 
     try:
         cname = CNAME_PATH.read_text(encoding="utf-8").strip()
@@ -272,6 +336,7 @@ def main() -> int:
         f"https://{domain}/",
         f"https://{domain}/conteudos/",
         *(f"https://{domain}{data.get('path', '')}" for data in properties.values()),
+        *(f"https://{domain}/conteudos/{slug}/" for slug in content_article_pages),
     }
     missing_sitemap_urls = expected_sitemap_urls.difference(sitemap_urls)
     if missing_sitemap_urls:
@@ -336,6 +401,20 @@ def main() -> int:
     for pattern, message in warning_patterns.items():
         if pattern.lower() in lower_html:
             warnings.append(message)
+
+    try:
+        content_check = subprocess.run(
+            [sys.executable, str(CONTENT_BUILD_SCRIPT), "--check"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if content_check.returncode != 0:
+            details = (content_check.stdout + content_check.stderr).strip()
+            errors.append("Arquivos gerados do Content Engine estão desatualizados. " + details)
+    except OSError as exc:
+        errors.append(f"Não foi possível executar a validação do Content Engine: {exc}")
 
     for message in warnings:
         annotation("warning", message)
