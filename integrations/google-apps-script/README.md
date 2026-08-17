@@ -59,6 +59,28 @@ Antes do merge ou de uma nova campanha:
 
 O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes controlados. Nenhum código `TEST...` deve ficar gravado no repositório ou nas propriedades da implantação de produção.
 
+## 6. Importar leads do formulário instantâneo da Meta
+
+Esta versão também importa os leads do formulário instantâneo para a mesma aba **Leads Gamboas**. A sincronização roda a cada cinco minutos, marca a origem como `meta / paid_social`, inicia o status operacional como `Novo` e evita duplicidade pelo ID do lead fornecido pela Meta.
+
+Em **Configurações do projeto → Propriedades do script**, crie:
+
+- `META_LEADS_FORM_ID`: ID numérico do formulário **GAMBOAS | HIGH INTENT | 08-2026**;
+- `META_LEADS_ACCESS_TOKEN`: token com permissão `leads_retrieval` e acesso à Página que possui o formulário.
+
+Para importar mais de um formulário, use `META_LEADS_FORM_IDS` com os IDs separados por vírgula. Não grave tokens neste repositório, em código da landing ou em capturas de tela.
+
+Depois de salvar as propriedades:
+
+1. execute `setup()` para preservar a planilha atual e registrar seu ID para os gatilhos;
+2. execute `setupMetaLeadSync()` uma vez e aceite as permissões solicitadas;
+3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, o ID do formulário e `triggerCount: 1`;
+4. envie um lead controlado pelo formulário da Meta;
+5. aguarde até cinco minutos ou execute `syncMetaInstantFormLeads()` manualmente;
+6. confirme a nova linha na aba **Leads Gamboas**, com `Status: Novo` e o ID `meta-...` na coluna **ID do evento**.
+
+O diagnóstico nunca devolve o token. Se houver falha, `getMetaLeadSyncStatus()` mostra a data do último sucesso e a última mensagem de erro. Leads instantâneos não são reenviados pela CAPI deste script, pois a conversão já aconteceu dentro da Meta.
+
 ## Atualizações posteriores
 
 Depois de alterar `Code.gs`, abra **Implantar → Gerenciar implantações**, edite a implantação existente, escolha **Nova versão** e implante novamente. A URL `/exec` permanece a mesma.
