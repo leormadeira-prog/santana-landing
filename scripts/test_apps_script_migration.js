@@ -28,6 +28,10 @@ class MockRange {
     );
   }
 
+  getDisplayValues() {
+    return this.getValues().map((row) => row.map((value) => String(value ?? "")));
+  }
+
   setValues(values) {
     assert.equal(values.length, this.rowCount);
     values.forEach((row, rowOffset) => {
@@ -132,4 +136,51 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
   assert.deepEqual(values(sheet, 1, attributionStart, newHeaders.length), newHeaders);
 }
 
-console.log("Apps Script migration tests passed.");
+{
+  const sheet = new MockSheet();
+  sheet.getRange(1, 1, 1, context.BASE_HEADERS.length).setValues([Array.from(context.BASE_HEADERS)]);
+  const metaLead = {
+    id: "987654321",
+    created_time: "2026-08-17T12:30:00-03:00",
+    form_id: "123456789",
+    campaign_id: "campaign-1",
+    campaign_name: "GAMBOAS | LEADS | 08-2026",
+    adset_id: "adset-1",
+    adset_name: "FORM HIGH INTENT | PROSPECCAO",
+    ad_id: "ad-1",
+    ad_name: "GAMBOAS | FACHADA | OFERTA 295K",
+    field_data: [
+      { name: "full_name", values: ["Maria da Silva"] },
+      { name: "phone_number", values: ["+55 (11) 99999-0000"] },
+      { name: "Em quanto tempo pretende comprar?", values: ["Em até 3 meses"] },
+      { name: "Como pretende comprar?", values: ["Entrada + financiamento"] },
+      { name: "Possui valor para entrada?", values: ["De R$ 30 mil a R$ 60 mil"] },
+      { name: "Gostaria de agendar uma visita?", values: ["Sim, nesta semana"] }
+    ]
+  };
+
+  context.appendMetaLead_(sheet, metaLead);
+
+  assert.equal(sheet.valueAt(2, 2), "meta-987654321");
+  assert.equal(sheet.valueAt(2, 3), "Maria da Silva");
+  assert.equal(sheet.valueAt(2, 4), "11999990000");
+  assert.equal(sheet.valueAt(2, 5), "Em até 3 meses");
+  assert.equal(sheet.valueAt(2, 6), "Entrada + financiamento");
+  assert.equal(sheet.valueAt(2, 7), "De R$ 30 mil a R$ 60 mil");
+  assert.equal(sheet.valueAt(2, 8), "Sim, nesta semana");
+  assert.equal(sheet.valueAt(2, 10), "meta");
+  assert.equal(sheet.valueAt(2, 11), "paid_social");
+  assert.equal(sheet.valueAt(2, context.OPERATION_START_COLUMN), "Novo");
+  assert.match(
+    sheet.valueAt(2, context.OPERATION_START_COLUMN + context.OPERATION_HEADERS.length - 1),
+    /Meta lead ID: 987654321/
+  );
+  assert.equal(sheet.valueAt(2, attributionStart), "gamboas");
+  assert.equal(sheet.valueAt(2, attributionStart + 3), "Meta Instant Form");
+
+  const knownIds = context.getExistingEventIds_(sheet);
+  assert.equal(knownIds["meta-987654321"], true);
+  assert.equal(context.normalizeMetaKey_("Gostaria de agendar uma visita?"), "gostaria_de_agendar_uma_visita");
+}
+
+console.log("Apps Script migration and Meta lead tests passed.");

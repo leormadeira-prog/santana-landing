@@ -13,6 +13,8 @@
 var SHEET_NAME = "Leads Gamboas";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v1";
+var META_GRAPH_VERSION = "v24.0";
+var META_LEAD_SYNC_FUNCTION = "syncMetaInstantFormLeads";
 var PROPERTY_CONFIGS = {
   gamboas: {
     path: "/gamboas/",
@@ -69,12 +71,111 @@ var ATTRIBUTION_START_COLUMN = OPERATION_START_COLUMN + OPERATION_HEADERS.length
 
 function setup() {
   var sheet = getLeadSheet_();
+  PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
   ensureHeaders_(sheet, 1, BASE_HEADERS, true);
   ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
   ensureAttributionHeaders_(sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length - 1);
   return "Integração preparada na aba \"" + SHEET_NAME + "\".";
+}
+
+/**
+ * Ativa a importação automática dos formulários instantâneos da Meta.
+ * Execute uma vez depois de configurar as propriedades descritas no README.
+ */
+function setupMetaLeadSync() {
+  setup();
+  getMetaLeadConfig_();
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
+    if (trigger.getHandlerFunction() === META_LEAD_SYNC_FUNCTION) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  ScriptApp.newTrigger(META_LEAD_SYNC_FUNCTION)
+    .timeBased()
+    .everyMinutes(5)
+    .create();
+  var result = syncMetaInstantFormLeads();
+  return "Sincronização da Meta ativada. " + result.imported + " lead(s) importado(s) agora.";
+}
+
+function removeMetaLeadSync() {
+  var removed = 0;
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
+    if (trigger.getHandlerFunction() === META_LEAD_SYNC_FUNCTION) {
+      ScriptApp.deleteTrigger(trigger);
+      removed += 1;
+    }
+  });
+  return removed + " gatilho(s) removido(s).";
+}
+
+/**
+ * Diagnóstico sem segredos. Execute no editor para conferir a ativação.
+ */
+function getMetaLeadSyncStatus() {
+  var properties = PropertiesService.getScriptProperties();
+  var rawFormIds = text_(
+    properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
+    1000
+  );
+  var triggerCount = ScriptApp.getProjectTriggers().filter(function (trigger) {
+    return trigger.getHandlerFunction() === META_LEAD_SYNC_FUNCTION;
+  }).length;
+  return {
+    spreadsheetConfigured: Boolean(properties.getProperty("SPREADSHEET_ID")),
+    accessTokenConfigured: Boolean(properties.getProperty("META_LEADS_ACCESS_TOKEN")),
+    formIds: rawFormIds.split(",").map(function (value) {
+      return text_(value, 100).replace(/\D/g, "");
+    }).filter(function (value) { return value; }),
+    triggerCount: triggerCount,
+    lastSyncAt: properties.getProperty("META_LEADS_LAST_SYNC_AT") || "",
+    lastError: properties.getProperty("META_LEADS_LAST_ERROR") || ""
+  };
+}
+
+/**
+ * Pode ser executada manualmente para testar ou recuperar leads anteriores.
+ * A leitura para ao encontrar um ID já salvo e percorre no máximo dez páginas.
+ */
+function syncMetaInstantFormLeads() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var config = getMetaLeadConfig_();
+    var sheet = getLeadSheet_();
+    ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+    ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
+    ensureAttributionHeaders_(sheet);
+
+    var existingIds = getExistingEventIds_(sheet);
+    var pending = [];
+    config.formIds.forEach(function (formId) {
+      pending = pending.concat(fetchNewMetaLeads_(formId, config.accessToken, existingIds));
+    });
+
+    pending.sort(function (left, right) {
+      return parseMetaDate_(left.created_time).getTime() - parseMetaDate_(right.created_time).getTime();
+    });
+    pending.forEach(function (metaLead) {
+      appendMetaLead_(sheet, metaLead);
+      existingIds[metaEventId_(metaLead.id)] = true;
+    });
+
+    var properties = PropertiesService.getScriptProperties();
+    properties.setProperty("META_LEADS_LAST_SYNC_AT", new Date().toISOString());
+    properties.deleteProperty("META_LEADS_LAST_ERROR");
+    return { ok: true, imported: pending.length };
+  } catch (error) {
+    PropertiesService.getScriptProperties().setProperty(
+      "META_LEADS_LAST_ERROR",
+      new Date().toISOString() + " | " + text_(error && error.message, 900)
+    );
+    throw error;
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
+  }
 }
 
 function doGet() {
@@ -210,9 +311,208 @@ function validateLead_(lead) {
 }
 
 function getLeadSheet_() {
-  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var properties = PropertiesService.getScriptProperties();
+  var spreadsheetId = properties.getProperty("SPREADSHEET_ID");
+  var spreadsheet = spreadsheetId
+    ? SpreadsheetApp.openById(spreadsheetId)
+    : SpreadsheetApp.getActiveSpreadsheet();
   if (!spreadsheet) throw new Error("SPREADSHEET_NOT_FOUND");
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
+}
+
+function getMetaLeadConfig_() {
+  var properties = PropertiesService.getScriptProperties();
+  var token = text_(properties.getProperty("META_LEADS_ACCESS_TOKEN"), 3000);
+  var rawFormIds = text_(
+    properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
+    1000
+  );
+  var formIds = rawFormIds.split(",").map(function (value) {
+    return text_(value, 100).replace(/\D/g, "");
+  }).filter(function (value) { return value; });
+  if (!token) throw new Error("META_LEADS_TOKEN_REQUIRED");
+  if (!formIds.length) throw new Error("META_LEADS_FORM_REQUIRED");
+  return { accessToken: token, formIds: formIds };
+}
+
+function getExistingEventIds_(sheet) {
+  var ids = {};
+  if (sheet.getLastRow() < 2) return ids;
+  sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getDisplayValues().forEach(function (row) {
+    var eventId = text_(row[0], 200);
+    if (eventId) ids[eventId] = true;
+  });
+  return ids;
+}
+
+function fetchNewMetaLeads_(formId, accessToken, existingIds) {
+  var fields = [
+    "id", "created_time", "ad_id", "ad_name", "adset_id", "adset_name",
+    "campaign_id", "campaign_name", "form_id", "field_data", "platform", "is_organic"
+  ].join(",");
+  var url = "https://graph.facebook.com/" + META_GRAPH_VERSION + "/" +
+    encodeURIComponent(formId) + "/leads?limit=100&fields=" + encodeURIComponent(fields);
+  var leads = [];
+  var page = 0;
+  var reachedKnownLead = false;
+
+  while (url && page < 10 && !reachedKnownLead) {
+    var response = UrlFetchApp.fetch(url, {
+      method: "get",
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + accessToken }
+    });
+    var code = response.getResponseCode();
+    var body = response.getContentText();
+    if (code < 200 || code >= 300) {
+      throw new Error("META_LEADS_HTTP_" + code + ": " + text_(body, 800));
+    }
+    var payload;
+    try { payload = JSON.parse(body); } catch (_) { throw new Error("META_LEADS_INVALID_JSON"); }
+    var pageLeads = payload && Array.isArray(payload.data) ? payload.data : [];
+    for (var index = 0; index < pageLeads.length; index += 1) {
+      var lead = pageLeads[index];
+      if (!lead || !lead.id) continue;
+      if (existingIds[metaEventId_(lead.id)]) {
+        reachedKnownLead = true;
+        break;
+      }
+      if (!lead.form_id) lead.form_id = formId;
+      leads.push(lead);
+    }
+    url = payload && payload.paging && payload.paging.next ? payload.paging.next : "";
+    page += 1;
+  }
+  return leads;
+}
+
+function appendMetaLead_(sheet, metaLead) {
+  var answers = metaAnswers_(metaLead.field_data);
+  var firstName = firstMetaAnswer_(answers, ["first_name", "primeiro_nome", "nome"]);
+  var lastName = firstMetaAnswer_(answers, ["last_name", "sobrenome"]);
+  var fullName = firstMetaAnswer_(answers, ["full_name", "nome_completo"]);
+  if (!fullName) fullName = text_(firstName + " " + lastName, 120);
+  var phone = normalizeBrazilPhone_(firstMetaAnswer_(answers, [
+    "phone_number", "whatsapp", "numero_de_whatsapp", "telefone", "celular"
+  ]));
+  var purchaseTimeline = firstMetaAnswer_(answers, [
+    "em_quanto_tempo_pretende_comprar", "quanto_tempo_pretende_comprar", "prazo_de_compra"
+  ]);
+  var purchaseMethod = firstMetaAnswer_(answers, [
+    "como_pretende_comprar", "forma_de_compra", "modalidade_de_compra"
+  ]);
+  var downPayment = firstMetaAnswer_(answers, [
+    "possui_valor_para_entrada", "valor_para_entrada", "valor_de_entrada", "entrada"
+  ]);
+  var visitInterest = firstMetaAnswer_(answers, [
+    "gostaria_de_agendar_uma_visita", "agendar_uma_visita", "interesse_em_visita", "visita"
+  ]);
+  var createdAt = parseMetaDate_(metaLead.created_time);
+  var formId = text_(metaLead.form_id, 100);
+  var eventId = metaEventId_(metaLead.id);
+  var sourceLabel = "Meta Instant Form" + (formId ? " " + formId : "");
+  var campaignName = text_(metaLead.campaign_name, 300);
+  var adsetName = text_(metaLead.adset_name, 300);
+  var adName = text_(metaLead.ad_name, 300);
+  var row = sheet.getLastRow() + 1;
+
+  sheet.getRange(row, 1, 1, BASE_HEADERS.length).setValues([[
+    createdAt,
+    safeCell_(eventId),
+    safeCell_(fullName),
+    safeCell_(phone),
+    safeCell_(purchaseTimeline),
+    safeCell_(purchaseMethod),
+    safeCell_(downPayment),
+    safeCell_(visitInterest),
+    "Sim (formulário Meta)",
+    "meta",
+    "paid_social",
+    safeCell_(campaignName),
+    safeCell_(adName),
+    safeCell_(adsetName),
+    "",
+    "",
+    "",
+    safeCell_(sourceLabel),
+    "Não",
+    "Não aplicável: lead convertido dentro da Meta"
+  ]]);
+  sheet.getRange(row, OPERATION_START_COLUMN, 1, OPERATION_HEADERS.length).setValues([[
+    "Novo", "", "", "", "", "", "", safeCell_(buildMetaLeadObservations_(metaLead, answers))
+  ]]);
+  sheet.getRange(row, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length).setValues([[
+    "gamboas",
+    "Não informado",
+    "",
+    "Meta Instant Form",
+    safeCell_(adName || campaignName),
+    "meta-instant-form",
+    createdAt,
+    safeCell_(sourceLabel),
+    "meta-leads-v1"
+  ]]);
+}
+
+function metaAnswers_(fieldData) {
+  var answers = {};
+  (Array.isArray(fieldData) ? fieldData : []).forEach(function (field) {
+    var key = normalizeMetaKey_(field && field.name);
+    var values = field && Array.isArray(field.values) ? field.values : [];
+    if (key) answers[key] = text_(values.join(" | "), 1000);
+  });
+  return answers;
+}
+
+function firstMetaAnswer_(answers, aliases) {
+  for (var index = 0; index < aliases.length; index += 1) {
+    var exact = answers[normalizeMetaKey_(aliases[index])];
+    if (exact) return exact;
+  }
+  var keys = Object.keys(answers);
+  for (var aliasIndex = 0; aliasIndex < aliases.length; aliasIndex += 1) {
+    var alias = normalizeMetaKey_(aliases[aliasIndex]);
+    for (var keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+      if (keys[keyIndex].indexOf(alias) !== -1 && answers[keys[keyIndex]]) return answers[keys[keyIndex]];
+    }
+  }
+  return "";
+}
+
+function normalizeMetaKey_(value) {
+  var normalized = text_(value, 300).toLowerCase();
+  if (normalized.normalize) normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return normalized.replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function normalizeBrazilPhone_(value) {
+  var digits = text_(value, 40).replace(/\D/g, "");
+  if (digits.indexOf("55") === 0 && digits.length >= 12) digits = digits.slice(2);
+  return digits;
+}
+
+function buildMetaLeadObservations_(metaLead, answers) {
+  var parts = [
+    "Origem: formulário instantâneo da Meta",
+    "Meta lead ID: " + text_(metaLead.id, 100),
+    "Form ID: " + text_(metaLead.form_id, 100),
+    "Campaign: " + text_(metaLead.campaign_name || metaLead.campaign_id, 300),
+    "Ad set: " + text_(metaLead.adset_name || metaLead.adset_id, 300),
+    "Ad: " + text_(metaLead.ad_name || metaLead.ad_id, 300)
+  ];
+  Object.keys(answers).sort().forEach(function (key) {
+    parts.push(key + ": " + answers[key]);
+  });
+  return parts.filter(function (part) { return part.replace(/:\s*$/, ":").slice(-1) !== ":"; }).join(" | ");
+}
+
+function metaEventId_(leadId) {
+  return "meta-" + text_(leadId, 180);
+}
+
+function parseMetaDate_(value) {
+  var parsed = new Date(value || Date.now());
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
 function getPropertyConfig_(propertyId) {
