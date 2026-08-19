@@ -11,7 +11,7 @@ Esta integração transforma uma Planilha Google em um endpoint compartilhado pa
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
 6. Autorize o acesso à planilha. A aba **Leads Gamboas** e os cabeçalhos serão criados automaticamente.
 
-O `setup()` preserva as colunas operacionais **U:AB** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações), grava o **ID do empreendimento em AC**, mantém a atribuição em **AD:AK** e acrescenta versões/datas dos consentimentos em **AL:AO**. Execute `setup()` novamente depois de instalar esta versão para adicionar os novos cabeçalhos sem apagar os leads existentes. Se uma versão anterior ainda tiver a atribuição sem `property_id`, o próprio `setup()` desloca os oito campos antigos uma coluna para a direita antes de inserir o empreendimento.
+O `setup()` preserva as colunas manuais **C** (`Ordem`) e **F** (`Contato responde`), as colunas operacionais **W:AD** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações) e o bloco bruto dos formulários da Meta. O **ID do empreendimento fica em AE**, a atribuição em **AF:AM** e as versões/datas dos consentimentos em **AN:AQ**. Execute `setup()` novamente depois de instalar esta versão para inserir os novos campos antes do bloco bruto da Meta, sem apagar leads ou dados operacionais existentes. Estruturas anteriores sem as duas colunas manuais ou sem `property_id` também são migradas automaticamente.
 
 ## 2. Publicar como app da Web
 
@@ -36,7 +36,7 @@ O navegador precisa fazer uma requisição simples para evitar o preflight CORS.
 ### Ordem obrigatória de publicação
 
 1. publicar primeiro esta versão do Apps Script;
-2. executar `setup()` e conferir a extensão dos cabeçalhos até **AO**;
+2. executar `setup()` e conferir a extensão dos cabeçalhos de integração até **AQ**;
 3. abrir `/exec` e confirmar `growth-v2`;
 4. realizar um envio controlado e conferir a linha;
 5. somente então publicar a landing `growth-v2`.
@@ -65,7 +65,7 @@ Antes do merge ou de uma nova campanha:
 2. envie um lead controlado depois de aceitar a medição e confirme `CAPI enviada: Sim`;
 3. verifique `Lead` e, se aplicável, `Schedule` como navegador e servidor no Gerenciador de Eventos;
 4. envie um segundo lead controlado após recusar a medição e confirme que ele foi salvo, mas a CAPI não foi enviada;
-5. confira **AC:AO**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário, última página e as versões/datas dos dois consentimentos;
+5. confira **AE:AQ**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário, última página e as versões/datas dos dois consentimentos;
 6. repita um `event_id` controlado e confirme que a resposta indica duplicata sem criar uma segunda linha;
 7. confirme que URLs registradas não conservam parâmetros fora da lista permitida nem consultas de referçcias externas.
 

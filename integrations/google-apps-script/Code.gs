@@ -29,8 +29,10 @@ var PROPERTY_CONFIGS = {
 var BASE_HEADERS = [
   "Recebido em",
   "ID do evento",
+  "Ordem",
   "Nome completo",
   "WhatsApp",
+  "Contato responde",
   "Prazo de compra",
   "Forma de compra",
   "Valor de entrada",
@@ -79,7 +81,7 @@ var ATTRIBUTION_START_COLUMN = OPERATION_START_COLUMN + OPERATION_HEADERS.length
 function setup() {
   var sheet = getLeadSheet_();
   PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
-  ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+  ensureBaseHeaders_(sheet);
   ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
   ensureAttributionHeaders_(sheet);
   sheet.setFrozenRows(1);
@@ -152,7 +154,7 @@ function syncMetaInstantFormLeads() {
   try {
     var config = getMetaLeadConfig_();
     var sheet = getLeadSheet_();
-    ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+    ensureBaseHeaders_(sheet);
     ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
     ensureAttributionHeaders_(sheet);
 
@@ -202,7 +204,7 @@ function doPost(event) {
     validateLead_(lead);
 
     var sheet = getLeadSheet_();
-    ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+    ensureBaseHeaders_(sheet);
     ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
     ensureAttributionHeaders_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
@@ -214,8 +216,10 @@ function doPost(event) {
     var baseValues = [
       new Date(),
       safeCell_(lead.eventId),
+      "",
       safeCell_(lead.fullName),
       safeCell_(lead.whatsapp),
+      "",
       safeCell_(lead.purchaseTimeline),
       safeCell_(lead.purchaseMethod),
       safeCell_(lead.downPayment),
@@ -254,7 +258,8 @@ function doPost(event) {
 
     var capiResults = sendCapiEvents_(lead);
     try {
-      sheet.getRange(row, 19, 1, 2).setValues([[
+      var capiStatusColumn = BASE_HEADERS.indexOf("CAPI enviada") + 1;
+      sheet.getRange(row, capiStatusColumn, 1, 2).setValues([[
         capiResults.sent ? "Sim" : "Não",
         safeCell_(capiResults.details)
       ]]);
@@ -462,8 +467,10 @@ function appendMetaLead_(sheet, metaLead) {
   var baseValues = [
     createdAt,
     safeCell_(eventId),
+    "",
     safeCell_(fullName),
     safeCell_(phone),
+    "",
     safeCell_(purchaseTimeline),
     safeCell_(purchaseMethod),
     safeCell_(downPayment),
@@ -645,33 +652,65 @@ function ensureHeaders_(sheet, startColumn, headers, strict) {
   }
 }
 
+function ensureBaseHeaders_(sheet) {
+  var existing = sheet.getRange(1, 1, 1, BASE_HEADERS.length).getValues()[0]
+    .map(function (value) { return text_(value, 200); });
+  var isCurrent = BASE_HEADERS.every(function (header, index) { return existing[index] === header; });
+  var isEmpty = existing.every(function (header) { return !header; });
+  if (isCurrent || isEmpty) {
+    ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+    return;
+  }
+
+  var legacyHeaders = BASE_HEADERS.filter(function (header) {
+    return header !== "Ordem" && header !== "Contato responde";
+  });
+  var legacyExisting = sheet.getRange(1, 1, 1, legacyHeaders.length).getValues()[0]
+    .map(function (value) { return text_(value, 200); });
+  var isLegacy = legacyHeaders.every(function (header, index) { return legacyExisting[index] === header; });
+  if (!isLegacy) throw new Error("HEADER_MISMATCH");
+
+  sheet.insertColumnsBefore(3, 1);
+  sheet.insertColumnsBefore(6, 1);
+  ensureHeaders_(sheet, 1, BASE_HEADERS, true);
+}
+
 function ensureAttributionHeaders_(sheet) {
-  var legacyHeaders = [
-    "Consentimento de medição",
-    "Primeira página da sessão",
-    "Referência inicial",
-    "Conteúdo de origem",
-    "CTA de origem",
-    "Primeiro acesso em",
-    "Última página antes da conversão",
-    "Versão da atribuição"
-  ];
-  var legacyRange = sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, legacyHeaders.length);
-  var existing = legacyRange.getValues()[0].map(function (value) { return text_(value, 200); });
-  var isLegacy = legacyHeaders.every(function (header, index) { return existing[index] === header; });
-  if (isLegacy) {
-    var dataRows = Math.max(sheet.getLastRow() - 1, 0);
-    if (dataRows) {
-      var legacyValues = sheet.getRange(2, ATTRIBUTION_START_COLUMN, dataRows, legacyHeaders.length).getValues();
-      sheet.getRange(2, ATTRIBUTION_START_COLUMN + 1, dataRows, legacyHeaders.length).setValues(legacyValues);
-      sheet.getRange(2, ATTRIBUTION_START_COLUMN, dataRows, 1).clearContent();
+  var existing = sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length)
+    .getValues()[0]
+    .map(function (value) { return text_(value, 200); });
+  var isCurrent = ATTRIBUTION_HEADERS.every(function (header, index) { return existing[index] === header; });
+  var isEmpty = existing.every(function (header) { return !header; });
+  if (isCurrent || isEmpty) {
+    ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
+    return;
+  }
+
+  var growthV1Headers = ATTRIBUTION_HEADERS.slice(0, 9);
+  var isGrowthV1 = growthV1Headers.every(function (header, index) { return existing[index] === header; });
+  if (isGrowthV1) {
+    var occupiedAfterV1 = existing.slice(growthV1Headers.length).some(function (header) { return Boolean(header); });
+    if (occupiedAfterV1) {
+      sheet.insertColumnsBefore(ATTRIBUTION_START_COLUMN + growthV1Headers.length, 4);
     }
     sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length)
       .setValues([ATTRIBUTION_HEADERS])
       .setFontWeight("bold");
     return;
   }
-  ensureHeaders_(sheet, ATTRIBUTION_START_COLUMN, ATTRIBUTION_HEADERS, true);
+
+  var legacyHeaders = ATTRIBUTION_HEADERS.slice(1, 9);
+  var isLegacy = legacyHeaders.every(function (header, index) { return existing[index] === header; });
+  if (isLegacy) {
+    sheet.insertColumnsBefore(ATTRIBUTION_START_COLUMN, 1);
+    sheet.insertColumnsBefore(ATTRIBUTION_START_COLUMN + growthV1Headers.length, 4);
+    sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length)
+      .setValues([ATTRIBUTION_HEADERS])
+      .setFontWeight("bold");
+    return;
+  }
+
+  throw new Error("HEADER_MISMATCH");
 }
 
 function findEventRow_(sheet, eventId) {

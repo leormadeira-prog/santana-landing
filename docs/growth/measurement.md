@@ -64,11 +64,12 @@ O Search Console fornece consultas orgânicas de forma agregada. Não se deve pr
 
 ## Colunas da planilha
 
-- **A:T:** dados do lead, campanha e resposta da CAPI;
-- **U:AB:** operação comercial manual;
-- **AC:** `property_id` do empreendimento;
-- **AD:AK:** consentimento de medição e atribuição;
-- **AL:AO:** versões e datas dos consentimentos de medição e atendimento.
+- **A:V:** dados do lead, colunas manuais `Ordem`/`Contato responde`, campanha e resposta da CAPI;
+- **W:AD:** operação comercial manual;
+- **AE:** `property_id` do empreendimento;
+- **AF:AM:** consentimento de medição e atribuição;
+- **AN:AQ:** versões e datas dos consentimentos de medição e atendimento;
+- **AR em diante:** bloco bruto dos formulários da Meta, preservado pela migração.
 
 ## Checklist de produção
 

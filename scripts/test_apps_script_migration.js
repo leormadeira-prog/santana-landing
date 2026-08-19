@@ -85,6 +85,18 @@ class MockSheet {
     return new MockRange(this, row, column, rowCount, columnCount);
   }
 
+  insertColumnsBefore(beforePosition, howMany) {
+    const shifted = new Map();
+    for (const [key, value] of this.cells.entries()) {
+      const [row, column] = key.split(":").map(Number);
+      const nextColumn = column >= beforePosition ? column + howMany : column;
+      shifted.set(this.key(row, nextColumn), value);
+    }
+    this.cells = shifted;
+    this.audit.push({ type: "insertColumnsBefore", beforePosition, howMany });
+    return this;
+  }
+
   getLastRow() {
     let lastRow = 0;
     for (const [key, value] of this.cells.entries()) {
@@ -217,7 +229,9 @@ assert.throws(
   assert.equal(response.version, "growth-v2");
   assert.equal(response.id, eventId);
   assert.equal(sheet.valueAt(2, 2), eventId);
-  assert.equal(sheet.valueAt(2, 19), "Sim");
+  assert.equal(sheet.valueAt(2, 3), "");
+  assert.equal(sheet.valueAt(2, 6), "");
+  assert.equal(sheet.valueAt(2, context.BASE_HEADERS.indexOf("CAPI enviada") + 1), "Sim");
 
   let capiCalledForDuplicate = false;
   context.findEventRow_ = () => 2;
@@ -243,6 +257,24 @@ assert.throws(
   assert.equal(duplicate.duplicate, true);
   assert.equal(duplicate.stored, true);
   assert.equal(capiCalledForDuplicate, false);
+}
+
+{
+  const sheet = new MockSheet();
+  const legacyBaseHeaders = Array.from(context.BASE_HEADERS).filter(
+    (header) => header !== "Ordem" && header !== "Contato responde"
+  );
+  const legacyValues = legacyBaseHeaders.map((header) => `valor:${header}`);
+  sheet.getRange(1, 1, 1, legacyBaseHeaders.length).setValues([legacyBaseHeaders]);
+  sheet.getRange(2, 1, 1, legacyValues.length).setValues([legacyValues]);
+
+  context.ensureBaseHeaders_(sheet);
+
+  assert.deepEqual(values(sheet, 1, 1, context.BASE_HEADERS.length), Array.from(context.BASE_HEADERS));
+  assert.equal(sheet.valueAt(2, 3), "");
+  assert.equal(sheet.valueAt(2, 6), "");
+  assert.equal(sheet.valueAt(2, 4), "valor:Nome completo");
+  assert.equal(sheet.valueAt(2, 7), "valor:Prazo de compra");
 }
 
 {
@@ -286,14 +318,20 @@ assert.throws(
   const growthV1Values = [
     "gamboas", "Aceito", "primeira", "referencia", "conteudo", "cta", "data", "ultima", "growth-v1"
   ];
+  const rawMetaHeaders = ["id", "created_time", "ad_id", "ad_name"];
+  const rawMetaValues = ["lead-1", "2026-08-19", "ad-1", "Anúncio"];
   sheet.getRange(1, attributionStart, 1, growthV1Headers.length).setValues([growthV1Headers]);
   sheet.getRange(2, attributionStart, 1, growthV1Values.length).setValues([growthV1Values]);
+  sheet.getRange(1, attributionStart + growthV1Headers.length, 1, rawMetaHeaders.length).setValues([rawMetaHeaders]);
+  sheet.getRange(2, attributionStart + growthV1Values.length, 1, rawMetaValues.length).setValues([rawMetaValues]);
 
   context.ensureAttributionHeaders_(sheet);
 
   assert.deepEqual(values(sheet, 1, attributionStart, newHeaders.length), newHeaders);
   assert.deepEqual(values(sheet, 2, attributionStart, growthV1Values.length), growthV1Values);
   assert.deepEqual(values(sheet, 2, attributionStart + growthV1Values.length, 4), ["", "", "", ""]);
+  assert.deepEqual(values(sheet, 1, attributionStart + newHeaders.length, rawMetaHeaders.length), rawMetaHeaders);
+  assert.deepEqual(values(sheet, 2, attributionStart + newHeaders.length, rawMetaValues.length), rawMetaValues);
 }
 
 {
@@ -323,14 +361,16 @@ assert.throws(
   context.appendMetaLead_(sheet, metaLead);
 
   assert.equal(sheet.valueAt(2, 2), "meta-987654321");
-  assert.equal(sheet.valueAt(2, 3), "Maria da Silva");
-  assert.equal(sheet.valueAt(2, 4), "11999990000");
-  assert.equal(sheet.valueAt(2, 5), "Em até 3 meses");
-  assert.equal(sheet.valueAt(2, 6), "Entrada + financiamento");
-  assert.equal(sheet.valueAt(2, 7), "De R$ 30 mil a R$ 60 mil");
-  assert.equal(sheet.valueAt(2, 8), "Sim, nesta semana");
-  assert.equal(sheet.valueAt(2, 10), "meta");
-  assert.equal(sheet.valueAt(2, 11), "paid_social");
+  assert.equal(sheet.valueAt(2, 3), "");
+  assert.equal(sheet.valueAt(2, 4), "Maria da Silva");
+  assert.equal(sheet.valueAt(2, 5), "11999990000");
+  assert.equal(sheet.valueAt(2, 6), "");
+  assert.equal(sheet.valueAt(2, 7), "Em até 3 meses");
+  assert.equal(sheet.valueAt(2, 8), "Entrada + financiamento");
+  assert.equal(sheet.valueAt(2, 9), "De R$ 30 mil a R$ 60 mil");
+  assert.equal(sheet.valueAt(2, 10), "Sim, nesta semana");
+  assert.equal(sheet.valueAt(2, 12), "meta");
+  assert.equal(sheet.valueAt(2, 13), "paid_social");
   assert.equal(sheet.valueAt(2, context.OPERATION_START_COLUMN), "Novo");
   assert.match(
     sheet.valueAt(2, context.OPERATION_START_COLUMN + context.OPERATION_HEADERS.length - 1),
