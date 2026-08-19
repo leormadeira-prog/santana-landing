@@ -46,9 +46,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=20260819-growth-v2-2">
 </head>
-<body data-property-id="gamboas" data-property-name="Edifício Gamboas" data-property-price="295000" data-property-currency="BRL">
+<body class="hero-cta-visible" data-property-id="gamboas" data-property-name="Edifício Gamboas" data-property-price="295000" data-property-currency="BRL">
   <main>
     <header class="site-header">
       <a href="#inicio" class="brand" aria-label="Edifício Gamboas — início">
@@ -57,7 +57,7 @@
       <nav aria-label="Navegação principal">
         <a href="#apartamento">O apartamento</a>
         <a href="#localizacao">Localização</a>
-        <a href="#formulario" class="header-cta" data-attribution-cta="cabecalho">Quero conhecer</a>
+        <a href="#formulario" class="header-cta" data-attribution-cta="cabecalho">Receba condições</a>
       </nav>
     </header>
 
@@ -67,107 +67,114 @@
 
     <section class="hero" id="inicio">
       <div class="hero-media">
-        <img src="../assets/gamboas-sala-mobiliada.jpg" alt="Sugestão de decoração da sala integrada do Edifício Gamboas" class="hero-image" width="1450" height="1086" fetchpriority="high">
+        <picture>
+          <source type="image/webp" srcset="../assets/gamboas-sala-mobiliada-640.webp 640w, ../assets/gamboas-sala-mobiliada-960.webp 960w, ../assets/gamboas-sala-mobiliada.webp 1448w" sizes="(max-width: 820px) 100vw, 59vw">
+          <img src="../assets/gamboas-sala-mobiliada.jpg" alt="Sugestão de decoração da sala integrada do Edifício Gamboas" class="hero-image" width="1448" height="1086" fetchpriority="high">
+        </picture>
         <div class="hero-gradient"></div>
-        <span class="image-disclaimer">Imagem ilustrativa • sugestão de decoração</span>
+        <span class="image-disclaimer">Apartamento decorado • imagem ilustrativa</span>
         <div class="hero-copy">
-          <span class="eyebrow light">Vila Mazzei • São Paulo</span>
-          <h1>Seu apartamento pronto, do seu jeito.</h1>
-          <p>2 dormitórios, sacada integrada e rooftop com churrasqueira em um endereço tranquilo da Zona Norte.</p>
+          <span class="eyebrow light">Ed. Gamboas • recém-entregue</span>
+          <h1>Apartamentos prontos para morar na Zona Norte de São Paulo.</h1>
+          <p>Conheça o Ed. Gamboas, com 2 dormitórios, sacada integrada e rooftop com churrasqueira na Vila Mazzei.</p>
           <div class="hero-facts" aria-label="Destaques do empreendimento">
             <span><strong>2</strong> dormitórios</span>
             <span><strong>1</strong> sacada integrada</span>
             <span><strong>100%</strong> pronto</span>
+          </div>
+          <div class="hero-mobile-offer">
+            <p><span>A partir de</span><strong>R$ 295 mil</strong></p>
+            <small>Entrada a partir de R$ 60 mil, sujeita à análise de crédito e às condições aplicáveis.</small>
+            <a href="#formulario" data-attribution-cta="hero-mobile">Receba plantas e condições</a>
           </div>
         </div>
       </div>
 
       <div class="hero-conversion">
         <div class="price-block">
-          <span class="eyebrow">Venda direta • unidades disponíveis</span>
+          <span class="eyebrow">Ed. Gamboas • recém-entregue</span>
           <p class="price-label">A partir de</p>
           <p class="price">R$ 295 mil</p>
-          <p class="price-note">Condições facilitadas e possibilidade de financiamento.</p>
+          <p class="price-note"><strong>Entrada a partir de R$ 60 mil</strong>, sujeita à análise de crédito e às condições aplicáveis.</p>
         </div>
 
         <form class="lead-form" id="formulario" novalidate>
           <div class="form-heading">
             <div>
               <span class="form-kicker">Atendimento personalizado</span>
-              <h2 id="form-title">Receba valores e disponibilidade</h2>
+              <h2 id="form-title">Receba plantas e condições</h2>
             </div>
-            <span class="step-indicator" id="step-indicator">1/3</span>
+            <span class="step-indicator" id="step-indicator">1/2</span>
           </div>
-          <div class="progress" aria-label="Etapa 1 de 3"><i id="form-progress"></i></div>
+          <div class="progress" role="progressbar" aria-label="Etapa 1 de 2" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1"><i id="form-progress" style="width:50%"></i></div>
+
+          <div class="honeypot" aria-hidden="true"><label>Não preencha este campo<input name="website" autocomplete="off" tabindex="-1"></label></div>
 
           <div class="form-step" data-step="1">
-            <p class="form-helper">Comece pelo seu contato. Leva menos de 1 minuto.</p>
-            <label class="field"><span>Nome completo</span><input id="full-name" name="fullName" autocomplete="name" maxlength="120" placeholder="Como podemos chamar você?" required></label>
+            <p class="form-helper">Informe seu contato. Leva menos de 1 minuto.</p>
+            <label class="field"><span>Nome</span><input id="full-name" name="fullName" autocomplete="name" maxlength="120" placeholder="Como podemos chamar você?" required></label>
             <label class="field"><span>WhatsApp</span><input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" aria-describedby="phone-help" required><small id="phone-help">Usaremos este número apenas para responder ao seu interesse.</small></label>
             <button class="form-button" type="button" data-next="2">Continuar</button>
           </div>
 
           <div class="form-step" data-step="2" hidden>
-            <p class="form-helper">Agora conte um pouco sobre o seu momento de compra.</p>
-            <label class="field"><span>Em quanto tempo pretende comprar?</span><select name="purchaseTimeline" required><option value="" selected disabled>Selecione uma opção</option><option>Imediatamente</option><option>Em até 3 meses</option><option>De 3 a 6 meses</option><option>Apenas pesquisando</option></select></label>
-            <label class="field"><span>Como pretende comprar?</span><select name="purchaseMethod" required><option value="" selected disabled>Selecione uma opção</option><option>Financiamento bancário</option><option>Entrada + financiamento</option><option>Recursos próprios</option><option>Ainda preciso avaliar</option></select></label>
-            <label class="field"><span>Possui valor para entrada?</span><select name="downPayment" required><option value="" selected disabled>Selecione uma opção</option><option>Até R$ 30 mil</option><option>De R$ 30 mil a R$ 60 mil</option><option>Acima de R$ 60 mil</option><option>Ainda não possuo</option></select></label>
-            <label class="field"><span>Gostaria de agendar uma visita?</span><select name="visitInterest" required><option value="" selected disabled>Selecione uma opção</option><option>Sim, nesta semana</option><option>Sim, nas próximas semanas</option><option>Primeiro quero receber informações</option></select></label>
-            <div class="form-actions"><button class="back-button" type="button" data-back="1">Voltar</button><button class="form-button" type="button" data-next="3">Revisar</button></div>
-          </div>
-
-          <div class="form-step" data-step="3" hidden>
-            <dl class="review-list" id="review-list"></dl>
+            <p class="form-helper">Estas duas respostas são opcionais e ajudam a personalizar o atendimento.</p>
+            <label class="field"><span>Em quanto tempo pretende comprar? <em>Opcional</em></span><select name="purchaseTimeline"><option value="" selected>Prefiro não informar</option><option>Imediatamente</option><option>Em até 3 meses</option><option>De 3 a 6 meses</option><option>Apenas pesquisando</option></select></label>
+            <label class="field"><span>Valor disponível para entrada <em>Opcional</em></span><select name="downPayment"><option value="" selected>Prefiro não informar</option><option>Até R$ 30 mil</option><option>De R$ 30 mil a R$ 60 mil</option><option>Acima de R$ 60 mil</option><option>Ainda não possuo</option></select></label>
             <label class="consent-field"><input name="consent" type="checkbox" required><span>Autorizo a ZN Empreendimentos a usar estes dados para responder ao meu interesse, conforme a <a href="./privacidade/" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
-            <div class="form-actions"><button class="back-button" type="button" data-back="2">Editar</button><button class="form-button" type="submit">Enviar meu interesse</button></div>
+            <div class="form-actions"><button class="back-button" type="button" data-back="1">Voltar</button><button class="form-button" type="submit">Receba plantas e condições</button></div>
           </div>
 
           <p class="form-error" id="form-error" role="alert"></p>
-          <p class="secure-note"><span aria-hidden="true">✓</span> Seus dados ficam protegidos e não serão vendidos.</p>
+          <p class="secure-note"><span aria-hidden="true">✓</span> Seus dados são usados somente para atender ao seu interesse e não são vendidos.</p>
           <p class="broker-note">Atendimento: Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</p>
         </form>
       </div>
     </section>
 
+    <aside class="decorated-disclaimer" aria-label="Informação sobre as imagens">
+      <strong>Sobre as imagens:</strong> Imagens do apartamento decorado, meramente ilustrativas. As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo.
+    </aside>
+
     <section class="trust-strip" aria-label="Vantagens">
-      <article><span class="trust-number">01</span><div><h2>Pronto para morar</h2><p>Visite, conheça e planeje sua mudança sem esperar a obra.</p></div></article>
+      <article><span class="trust-number">01</span><div><h2>Recém-entregue</h2><p>Apartamentos prontos para morar e visitar, sem esperar a obra.</p></div></article>
       <article><span class="trust-number">02</span><div><h2>Documentação regularizada</h2><p>Mais tranquilidade para analisar financiamento e escritura.</p></div></article>
       <article><span class="trust-number">03</span><div><h2>Venda direta</h2><p>Converse sem intermediários sobre entrada e condições facilitadas.</p></div></article>
     </section>
 
     <section class="intro-section" id="apartamento">
       <div class="section-heading"><span class="eyebrow">Conheça por dentro</span><h2>Espaços bem resolvidos para a vida real.</h2></div>
-      <div class="section-intro-wrap"><p class="section-intro">Ambientes integrados, boa entrada de luz e uma planta que aproveita cada metro. Veja como os espaços podem ganhar vida com uma decoração acolhedora.</p><small>Imagens ilustrativas com sugestão de decoração. Móveis e objetos não integram a unidade.</small></div>
+      <div class="section-intro-wrap"><p class="section-intro">Ambientes integrados, boa entrada de luz e uma planta que aproveita cada metro. Veja como os espaços podem ganhar vida com uma decoração acolhedora.</p><small>Imagens do apartamento decorado, meramente ilustrativas. As unidades são entregues no contrapiso e sem os itens de decoração apresentados.</small></div>
     </section>
 
     <section class="gallery" aria-label="Fotos do empreendimento">
-      <figure class="gallery-featured"><img src="../assets/gamboas-cozinha-mobiliada.jpg" alt="Sugestão de decoração da cozinha integrada" width="1280" height="960" loading="lazy"><figcaption>Cozinha integrada</figcaption></figure>
-      <figure class="gallery-bedroom"><img src="../assets/gamboas-dormitorio-casal.jpg" alt="Sugestão de decoração do dormitório de casal com acesso à sacada" width="1280" height="960" loading="lazy"><figcaption>Dormitório com sacada</figcaption></figure>
-      <figure class="gallery-bedroom-two"><img src="../assets/gamboas-dormitorio-dois.jpg" alt="Sugestão de decoração do segundo dormitório" width="1448" height="1086" loading="lazy"><figcaption>Segundo dormitório</figcaption></figure>
-      <figure class="gallery-portrait"><img src="../assets/gamboas-banheiro-mobiliado.jpg" alt="Sugestão de decoração do banheiro" width="1280" height="960" loading="lazy"><figcaption>Banheiro</figcaption></figure>
-      <figure class="gallery-portrait"><img src="../assets/gamboas-area-servicos-mobiliada.jpg" alt="Sugestão de decoração da área de serviços" width="1024" height="1536" loading="lazy"><figcaption>Área de serviços</figcaption></figure>
-      <figure class="gallery-portrait"><img src="../assets/gamboas-sacada-integrada.jpg" alt="Sugestão de decoração da sacada integrada aos dois dormitórios" width="1024" height="1536" loading="lazy"><figcaption>Sacada integrada</figcaption></figure>
-      <figure class="gallery-facade"><img src="../assets/gamboas-fachada-ambientada.jpg" alt="Fachada do Edifício Gamboas com sugestão de paisagismo" width="1536" height="1024" loading="lazy"><figcaption>Fachada do empreendimento</figcaption></figure>
+      <figure class="gallery-featured"><picture><source type="image/webp" srcset="../assets/gamboas-cozinha-mobiliada-640.webp 640w, ../assets/gamboas-cozinha-mobiliada-960.webp 960w, ../assets/gamboas-cozinha-mobiliada.webp 1280w" sizes="(max-width: 820px) 100vw, 58vw"><img src="../assets/gamboas-cozinha-mobiliada.jpg" alt="Sugestão de decoração da cozinha integrada" width="1280" height="960" loading="lazy"></picture><figcaption>Cozinha integrada</figcaption></figure>
+      <figure class="gallery-bedroom"><picture><source type="image/webp" srcset="../assets/gamboas-dormitorio-casal-640.webp 640w, ../assets/gamboas-dormitorio-casal-960.webp 960w, ../assets/gamboas-dormitorio-casal.webp 1280w" sizes="(max-width: 820px) 100vw, 42vw"><img src="../assets/gamboas-dormitorio-casal.jpg" alt="Sugestão de decoração do dormitório de casal com acesso à sacada" width="1280" height="960" loading="lazy"></picture><figcaption>Dormitório com sacada</figcaption></figure>
+      <figure class="gallery-bedroom-two"><picture><source type="image/webp" srcset="../assets/gamboas-dormitorio-dois-640.webp 640w, ../assets/gamboas-dormitorio-dois-960.webp 960w, ../assets/gamboas-dormitorio-dois.webp 1448w" sizes="(max-width: 820px) 100vw, 42vw"><img src="../assets/gamboas-dormitorio-dois.jpg" alt="Sugestão de decoração do segundo dormitório" width="1448" height="1086" loading="lazy"></picture><figcaption>Segundo dormitório</figcaption></figure>
+      <figure class="gallery-portrait"><picture><source type="image/webp" srcset="../assets/gamboas-banheiro-mobiliado-640.webp 640w, ../assets/gamboas-banheiro-mobiliado-960.webp 960w, ../assets/gamboas-banheiro-mobiliado.webp 1280w" sizes="(max-width: 820px) 100vw, 33vw"><img src="../assets/gamboas-banheiro-mobiliado.jpg" alt="Sugestão de decoração do banheiro" width="1280" height="960" loading="lazy"></picture><figcaption>Banheiro</figcaption></figure>
+      <figure class="gallery-portrait"><picture><source type="image/webp" srcset="../assets/gamboas-area-servicos-mobiliada-640.webp 640w, ../assets/gamboas-area-servicos-mobiliada-960.webp 960w, ../assets/gamboas-area-servicos-mobiliada.webp 1024w" sizes="(max-width: 820px) 100vw, 33vw"><img src="../assets/gamboas-area-servicos-mobiliada.jpg" alt="Sugestão de decoração da área de serviços" width="1024" height="1536" loading="lazy"></picture><figcaption>Área de serviços</figcaption></figure>
+      <figure class="gallery-portrait"><picture><source type="image/webp" srcset="../assets/gamboas-sacada-integrada-640.webp 640w, ../assets/gamboas-sacada-integrada-960.webp 960w, ../assets/gamboas-sacada-integrada.webp 1024w" sizes="(max-width: 820px) 100vw, 33vw"><img src="../assets/gamboas-sacada-integrada.jpg" alt="Sugestão de decoração da sacada integrada aos dois dormitórios" width="1024" height="1536" loading="lazy"></picture><figcaption>Sacada integrada</figcaption></figure>
+      <figure class="gallery-facade"><picture><source type="image/webp" srcset="../assets/gamboas-fachada-ambientada-640.webp 640w, ../assets/gamboas-fachada-ambientada-960.webp 960w, ../assets/gamboas-fachada-ambientada.webp 1536w" sizes="100vw"><img src="../assets/gamboas-fachada-ambientada.jpg" alt="Fachada do Edifício Gamboas com sugestão de paisagismo" width="1536" height="1024" loading="lazy"></picture><figcaption>Fachada do empreendimento</figcaption></figure>
     </section>
 
-    <section class="floorplan-section">
-      <div class="floorplan-copy"><span class="eyebrow">Planta inteligente</span><h2>Dois quartos e uma sacada que conecta os ambientes.</h2><p>A distribuição favorece a circulação, aproxima sala e cozinha e cria uma área externa agradável para o dia a dia.</p><ul class="check-list"><li>Sala e cozinha integradas</li><li>Dois dormitórios</li><li>Sacada integrada</li><li>Área de serviços funcional</li></ul><a href="#formulario" class="text-link" data-attribution-cta="planta">Receber condições e disponibilidade →</a></div>
-      <div class="floorplan-image"><img src="../assets/gamboas-planta.jpg" alt="Planta do apartamento do Edifício Gamboas" width="1280" height="960" loading="lazy"></div>
+    <section class="floorplan-section" data-track-view-plants>
+      <div class="floorplan-copy"><span class="eyebrow">Planta inteligente</span><h2>Dois quartos e uma sacada que conecta os ambientes.</h2><p>A distribuição favorece a circulação, aproxima sala e cozinha e cria uma área externa agradável para o dia a dia.</p><ul class="check-list"><li>Sala e cozinha integradas</li><li>Dois dormitórios</li><li>Sacada integrada</li><li>Área de serviços funcional</li></ul><a href="#formulario" class="text-link" data-attribution-cta="planta">Receba plantas e condições →</a></div>
+      <div class="floorplan-image"><picture><source type="image/webp" srcset="../assets/gamboas-planta-640.webp 640w, ../assets/gamboas-planta-960.webp 960w, ../assets/gamboas-planta.webp 1280w" sizes="(max-width: 820px) calc(100vw - 28px), 55vw"><img src="../assets/gamboas-planta.jpg" alt="Planta do apartamento do Edifício Gamboas" width="1280" height="960" loading="lazy"></picture></div>
     </section>
 
     <section class="location-section" id="localizacao">
       <div class="location-card"><span class="eyebrow light">Vila Mazzei</span><h2>Rua das Gamboas.</h2><p>Um endereço residencial na Zona Norte de São Paulo, com acesso à estrutura de comércio, serviços e mobilidade da região.</p><a href="https://www.google.com/maps/search/?api=1&amp;query=Rua+das+Gamboas+Vila+Mazzei+Sao+Paulo" target="_blank" rel="noopener" class="light-link">Abrir localização no mapa ↗</a></div>
-      <div class="location-visual"><iframe title="Mapa interativo da Rua das Gamboas, Vila Mazzei, São Paulo" src="https://www.google.com/maps?q=Rua%20das%20Gamboas%2C%20Vila%20Mazzei%2C%20S%C3%A3o%20Paulo%20-%20SP&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+      <div class="location-visual"><div class="location-map-placeholder" id="map-placeholder"><span class="eyebrow">Localização</span><p>Carregue o mapa somente se quiser explorar o endereço de forma interativa.</p><button type="button" id="load-map">Carregar mapa interativo</button></div><iframe id="location-map" title="Mapa interativo da Rua das Gamboas, Vila Mazzei, São Paulo" data-src="https://www.google.com/maps?q=Rua%20das%20Gamboas%2C%20Vila%20Mazzei%2C%20S%C3%A3o%20Paulo%20-%20SP&amp;output=embed" referrerpolicy="no-referrer-when-downgrade" allowfullscreen hidden></iframe></div>
     </section>
 
-    <section class="final-cta"><div><span class="eyebrow">Próximo passo</span><h2>Descubra se este apartamento cabe no seu plano.</h2><p>Responda algumas perguntas. A equipe entra em contato com informações de disponibilidade e caminhos de compra adequados ao seu momento.</p></div><a href="#formulario" class="primary-button" data-attribution-cta="cta-final">Quero receber as informações</a></section>
+    <section class="final-cta"><div><span class="eyebrow">Próximo passo</span><h2>Receba as plantas, valores e condições do Ed. Gamboas.</h2><p>Deixe seu contato. A equipe responde com as informações disponíveis e os próximos passos para conhecer o empreendimento.</p></div><a href="#formulario" class="primary-button" data-attribution-cta="cta-final">Receba plantas e condições</a></section>
 
-    <footer><img src="../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220"><div class="footer-info"><p>Edifício Gamboas • Vila Mazzei • São Paulo</p><p class="footer-broker">Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</p></div><a href="./privacidade/">Política de privacidade</a></footer>
+    <footer><img src="../assets/zn-logo-horizontal-onDark.png" alt="ZN Empreendimentos" width="900" height="220"><div class="footer-info"><p>Edifício Gamboas • Vila Mazzei • São Paulo</p><p class="footer-broker">Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</p></div><div class="footer-privacy"><a href="./privacidade/">Política de privacidade</a><button type="button" data-manage-consent>Gerenciar privacidade</button></div></footer>
 
-    <a href="#formulario" class="mobile-sticky-cta" data-attribution-cta="cta-fixo-mobile">Tenho interesse</a>
+    <a href="#formulario" class="mobile-sticky-cta" data-attribution-cta="cta-fixo-mobile">Receba plantas e condições</a>
   </main>
 
-  <aside class="cookie-banner" id="cookie-banner" aria-label="Preferências de privacidade" hidden><p>Usamos medição opcional no navegador e no servidor para entender a campanha e melhorar esta página. Você pode aceitar ou continuar sem medição. <a href="./privacidade/">Saiba mais</a>.</p><div><button class="cookie-secondary" id="cookie-reject" type="button">Recusar</button><button class="cookie-primary" id="cookie-accept" type="button">Aceitar</button></div></aside>
-  <script src="./app.js" defer></script>
+  <aside class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Preferências de privacidade" hidden><p>Usamos medição opcional no navegador e no servidor para entender a campanha e melhorar esta página. Você pode aceitar ou continuar sem medição. <a href="./privacidade/">Saiba mais</a>.</p><div><button class="cookie-secondary" id="cookie-reject" type="button">Recusar medição</button><button class="cookie-primary" id="cookie-accept" type="button">Aceitar medição</button></div></aside>
+  <script src="./app.js?v=20260819-growth-v2-2" defer></script>
 </body>
 </html>

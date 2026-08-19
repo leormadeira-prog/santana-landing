@@ -34,6 +34,12 @@ class MockRange {
 
   setValues(values) {
     assert.equal(values.length, this.rowCount);
+    this.sheet.audit.push({
+      type: "setValues",
+      row: this.row,
+      column: this.column,
+      values: values.map((row) => Array.from(row))
+    });
     values.forEach((row, rowOffset) => {
       assert.equal(row.length, this.columnCount);
       row.forEach((value, columnOffset) => {
@@ -60,6 +66,7 @@ class MockRange {
 class MockSheet {
   constructor() {
     this.cells = new Map();
+    this.audit = [];
   }
 
   key(row, column) {
@@ -93,13 +100,150 @@ function values(sheet, row, column, columnCount) {
 
 const attributionStart = context.ATTRIBUTION_START_COLUMN;
 const newHeaders = Array.from(context.ATTRIBUTION_HEADERS);
-const legacyHeaders = newHeaders.slice(1);
+const legacyHeaders = newHeaders.slice(1, 9);
+
+assert.equal(context.INTEGRATION_VERSION, "growth-v2");
+assert.ok(
+  appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
+    appsScript.indexOf("var capiResults = sendCapiEvents_(lead);")
+);
 
 assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/?utm_source=teste"),
   "gamboas"
 );
 assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
+
+{
+  const lead = {
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-test-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/?utm_source=Meta%20Ads&email=teste%40example.com&content_id=guia#contato",
+    firstPageUrl: "https://znempreendimentos.com.br/gamboas/?utm_campaign=Campanha%20Teste&phone=11999999999",
+    lastTouchUrl: "https://znempreendimentos.com.br/gamboas/?fbclid=abc.123&name=Pessoa",
+    initialReferrer: "https://www.google.com/search?q=apartamento&email=teste%40example.com",
+    measurementConsent: "rejected",
+    measurementConsentVersion: "measurement-2026-08-19",
+    measurementConsentAt: "2026-08-19T10:00:00.000Z",
+    attendanceConsentVersion: "privacy-2026-08-19",
+    attendanceConsentAt: "2026-08-19T10:01:00.000Z",
+    attributionVersion: "growth-v2"
+  };
+
+  context.validateLead_(lead);
+
+  assert.equal(
+    lead.sourceUrl,
+    "https://znempreendimentos.com.br/gamboas/?utm_source=Meta-Ads&content_id=guia"
+  );
+  assert.equal(
+    lead.firstPageUrl,
+    "https://znempreendimentos.com.br/gamboas/?utm_campaign=Campanha-Teste"
+  );
+  assert.equal(
+    lead.lastTouchUrl,
+    "https://znempreendimentos.com.br/gamboas/?fbclid=abc.123"
+  );
+  assert.equal(lead.initialReferrer, "https://www.google.com");
+  assert.equal(lead.purchaseTimeline, "");
+  assert.equal(lead.purchaseMethod, "");
+  assert.equal(lead.downPayment, "");
+  assert.equal(lead.visitInterest, "");
+}
+
+assert.throws(
+  () => context.validateLead_({
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-test-spam",
+    website: "preenchido",
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/"
+  }),
+  /SPAM_DETECTED/
+);
+
+{
+  const sheet = new MockSheet();
+  const eventId = "lead-order-123";
+  context.LockService = {
+    getScriptLock: () => ({ waitLock() {}, releaseLock() {} })
+  };
+  context.getLeadSheet_ = () => sheet;
+  context.findEventRow_ = () => 0;
+  context.json_ = (data) => data;
+  context.sendCapiEvents_ = () => {
+    sheet.audit.push({ type: "capi" });
+    return { sent: true, details: "HTTP 200" };
+  };
+
+  const response = context.doPost({
+    postData: {
+      contents: JSON.stringify({
+        fullName: "Pessoa Teste",
+        whatsapp: "11987654321",
+        purchaseTimeline: "",
+        purchaseMethod: "",
+        downPayment: "",
+        visitInterest: "",
+        consent: true,
+        website: "",
+        formElapsedMs: 2500,
+        eventId,
+        property_id: "gamboas",
+        sourceUrl: "https://znempreendimentos.com.br/gamboas/",
+        firstPageUrl: "https://znempreendimentos.com.br/gamboas/",
+        lastTouchUrl: "https://znempreendimentos.com.br/gamboas/",
+        measurementConsent: "rejected",
+        attributionVersion: "growth-v2"
+      })
+    }
+  });
+
+  const persistedAt = sheet.audit.findIndex(
+    (entry) => entry.type === "setValues" && entry.row === 2 && entry.column === 1
+  );
+  const capiAt = sheet.audit.findIndex((entry) => entry.type === "capi");
+  assert.ok(persistedAt >= 0);
+  assert.ok(capiAt > persistedAt);
+  assert.equal(response.ok, true);
+  assert.equal(response.stored, true);
+  assert.equal(response.version, "growth-v2");
+  assert.equal(response.id, eventId);
+  assert.equal(sheet.valueAt(2, 2), eventId);
+  assert.equal(sheet.valueAt(2, 19), "Sim");
+
+  let capiCalledForDuplicate = false;
+  context.findEventRow_ = () => 2;
+  context.sendCapiEvents_ = () => {
+    capiCalledForDuplicate = true;
+    return { sent: true, details: "HTTP 200" };
+  };
+  const duplicate = context.doPost({
+    postData: {
+      contents: JSON.stringify({
+        fullName: "Pessoa Teste",
+        whatsapp: "11987654321",
+        consent: true,
+        eventId,
+        property_id: "gamboas",
+        sourceUrl: "https://znempreendimentos.com.br/gamboas/",
+        firstPageUrl: "https://znempreendimentos.com.br/gamboas/",
+        lastTouchUrl: "https://znempreendimentos.com.br/gamboas/",
+        measurementConsent: "rejected"
+      })
+    }
+  });
+  assert.equal(duplicate.duplicate, true);
+  assert.equal(duplicate.stored, true);
+  assert.equal(capiCalledForDuplicate, false);
+}
 
 {
   const sheet = new MockSheet();
@@ -138,6 +282,22 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
 
 {
   const sheet = new MockSheet();
+  const growthV1Headers = newHeaders.slice(0, 9);
+  const growthV1Values = [
+    "gamboas", "Aceito", "primeira", "referencia", "conteudo", "cta", "data", "ultima", "growth-v1"
+  ];
+  sheet.getRange(1, attributionStart, 1, growthV1Headers.length).setValues([growthV1Headers]);
+  sheet.getRange(2, attributionStart, 1, growthV1Values.length).setValues([growthV1Values]);
+
+  context.ensureAttributionHeaders_(sheet);
+
+  assert.deepEqual(values(sheet, 1, attributionStart, newHeaders.length), newHeaders);
+  assert.deepEqual(values(sheet, 2, attributionStart, growthV1Values.length), growthV1Values);
+  assert.deepEqual(values(sheet, 2, attributionStart + growthV1Values.length, 4), ["", "", "", ""]);
+}
+
+{
+  const sheet = new MockSheet();
   sheet.getRange(1, 1, 1, context.BASE_HEADERS.length).setValues([Array.from(context.BASE_HEADERS)]);
   const metaLead = {
     id: "987654321",
@@ -152,6 +312,7 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
     field_data: [
       { name: "full_name", values: ["Maria da Silva"] },
       { name: "phone_number", values: ["+55 (11) 99999-0000"] },
+      { name: "email", values: ["maria@example.com"] },
       { name: "Em quanto tempo pretende comprar?", values: ["Em até 3 meses"] },
       { name: "Como pretende comprar?", values: ["Entrada + financiamento"] },
       { name: "Possui valor para entrada?", values: ["De R$ 30 mil a R$ 60 mil"] },
@@ -177,6 +338,11 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
   );
   assert.equal(sheet.valueAt(2, attributionStart), "gamboas");
   assert.equal(sheet.valueAt(2, attributionStart + 3), "Meta Instant Form");
+  assert.equal(sheet.valueAt(2, attributionStart + 11), "meta-form-123456789");
+  assert.doesNotMatch(
+    sheet.valueAt(2, context.OPERATION_START_COLUMN + context.OPERATION_HEADERS.length - 1),
+    /Maria da Silva|99999-0000|maria@example\.com/
+  );
 
   const knownIds = context.getExistingEventIds_(sheet);
   assert.equal(knownIds["meta-987654321"], true);

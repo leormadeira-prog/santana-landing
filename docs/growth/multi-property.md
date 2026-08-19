@@ -11,7 +11,7 @@ O Gamboas é o piloto, não a infraestrutura. Esta auditoria registra a menor ar
 5. **O que deverá virar dados:** descrição, características, galeria, plantas, coordenadas, metadata e configuração comercial de cada novo empreendimento.
 6. **Como adicionar o segundo empreendimento hoje:** cadastrar a propriedade em `site.config.json` e `PROPERTY_CONFIGS`, criar sua pasta com conteúdo e imagens, declarar os atributos `data-property-*` e executar o validador.
 7. **Arquivos estimados:** antes desta fundação seriam aproximadamente 8–12 alterações com lógica duplicada; o próximo piloto ainda exigirá arquivos de página e conteúdo, mas não um novo contrato de tracking ou uma segunda integração CAPI.
-8. **Tracking já multiempreendimento:** `view_item`, `form_start`, `contact`, `generate_lead` e `schedule_visit` carregam `property_id`; a planilha e a CAPI usam o mesmo identificador.
+8. **Tracking já multiempreendimento:** `page_view`, `view_item`, `form_start`, `click_cta`, `view_plants`, `click_whatsapp`, `generate_lead` e o `schedule_visit` legado carregam `property_id`; a planilha e a CAPI usam o mesmo identificador.
 9. **O que ainda não é multiempreendimento:** o HTML/CSS da landing, a página de obrigado e parte do conteúdo da integração continuam materializados para o piloto.
 10. **Menor próxima evolução:** usar o segundo empreendimento para extrair um template compartilhado somente depois de comparar suas diferenças reais com o Gamboas.
 
