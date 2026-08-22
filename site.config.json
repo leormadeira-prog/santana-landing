@@ -1,9 +1,9 @@
 {
   "domain": "znempreendimentos.com.br",
   "whatsapp": "5511999841721",
-  "metaPixelId": "28317074327887665",
+  "metaPixelId": "1580854386761765",
   "gaMeasurementId": "G-NFEM9HPFLR",
-  "attributionVersion": "growth-v1",
+  "attributionVersion": "growth-v2",
   "properties": {
     "gamboas": {
       "slug": "gamboas",
@@ -13,6 +13,7 @@
       "currency": "BRL",
       "trackingCtas": [
         "cabecalho",
+        "hero-mobile",
         "planta",
         "cta-final",
         "cta-fixo-mobile"

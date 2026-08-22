@@ -31,7 +31,7 @@
     figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     figcaption{position:absolute;left:18px;right:18px;bottom:18px;padding:15px 17px;background:rgba(27,36,48,.88);color:white;display:flex;flex-direction:column}
     figcaption span{color:var(--brass);font-size:13px}
-    @media(max-width:820px){main{grid-template-columns:1fr;padding-top:18px;gap:32px}figure{min-height:390px;order:-1}header img{width:160px}.actions{display:grid}.btn{width:100%}}
+    @media(max-width:820px){main{grid-template-columns:1fr;padding-top:18px;gap:32px}figure{min-height:390px}header img{width:160px}.actions{display:grid}.btn{width:100%}}
   </style>
 </head>
 <body data-property-id="gamboas" data-property-name="Edifício Gamboas">
@@ -43,7 +43,7 @@
       <span class="success" aria-hidden="true">✓</span>
       <span class="eyebrow">Interesse recebido</span>
       <h1>Obrigado. Agora você já está mais perto de conhecer o Gamboas.</h1>
-      <p>Suas informações foram registradas. Enquanto nossa equipe prepara o atendimento, veja novamente os detalhes do empreendimento ou fale agora pelo WhatsApp.</p>
+      <p>Suas informações foram registradas com sucesso. A equipe poderá enviar plantas, valores e condições. Se preferir, continue agora pelo WhatsApp.</p>
       <div class="actions">
         <a class="btn primary" id="thanks-whatsapp" href="https://wa.me/5511999841721?text=Ol%C3%A1!%20Acabei%20de%20enviar%20meus%20dados%20pelo%20site%20do%20Gamboas%20e%20quero%20continuar%20o%20atendimento." target="_blank" rel="noopener">Falar agora pelo WhatsApp</a>
         <a class="btn secondary" href="../">Ver o empreendimento</a>
@@ -51,7 +51,7 @@
       <p class="note">Seu contato já foi capturado mesmo que você prefira falar depois.<br>Atendimento: Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</p>
     </section>
     <figure>
-      <img src="../../assets/rooftop.png" alt="Rooftop com churrasqueira do Edifício Gamboas" width="1536" height="1024">
+      <picture><source type="image/webp" srcset="../../assets/rooftop-640.webp 640w, ../../assets/rooftop-960.webp 960w, ../../assets/rooftop.webp 1536w" sizes="(max-width: 820px) 100vw, 50vw"><img src="../../assets/rooftop.png" alt="Rooftop com churrasqueira do Edifício Gamboas" width="1536" height="1024"></picture>
       <figcaption><strong>Edifício Gamboas</strong><span>Pronto para morar · Vila Mazzei</span></figcaption>
     </figure>
   </main>
@@ -59,18 +59,21 @@
     (function(){
       var propertyId=document.body.dataset.propertyId;
       var propertyName=document.body.dataset.propertyName;
-      var consent=localStorage.getItem('zn-measurement-consent')||localStorage.getItem('gamboas-analytics-consent');
+      var rawConsent='';
+      try{rawConsent=localStorage.getItem('zn-measurement-consent')||localStorage.getItem('gamboas-analytics-consent')||''}catch(_){}
+      var consent=rawConsent;
+      try{var consentRecord=JSON.parse(rawConsent);consent=consentRecord&&consentRecord.state||consent}catch(_){}
       if(consent==='accepted'){
-        var q=function(){if(q.callMethod){q.callMethod.apply(q,arguments)}else{q.queue.push(arguments)}};q.queue=[];q.loaded=true;q.version='2.0';window.fbq=q;window._fbq=q;q('init','28317074327887665');
+        var q=function(){if(q.callMethod){q.callMethod.apply(q,arguments)}else{q.queue.push(arguments)}};q.queue=[];q.loaded=true;q.version='2.0';window.fbq=q;window._fbq=q;q('init','1580854386761765');
         var s=document.createElement('script');s.async=true;s.src='https://connect.facebook.net/pt_BR/fbevents.js';document.head.appendChild(s);
         q('track','PageView');
-        window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-NFEM9HPFLR',{anonymize_ip:true});
+        window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-NFEM9HPFLR',{anonymize_ip:true,send_page_view:false});gtag('event','page_view',{property_id:propertyId,page_title:document.title});
         var g=document.createElement('script');g.async=true;g.src='https://www.googletagmanager.com/gtag/js?id=G-NFEM9HPFLR';document.head.appendChild(g);
       }
       document.getElementById('thanks-whatsapp').addEventListener('click',function(){
         var details={property_id:propertyId,content_ids:[propertyId],content_name:propertyName,content_type:'product',method:'WhatsApp'};
         if(window.fbq){fbq('track','Contact',details)}
-        if(window.gtag){gtag('event','contact',details)}
+        if(window.gtag){gtag('event','click_whatsapp',details)}
       });
     })();
   </script>
