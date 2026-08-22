@@ -2,6 +2,8 @@
 
 Este documento prepara a operação de `GAMBOAS | LEADS | FORM + SITE | 08-2026`. Ele não autoriza nem executa mudanças no Meta Ads, GA4, GTM, públicos, orçamentos ou dashboards externos.
 
+A leitura reconciliada da primeira semana e o plano corrigido para a semana 2 estão em [`gamboas-meta-week-1-analysis.md`](gamboas-meta-week-1-analysis.md). As decisões principais são: tratar 22/08 como dia parcial, manter a audiência elegível ampla, não aplicar corte rígido de idade ou gênero, tratar o segundo anúncio como uma variação real de vídeo (não como duplicata idêntica), reativar a mensuração do site e testar apenas um challenger por vez.
+
 ## Contrato de eventos da landing
 
 Todos os eventos abaixo dependem de consentimento de medição. Nenhum evento recebe nome, WhatsApp ou outra informação pessoal.
