@@ -123,7 +123,7 @@ Isso significa que o formulário instantâneo pode continuar gerando os resultad
 4. executar um lead controlado e conciliá-lo com a planilha;
 5. só então comparar formulário instantâneo versus site com relatórios separados.
 
-A conta também mostra três alterações não publicadas. Elas precisam ser revisadas item a item antes de qualquer publicação; pausar um anúncio não pode publicar rascunhos alheios por acidente.
+A conta também mostra três objetos não publicados: um novo conjunto `Novo conjunto de anúncios de Reconhecimento` com erro, um novo anúncio `GAMBOAS | VÍDEO DECORADO 12S | FORM | V1` com erro e uma atualização de criativo no anúncio original. Eles precisam ser tratados separadamente antes de qualquer publicação; pausar um anúncio não pode publicar rascunhos alheios por acidente.
 
 ## Piloto separado de WhatsApp
 
