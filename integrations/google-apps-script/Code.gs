@@ -75,17 +75,19 @@ var ATTRIBUTION_HEADERS = [
   "Versão do consentimento de atendimento",
   "Consentimento de atendimento em"
 ];
+var HEADER_ALIASES = {
+  "Data do primeiro contato": ["Data Contato"],
+  "Visita confirmada?": ["Data Visita"]
+};
 var OPERATION_START_COLUMN = BASE_HEADERS.length + 1;
 var ATTRIBUTION_START_COLUMN = OPERATION_START_COLUMN + OPERATION_HEADERS.length;
 
 function setup() {
   var sheet = getLeadSheet_();
   PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
-  ensureBaseHeaders_(sheet);
-  ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
-  ensureAttributionHeaders_(sheet);
+  ensureLeadSchema_(sheet);
   sheet.setFrozenRows(1);
-  sheet.autoResizeColumns(1, ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length - 1);
+  sheet.autoResizeColumns(1, sheet.getLastColumn());
   return "Integração preparada na aba \"" + SHEET_NAME + "\".";
 }
 
@@ -154,9 +156,7 @@ function syncMetaInstantFormLeads() {
   try {
     var config = getMetaLeadConfig_();
     var sheet = getLeadSheet_();
-    ensureBaseHeaders_(sheet);
-    ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
-    ensureAttributionHeaders_(sheet);
+    ensureLeadSchema_(sheet);
 
     var existingIds = getExistingEventIds_(sheet);
     var pending = [];
@@ -204,65 +204,58 @@ function doPost(event) {
     validateLead_(lead);
 
     var sheet = getLeadSheet_();
-    ensureBaseHeaders_(sheet);
-    ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
-    ensureAttributionHeaders_(sheet);
+    var headerColumns = ensureLeadSchema_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
       return json_({ ok: true, stored: true, version: INTEGRATION_VERSION, id: lead.eventId, duplicate: true });
     }
 
     var row = sheet.getLastRow() + 1;
-    var baseValues = [
-      new Date(),
-      safeCell_(lead.eventId),
-      "",
-      safeCell_(lead.fullName),
-      safeCell_(lead.whatsapp),
-      "",
-      safeCell_(lead.purchaseTimeline),
-      safeCell_(lead.purchaseMethod),
-      safeCell_(lead.downPayment),
-      safeCell_(lead.visitInterest),
-      lead.consent === true ? "Sim" : "Não",
-      safeCell_(lead.utm_source),
-      safeCell_(lead.utm_medium),
-      safeCell_(lead.utm_campaign),
-      safeCell_(lead.utm_content),
-      safeCell_(lead.utm_term),
-      safeCell_(lead.fbclid),
-      safeCell_(lead.fbp),
-      safeCell_(lead.fbc),
-      safeCell_(lead.sourceUrl),
-      "Pendente",
-      "Lead gravado; aguardando processamento da CAPI"
-    ];
-    var operationValues = ["Novo", "", "", "", "", "", "", ""];
-    var attributionValues = [
-      safeCell_(lead.property_id),
-      lead.measurementConsent === "accepted" ? "Aceito" : lead.measurementConsent === "rejected" ? "Recusado" : "Não informado",
-      safeCell_(lead.firstPageUrl),
-      safeCell_(lead.initialReferrer),
-      safeCell_(lead.contentOrigin),
-      safeCell_(lead.ctaOrigin),
-      safeCell_(lead.firstTouchAt),
-      safeCell_(lead.lastTouchUrl),
-      safeCell_(lead.attributionVersion),
-      safeCell_(lead.measurementConsentVersion),
-      safeCell_(lead.measurementConsentAt),
-      safeCell_(lead.attendanceConsentVersion),
-      safeCell_(lead.attendanceConsentAt)
-    ];
-    var leadRow = baseValues.concat(operationValues, attributionValues);
+    var leadRow = emptyMappedRow_(headerColumns);
+    setMappedValues_(leadRow, headerColumns, {
+      "Recebido em": new Date(),
+      "ID do evento": safeCell_(lead.eventId),
+      "Nome completo": safeCell_(lead.fullName),
+      "WhatsApp": safeCell_(lead.whatsapp),
+      "Prazo de compra": safeCell_(lead.purchaseTimeline),
+      "Forma de compra": safeCell_(lead.purchaseMethod),
+      "Valor de entrada": safeCell_(lead.downPayment),
+      "Interesse em visita": safeCell_(lead.visitInterest),
+      "Consentimento LGPD": lead.consent === true ? "Sim" : "Não",
+      "utm_source": safeCell_(lead.utm_source),
+      "utm_medium": safeCell_(lead.utm_medium),
+      "utm_campaign": safeCell_(lead.utm_campaign),
+      "utm_content": safeCell_(lead.utm_content),
+      "utm_term": safeCell_(lead.utm_term),
+      "fbclid": safeCell_(lead.fbclid),
+      "_fbp": safeCell_(lead.fbp),
+      "_fbc": safeCell_(lead.fbc),
+      "Página de origem": safeCell_(lead.sourceUrl),
+      "CAPI enviada": "Pendente",
+      "Resposta CAPI": "Lead gravado; aguardando processamento da CAPI",
+      "Status": "Novo",
+      "ID do empreendimento": safeCell_(lead.property_id),
+      "Consentimento de medição": lead.measurementConsent === "accepted" ? "Aceito" : lead.measurementConsent === "rejected" ? "Recusado" : "Não informado",
+      "Primeira página da sessão": safeCell_(lead.firstPageUrl),
+      "Referência inicial": safeCell_(lead.initialReferrer),
+      "Conteúdo de origem": safeCell_(lead.contentOrigin),
+      "CTA de origem": safeCell_(lead.ctaOrigin),
+      "Primeiro acesso em": safeCell_(lead.firstTouchAt),
+      "Última página antes da conversão": safeCell_(lead.lastTouchUrl),
+      "Versão da atribuição": safeCell_(lead.attributionVersion),
+      "Versão do consentimento de medição": safeCell_(lead.measurementConsentVersion),
+      "Consentimento de medição atualizado em": safeCell_(lead.measurementConsentAt),
+      "Versão do consentimento de atendimento": safeCell_(lead.attendanceConsentVersion),
+      "Consentimento de atendimento em": safeCell_(lead.attendanceConsentAt)
+    });
     sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);
 
     var capiResults = sendCapiEvents_(lead);
     try {
-      var capiStatusColumn = BASE_HEADERS.indexOf("CAPI enviada") + 1;
-      sheet.getRange(row, capiStatusColumn, 1, 2).setValues([[
-        capiResults.sent ? "Sim" : "Não",
-        safeCell_(capiResults.details)
-      ]]);
+      var capiStatusColumn = headerColumn_(headerColumns, "CAPI enviada");
+      var capiDetailsColumn = headerColumn_(headerColumns, "Resposta CAPI");
+      sheet.getRange(row, capiStatusColumn, 1, 1).setValues([[capiResults.sent ? "Sim" : "Não"]]);
+      sheet.getRange(row, capiDetailsColumn, 1, 1).setValues([[safeCell_(capiResults.details)]]);
     } catch (statusError) {
       console.error("CAPI_STATUS_UPDATE_FAILED: " + text_(statusError && statusError.message, 120));
     }
@@ -386,7 +379,8 @@ function getMetaLeadConfig_() {
 function getExistingEventIds_(sheet) {
   var ids = {};
   if (sheet.getLastRow() < 2) return ids;
-  sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getDisplayValues().forEach(function (row) {
+  var eventColumn = headerColumn_(headerColumns_(sheet), "ID do evento") || 2;
+  sheet.getRange(2, eventColumn, sheet.getLastRow() - 1, 1).getDisplayValues().forEach(function (row) {
     var eventId = text_(row[0], 200);
     if (eventId) ids[eventId] = true;
   });
@@ -435,6 +429,7 @@ function fetchNewMetaLeads_(formId, accessToken, existingIds) {
 }
 
 function appendMetaLead_(sheet, metaLead) {
+  var headerColumns = ensureLeadSchema_(sheet);
   var answers = metaAnswers_(metaLead.field_data);
   var firstName = firstMetaAnswer_(answers, ["first_name", "primeiro_nome", "nome"]);
   var lastName = firstMetaAnswer_(answers, ["last_name", "sobrenome"]);
@@ -464,49 +459,38 @@ function appendMetaLead_(sheet, metaLead) {
   var adName = text_(metaLead.ad_name, 300);
   var row = sheet.getLastRow() + 1;
 
-  var baseValues = [
-    createdAt,
-    safeCell_(eventId),
-    "",
-    safeCell_(fullName),
-    safeCell_(phone),
-    "",
-    safeCell_(purchaseTimeline),
-    safeCell_(purchaseMethod),
-    safeCell_(downPayment),
-    safeCell_(visitInterest),
-    "Sim (formulário Meta)",
-    "meta",
-    "paid_social",
-    safeCell_(campaignName),
-    safeCell_(adName),
-    safeCell_(adsetName),
-    "",
-    "",
-    "",
-    safeCell_(sourceLabel),
-    "Não",
-    "Não aplicável: lead convertido dentro da Meta"
-  ];
-  var operationValues = [
-    "Novo", "", "", "", "", "", "", safeCell_(buildMetaLeadObservations_(metaLead, answers))
-  ];
-  var attributionValues = [
-    "gamboas",
-    "Não informado",
-    "",
-    "Meta Instant Form",
-    safeCell_(adName || campaignName),
-    "meta-instant-form",
-    createdAt,
-    safeCell_(sourceLabel),
-    "meta-leads-v1",
-    "",
-    "",
-    safeCell_("meta-form-" + formId),
-    createdAt
-  ];
-  var metaRow = baseValues.concat(operationValues, attributionValues);
+  var metaRow = emptyMappedRow_(headerColumns);
+  setMappedValues_(metaRow, headerColumns, {
+    "Recebido em": createdAt,
+    "ID do evento": safeCell_(eventId),
+    "Nome completo": safeCell_(fullName),
+    "WhatsApp": safeCell_(phone),
+    "Prazo de compra": safeCell_(purchaseTimeline),
+    "Forma de compra": safeCell_(purchaseMethod),
+    "Valor de entrada": safeCell_(downPayment),
+    "Interesse em visita": safeCell_(visitInterest),
+    "Consentimento LGPD": "Sim (formulário Meta)",
+    "utm_source": "meta",
+    "utm_medium": "paid_social",
+    "utm_campaign": safeCell_(campaignName),
+    "utm_content": safeCell_(adName),
+    "utm_term": safeCell_(adsetName),
+    "Página de origem": safeCell_(sourceLabel),
+    "CAPI enviada": "Não",
+    "Resposta CAPI": "Não aplicável: lead convertido dentro da Meta",
+    "Status": "Novo",
+    "Observações": safeCell_(buildMetaLeadObservations_(metaLead, answers)),
+    "ID do empreendimento": "gamboas",
+    "Consentimento de medição": "Não informado",
+    "Referência inicial": "Meta Instant Form",
+    "Conteúdo de origem": safeCell_(adName || campaignName),
+    "CTA de origem": "meta-instant-form",
+    "Primeiro acesso em": createdAt,
+    "Última página antes da conversão": safeCell_(sourceLabel),
+    "Versão da atribuição": "meta-leads-v1",
+    "Versão do consentimento de atendimento": safeCell_("meta-form-" + formId),
+    "Consentimento de atendimento em": createdAt
+  });
   sheet.getRange(row, 1, 1, metaRow.length).setValues([metaRow]);
 }
 
@@ -652,7 +636,31 @@ function ensureHeaders_(sheet, startColumn, headers, strict) {
   }
 }
 
+function ensureLeadSchema_(sheet) {
+  ensureBaseHeaders_(sheet);
+  ensureOperationHeaders_(sheet);
+  ensureAttributionHeaders_(sheet);
+  var columns = headerColumns_(sheet);
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS);
+  if (!hasMappedHeaders_(columns, required)) throw new Error("HEADER_MISMATCH");
+  return columns;
+}
+
+function ensureOperationHeaders_(sheet) {
+  var columns = headerColumns_(sheet);
+  if (hasMappedHeaders_(columns, OPERATION_HEADERS)) return;
+  var existing = sheet.getRange(1, OPERATION_START_COLUMN, 1, OPERATION_HEADERS.length).getValues()[0]
+    .map(function (value) { return text_(value, 200); });
+  if (existing.every(function (header) { return !header; })) {
+    ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, true);
+    return;
+  }
+  throw new Error("HEADER_MISMATCH");
+}
+
 function ensureBaseHeaders_(sheet) {
+  var mapped = headerColumns_(sheet);
+  if (hasMappedHeaders_(mapped, BASE_HEADERS)) return;
   var existing = sheet.getRange(1, 1, 1, BASE_HEADERS.length).getValues()[0]
     .map(function (value) { return text_(value, 200); });
   var isCurrent = BASE_HEADERS.every(function (header, index) { return existing[index] === header; });
@@ -676,6 +684,8 @@ function ensureBaseHeaders_(sheet) {
 }
 
 function ensureAttributionHeaders_(sheet) {
+  var mapped = headerColumns_(sheet);
+  if (hasMappedHeaders_(mapped, ATTRIBUTION_HEADERS)) return;
   var existing = sheet.getRange(1, ATTRIBUTION_START_COLUMN, 1, ATTRIBUTION_HEADERS.length)
     .getValues()[0]
     .map(function (value) { return text_(value, 200); });
@@ -713,9 +723,56 @@ function ensureAttributionHeaders_(sheet) {
   throw new Error("HEADER_MISMATCH");
 }
 
+function headerColumns_(sheet) {
+  var lastColumn = Math.max(sheet.getLastColumn ? sheet.getLastColumn() : 0, 1);
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var columns = {};
+  headers.forEach(function (header, index) {
+    var key = normalizeHeaderKey_(header);
+    if (key && !columns[key]) columns[key] = index + 1;
+  });
+  return columns;
+}
+
+function headerColumn_(columns, header) {
+  var aliases = [header].concat(HEADER_ALIASES[header] || []);
+  for (var index = 0; index < aliases.length; index += 1) {
+    var column = columns[normalizeHeaderKey_(aliases[index])];
+    if (column) return column;
+  }
+  return 0;
+}
+
+function hasMappedHeaders_(columns, headers) {
+  return headers.every(function (header) { return Boolean(headerColumn_(columns, header)); });
+}
+
+function normalizeHeaderKey_(value) {
+  var normalized = text_(value, 300).toLowerCase();
+  if (normalized.normalize) normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return normalized.replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+}
+
+function emptyMappedRow_(columns) {
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS);
+  var lastColumn = required.reduce(function (maximum, header) {
+    return Math.max(maximum, headerColumn_(columns, header));
+  }, 0);
+  return Array.apply(null, Array(lastColumn)).map(function () { return ""; });
+}
+
+function setMappedValues_(row, columns, valuesByHeader) {
+  Object.keys(valuesByHeader).forEach(function (header) {
+    var column = headerColumn_(columns, header);
+    if (!column) throw new Error("HEADER_MISMATCH");
+    row[column - 1] = valuesByHeader[header];
+  });
+}
+
 function findEventRow_(sheet, eventId) {
   if (sheet.getLastRow() < 2) return 0;
-  var match = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1)
+  var eventColumn = headerColumn_(headerColumns_(sheet), "ID do evento") || 2;
+  var match = sheet.getRange(2, eventColumn, sheet.getLastRow() - 1, 1)
     .createTextFinder(eventId)
     .matchEntireCell(true)
     .findNext();

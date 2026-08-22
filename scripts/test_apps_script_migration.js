@@ -104,6 +104,14 @@ class MockSheet {
     }
     return lastRow;
   }
+
+  getLastColumn() {
+    let lastColumn = 0;
+    for (const [key, value] of this.cells.entries()) {
+      if (value !== "") lastColumn = Math.max(lastColumn, Number(key.split(":")[1]));
+    }
+    return lastColumn;
+  }
 }
 
 function values(sheet, row, column, columnCount) {
@@ -275,6 +283,67 @@ assert.throws(
   assert.equal(sheet.valueAt(2, 6), "");
   assert.equal(sheet.valueAt(2, 4), "valor:Nome completo");
   assert.equal(sheet.valueAt(2, 7), "valor:Prazo de compra");
+}
+
+{
+  const sheet = new MockSheet();
+  const liveHeaders = [
+    "Recebido em", "ID do evento", "Ordem", "Nome Completo", "WhatsApp", "Contato Responde",
+    "Prazo de Compra", "Forma de Compra", "Valor de Entrada", "Valor Finan. Pré Aprov.",
+    "Interesse em Visita", "Consentimento LGPD", "utm_source", "utm_medium", "utm_campaign",
+    "utm_content", "utm_term", "fbclid", "_fbp", "_fbc", "Página de origem", "CAPI enviada",
+    "Resposta CAPI", "Status", "Data Contato", "Qualificado?", "Data Visita", "Compareceu?",
+    "Proposta?", "Venda?", "Observações", "ID do empreendimento", "Consentimento de medição",
+    "Primeira página da sessão", "Referência inicial", "Conteúdo de origem", "CTA de origem",
+    "Primeiro acesso em", "Última página antes da conversão", "Versão da atribuição",
+    "Versão do consentimento de medição", "Consentimento de medição atualizado em",
+    "Versão do consentimento de atendimento", "Consentimento de atendimento em"
+  ];
+  sheet.getRange(1, 1, 1, liveHeaders.length).setValues([liveHeaders]);
+  sheet.getRange(2, 1, 1, liveHeaders.length).setValues([
+    liveHeaders.map((_, index) => index === 30 ? "Operação preservada" : "")
+  ]);
+
+  context.getLeadSheet_ = () => sheet;
+  context.findEventRow_ = () => 0;
+  context.sendCapiEvents_ = () => ({ sent: false, details: "CAPI não configurada" });
+  const eventId = "lead-live-schema-123";
+  const response = context.doPost({
+    postData: {
+      contents: JSON.stringify({
+        fullName: "Pessoa Estrutura Real",
+        whatsapp: "11987654321",
+        purchaseTimeline: "Em até 3 meses",
+        purchaseMethod: "Entrada + financiamento",
+        downPayment: "De R$ 30 mil a R$ 60 mil",
+        visitInterest: "Sim, nesta semana",
+        consent: true,
+        website: "",
+        formElapsedMs: 2500,
+        eventId,
+        property_id: "gamboas",
+        sourceUrl: "https://znempreendimentos.com.br/gamboas/",
+        firstPageUrl: "https://znempreendimentos.com.br/gamboas/",
+        lastTouchUrl: "https://znempreendimentos.com.br/gamboas/",
+        measurementConsent: "accepted",
+        attributionVersion: "growth-v2"
+      })
+    }
+  });
+
+  assert.equal(response.ok, true);
+  assert.equal(response.stored, true);
+  assert.equal(response.id, eventId);
+  assert.equal(sheet.valueAt(3, 2), eventId);
+  assert.equal(sheet.valueAt(3, 4), "Pessoa Estrutura Real");
+  assert.equal(sheet.valueAt(3, 9), "De R$ 30 mil a R$ 60 mil");
+  assert.equal(sheet.valueAt(3, 10), "");
+  assert.equal(sheet.valueAt(3, 11), "Sim, nesta semana");
+  assert.equal(sheet.valueAt(3, 22), "Não");
+  assert.equal(sheet.valueAt(3, 24), "Novo");
+  assert.equal(sheet.valueAt(3, 32), "gamboas");
+  assert.equal(sheet.valueAt(2, 31), "Operação preservada");
+  assert.equal(sheet.audit.filter((entry) => entry.type === "insertColumnsBefore").length, 0);
 }
 
 {
