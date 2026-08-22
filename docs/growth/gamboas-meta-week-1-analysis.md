@@ -123,7 +123,16 @@ Isso significa que o formulário instantâneo pode continuar gerando os resultad
 4. executar um lead controlado e conciliá-lo com a planilha;
 5. só então comparar formulário instantâneo versus site com relatórios separados.
 
-A conta também mostra três objetos não publicados: um novo conjunto `Novo conjunto de anúncios de Reconhecimento` com erro, um novo anúncio `GAMBOAS | VÍDEO DECORADO 12S | FORM | V1` com erro e uma atualização de criativo no anúncio original. Eles precisam ser tratados separadamente antes de qualquer publicação; pausar um anúncio não pode publicar rascunhos alheios por acidente.
+A conta também mostra três objetos não publicados. Dois pertencem a outra campanha, `Nova campanha de Reconhecimento`: o conjunto `Novo conjunto de anúncios de Reconhecimento` e o anúncio `GAMBOAS | VÍDEO DECORADO 12S | FORM | V1`. O terceiro é uma atualização de criativo no anúncio original da campanha de Leads. Eles precisam ser tratados separadamente antes de qualquer publicação; pausar um anúncio não pode publicar rascunhos alheios por acidente.
+
+### Diagnóstico dos rascunhos preexistentes
+
+- a nova campanha é de Reconhecimento, não um challenger dentro da campanha de Leads;
+- o erro de publicação é `A hora de início do conjunto de anúncios é anterior à hora atual (#1885354)`;
+- o novo anúncio usa um post do Instagram com oferta de R$ 300 mil, enquanto a campanha ativa comunica a partir de R$ 295 mil;
+- o rascunho também afirma 2 quartos/2 dormitórios e 1 banheiro, pontos que exigem confirmação documental da unidade;
+- o rastreamento de eventos do site está desmarcado e o campo de parâmetros de URL está vazio;
+- nenhuma dessas configurações foi alterada, publicada ou descartada durante a auditoria.
 
 ## Piloto separado de WhatsApp
 
