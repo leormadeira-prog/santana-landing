@@ -9,9 +9,11 @@ Esta integração transforma uma Planilha Google em um endpoint compartilhado pa
 3. Apague o conteúdo inicial de `Code.gs` e cole todo o conteúdo deste repositório em `integrations/google-apps-script/Code.gs`.
 4. Salve o projeto com o nome **Captura de leads — Gamboas**.
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
-6. Autorize o acesso à planilha. A aba **Leads Gamboas** e os cabeçalhos serão criados automaticamente.
+6. Autorize o acesso à planilha. A aba manual **Leads Gamboas** será preservada e a aba automática **Leads Meta Gamboas** será criada com os mesmos campos operacionais.
 
 O `setup()` preserva as colunas manuais **C** (`Ordem`) e **F** (`Contato responde`), as colunas operacionais **W:AD** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações) e o bloco bruto dos formulários da Meta. O **ID do empreendimento fica em AE**, a atribuição em **AF:AM** e as versões/datas dos consentimentos em **AN:AQ**. Execute `setup()` novamente depois de instalar esta versão para inserir os novos campos antes do bloco bruto da Meta, sem apagar leads ou dados operacionais existentes. Estruturas anteriores sem as duas colunas manuais ou sem `property_id` também são migradas automaticamente.
+
+A aba **Leads Meta Gamboas** replica os cabeçalhos reais da aba manual, inclusive campos personalizados como `Valor Finan. Pré Aprov.`, e acrescenta: email, IDs e nomes de formulário/campanha/conjunto/anúncio, plataforma, indicador orgânico e data da importação. A criação e as sincronizações não movem, alteram nem apagam as linhas manuais. IDs que já existam em qualquer uma das duas abas são tratados como conhecidos para evitar duplicidade.
 
 ## 2. Publicar como app da Web
 
@@ -73,7 +75,7 @@ O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes contro
 
 ## 6. Importar leads do formulário instantâneo da Meta
 
-Esta versão também importa os leads do formulário instantâneo para a mesma aba **Leads Gamboas**. A sincronização roda a cada cinco minutos, marca a origem como `meta / paid_social`, inicia o status operacional como `Novo` e evita duplicidade pelo ID do lead fornecido pela Meta.
+Esta versão importa os leads do formulário instantâneo para a aba separada **Leads Meta Gamboas**. A sincronização roda a cada cinco minutos, marca a origem como `meta / paid_social`, inicia o status operacional como `Novo` e evita duplicidade pelo ID do lead fornecido pela Meta. A aba **Leads Gamboas**, com os registros manuais, permanece como está durante a fase de estabilização.
 
 Em **Configurações do projeto → Propriedades do script**, crie:
 
@@ -84,14 +86,19 @@ Para importar mais de um formulário, use `META_LEADS_FORM_IDS` com os IDs separ
 
 Depois de salvar as propriedades:
 
-1. execute `setup()` para preservar a planilha atual e registrar seu ID para os gatilhos;
+1. execute `setup()` para preservar a planilha atual, criar **Leads Meta Gamboas** e registrar o ID da planilha para os gatilhos;
 2. execute `setupMetaLeadSync()` uma vez e aceite as permissões solicitadas;
-3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, o ID do formulário e `triggerCount: 1`;
+3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, o ID do formulário, `destinationSheetConfigured: true` e `triggerCount: 1`;
 4. envie um lead controlado pelo formulário da Meta;
 5. aguarde até cinco minutos ou execute `syncMetaInstantFormLeads()` manualmente;
-6. confirme a nova linha na aba **Leads Gamboas**, com `Status: Novo` e o ID `meta-...` na coluna **ID do evento**.
+6. confirme a nova linha na aba **Leads Meta Gamboas**, com `Status: Novo`, o ID `meta-...` na coluna **ID do evento** e os campos técnicos da Meta preenchidos;
+7. confira que a quantidade e o conteúdo das linhas da aba manual **Leads Gamboas** não foram alterados.
 
 O diagnóstico nunca devolve o token. Se houver falha, `getMetaLeadSyncStatus()` mostra a data do último sucesso e a última mensagem de erro. Leads instantâneos não são reenviados pela CAPI deste script, pois a conversão já aconteceu dentro da Meta.
+
+### Quando unificar
+
+Mantenha as duas abas separadas até validar pelo menos um ciclo completo com lead controlado, gatilho automático, ausência de duplicidades e campos de campanha/anúncio corretos. A unificação deve ser uma ação posterior e explícita; este script não consolida nem remove registros automaticamente.
 
 ## Atualizações posteriores
 
