@@ -121,8 +121,21 @@ function values(sheet, row, column, columnCount) {
 const attributionStart = context.ATTRIBUTION_START_COLUMN;
 const newHeaders = Array.from(context.ATTRIBUTION_HEADERS);
 const legacyHeaders = newHeaders.slice(1, 9);
+const liveManualHeaders = [
+  "Recebido em", "ID do evento", "Ordem", "Nome Completo", "WhatsApp", "Contato Responde",
+  "Prazo de Compra", "Forma de Compra", "Valor de Entrada", "Valor Finan. Pré Aprov.",
+  "Interesse em Visita", "Consentimento LGPD", "utm_source", "utm_medium", "utm_campaign",
+  "utm_content", "utm_term", "fbclid", "_fbp", "_fbc", "Página de origem", "CAPI enviada",
+  "Resposta CAPI", "Status", "Data Contato", "Qualificado?", "Data Visita", "Compareceu?",
+  "Proposta?", "Venda?", "Observações", "ID do empreendimento", "Consentimento de medição",
+  "Primeira página da sessão", "Referência inicial", "Conteúdo de origem", "CTA de origem",
+  "Primeiro acesso em", "Última página antes da conversão", "Versão da atribuição",
+  "Versão do consentimento de medição", "Consentimento de medição atualizado em",
+  "Versão do consentimento de atendimento", "Consentimento de atendimento em"
+];
 
 assert.equal(context.INTEGRATION_VERSION, "growth-v2");
+assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
 assert.ok(
   appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
     appsScript.indexOf("var capiResults = sendCapiEvents_(lead);")
@@ -287,21 +300,9 @@ assert.throws(
 
 {
   const sheet = new MockSheet();
-  const liveHeaders = [
-    "Recebido em", "ID do evento", "Ordem", "Nome Completo", "WhatsApp", "Contato Responde",
-    "Prazo de Compra", "Forma de Compra", "Valor de Entrada", "Valor Finan. Pré Aprov.",
-    "Interesse em Visita", "Consentimento LGPD", "utm_source", "utm_medium", "utm_campaign",
-    "utm_content", "utm_term", "fbclid", "_fbp", "_fbc", "Página de origem", "CAPI enviada",
-    "Resposta CAPI", "Status", "Data Contato", "Qualificado?", "Data Visita", "Compareceu?",
-    "Proposta?", "Venda?", "Observações", "ID do empreendimento", "Consentimento de medição",
-    "Primeira página da sessão", "Referência inicial", "Conteúdo de origem", "CTA de origem",
-    "Primeiro acesso em", "Última página antes da conversão", "Versão da atribuição",
-    "Versão do consentimento de medição", "Consentimento de medição atualizado em",
-    "Versão do consentimento de atendimento", "Consentimento de atendimento em"
-  ];
-  sheet.getRange(1, 1, 1, liveHeaders.length).setValues([liveHeaders]);
-  sheet.getRange(2, 1, 1, liveHeaders.length).setValues([
-    liveHeaders.map((_, index) => index === 30 ? "Operação preservada" : "")
+  sheet.getRange(1, 1, 1, liveManualHeaders.length).setValues([liveManualHeaders]);
+  sheet.getRange(2, 1, 1, liveManualHeaders.length).setValues([
+    liveManualHeaders.map((_, index) => index === 30 ? "Operação preservada" : "")
   ]);
 
   context.getLeadSheet_ = () => sheet;
@@ -404,8 +405,13 @@ assert.throws(
 }
 
 {
-  const sheet = new MockSheet();
-  sheet.getRange(1, 1, 1, context.BASE_HEADERS.length).setValues([Array.from(context.BASE_HEADERS)]);
+  const manualSheet = new MockSheet();
+  const metaSheet = new MockSheet();
+  manualSheet.getRange(1, 1, 1, liveManualHeaders.length).setValues([liveManualHeaders]);
+  manualSheet.getRange(2, 1, 1, liveManualHeaders.length).setValues([
+    liveManualHeaders.map((_, index) => index === 3 ? "Lead manual preservado" : "")
+  ]);
+  context.ensureMetaLeadSchema_(metaSheet, manualSheet);
   const metaLead = {
     id: "987654321",
     created_time: "2026-08-17T12:30:00-03:00",
@@ -416,6 +422,8 @@ assert.throws(
     adset_name: "FORM HIGH INTENT | PROSPECCAO",
     ad_id: "ad-1",
     ad_name: "GAMBOAS | FACHADA | OFERTA 295K",
+    platform: "instagram",
+    is_organic: false,
     field_data: [
       { name: "full_name", values: ["Maria da Silva"] },
       { name: "phone_number", values: ["+55 (11) 99999-0000"] },
@@ -427,34 +435,53 @@ assert.throws(
     ]
   };
 
-  context.appendMetaLead_(sheet, metaLead);
+  context.appendMetaLead_(metaSheet, metaLead);
 
-  assert.equal(sheet.valueAt(2, 2), "meta-987654321");
-  assert.equal(sheet.valueAt(2, 3), "");
-  assert.equal(sheet.valueAt(2, 4), "Maria da Silva");
-  assert.equal(sheet.valueAt(2, 5), "11999990000");
-  assert.equal(sheet.valueAt(2, 6), "");
-  assert.equal(sheet.valueAt(2, 7), "Em até 3 meses");
-  assert.equal(sheet.valueAt(2, 8), "Entrada + financiamento");
-  assert.equal(sheet.valueAt(2, 9), "De R$ 30 mil a R$ 60 mil");
-  assert.equal(sheet.valueAt(2, 10), "Sim, nesta semana");
-  assert.equal(sheet.valueAt(2, 12), "meta");
-  assert.equal(sheet.valueAt(2, 13), "paid_social");
-  assert.equal(sheet.valueAt(2, context.OPERATION_START_COLUMN), "Novo");
+  const metaColumns = context.headerColumns_(metaSheet);
+  const metaColumn = (header) => context.headerColumn_(metaColumns, header);
+  assert.deepEqual(
+    values(metaSheet, 1, 1, liveManualHeaders.length),
+    liveManualHeaders
+  );
+  assert.equal(manualSheet.getLastRow(), 2);
+  assert.equal(manualSheet.valueAt(2, 4), "Lead manual preservado");
+  assert.equal(metaSheet.valueAt(2, metaColumn("ID do evento")), "meta-987654321");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Ordem")), "");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Nome completo")), "Maria da Silva");
+  assert.equal(metaSheet.valueAt(2, metaColumn("WhatsApp")), "11999990000");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Contato responde")), "");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Prazo de compra")), "Em até 3 meses");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Forma de compra")), "Entrada + financiamento");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Valor de entrada")), "De R$ 30 mil a R$ 60 mil");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Interesse em visita")), "Sim, nesta semana");
+  assert.equal(metaSheet.valueAt(2, metaColumn("utm_source")), "meta");
+  assert.equal(metaSheet.valueAt(2, metaColumn("utm_medium")), "paid_social");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Status")), "Novo");
   assert.match(
-    sheet.valueAt(2, context.OPERATION_START_COLUMN + context.OPERATION_HEADERS.length - 1),
+    metaSheet.valueAt(2, metaColumn("Observações")),
     /Meta lead ID: 987654321/
   );
-  assert.equal(sheet.valueAt(2, attributionStart), "gamboas");
-  assert.equal(sheet.valueAt(2, attributionStart + 3), "Meta Instant Form");
-  assert.equal(sheet.valueAt(2, attributionStart + 11), "meta-form-123456789");
+  assert.equal(metaSheet.valueAt(2, metaColumn("ID do empreendimento")), "gamboas");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Referência inicial")), "Meta Instant Form");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Versão do consentimento de atendimento")), "meta-form-123456789");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Email")), "maria@example.com");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Lead ID")), "987654321");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Form ID")), "123456789");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Campaign ID")), "campaign-1");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Ad Set ID")), "adset-1");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Ad ID")), "ad-1");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Platform")), "instagram");
+  assert.equal(metaSheet.valueAt(2, metaColumn("Meta Organic")), "Não");
+  assert.ok(metaSheet.valueAt(2, metaColumn("Importado da Meta em")));
   assert.doesNotMatch(
-    sheet.valueAt(2, context.OPERATION_START_COLUMN + context.OPERATION_HEADERS.length - 1),
+    metaSheet.valueAt(2, metaColumn("Observações")),
     /Maria da Silva|99999-0000|maria@example\.com/
   );
 
-  const knownIds = context.getExistingEventIds_(sheet);
+  const knownIds = context.getExistingEventIds_(metaSheet);
   assert.equal(knownIds["meta-987654321"], true);
+  context.mergeEventIds_(knownIds, { "lead-manual-1": true });
+  assert.equal(knownIds["lead-manual-1"], true);
   assert.equal(context.normalizeMetaKey_("Gostaria de agendar uma visita?"), "gostaria_de_agendar_uma_visita");
 }
 
