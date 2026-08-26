@@ -324,6 +324,15 @@ def main() -> int:
         if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
             errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
 
+    content_hub_html = page_content.get(CONTENTS_INDEX_PATH, "")
+    expected_content_hub_values = {
+        "data-ga-measurement-id": ga_measurement_id,
+        "data-meta-pixel-id": meta_pixel_id,
+    }
+    for attribute, expected_value in expected_content_hub_values.items():
+        if not re.search(rf'{attribute}=["\']{re.escape(expected_value)}["\']', content_hub_html):
+            errors.append(f"{attribute} do hub de conteúdo não coincide com a configuração.")
+
     for article in content_articles:
         slug = str(article.get("slug", ""))
         article_page = content_article_pages.get(slug)

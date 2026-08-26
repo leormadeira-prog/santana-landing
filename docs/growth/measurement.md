@@ -4,7 +4,7 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 
 ## Plataformas
 
-- Meta Pixel: `1580854386761765`
+- Meta Pixel: `28317074327887665`
 - Google Analytics 4: `G-NFEM9HPFLR`
 - Conversions API: Apps Script, com token em `META_ACCESS_TOKEN`
 - Planilha oficial: aba `Leads Gamboas`
