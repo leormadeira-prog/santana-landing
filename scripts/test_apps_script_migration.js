@@ -145,6 +145,14 @@ assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/?utm_source=teste"),
   "gamboas"
 );
+assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=teste"),
+  "gamboas"
+);
+assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html"),
+  ""
+);
 assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
 
 {
@@ -188,6 +196,46 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
   assert.equal(lead.downPayment, "");
   assert.equal(lead.visitInterest, "");
 }
+
+{
+  const lead = {
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-unit-39m-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex#formulario",
+    firstPageUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex",
+    lastTouchUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex",
+    measurementConsent: "unknown"
+  };
+
+  context.validateLead_(lead);
+
+  assert.equal(
+    lead.sourceUrl,
+    "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex"
+  );
+}
+
+assert.throws(
+  () => context.validateLead_({
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-source-blocked-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    firstPageUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    lastTouchUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    measurementConsent: "unknown"
+  }),
+  /INVALID_SOURCE/
+);
 
 assert.throws(
   () => context.validateLead_({

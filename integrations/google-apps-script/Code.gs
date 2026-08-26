@@ -22,6 +22,7 @@ var ALLOWED_ATTRIBUTION_QUERY_FIELDS = [
 var PROPERTY_CONFIGS = {
   gamboas: {
     path: "/gamboas/",
+    allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
     priceFrom: 295000,
     currency: "BRL"
@@ -341,7 +342,7 @@ function validateLead_(lead) {
     throw new Error("SPAM_DETECTED");
   }
   if (!propertyConfig || !/^[a-z0-9][a-z0-9_-]{0,119}$/.test(propertyId)) throw new Error("INVALID_PROPERTY");
-  if (source.split("?")[0] !== ALLOWED_ORIGIN + propertyConfig.path) throw new Error("INVALID_SOURCE");
+  if (!isAllowedPropertySource_(source, propertyConfig)) throw new Error("INVALID_SOURCE");
   if (["accepted", "rejected", "unknown"].indexOf(measurement) === -1) throw new Error("INVALID_MEASUREMENT_CONSENT");
   if (firstPage.indexOf(ALLOWED_ORIGIN + "/") !== 0 || lastTouch.indexOf(ALLOWED_ORIGIN + "/") !== 0) {
     throw new Error("INVALID_ATTRIBUTION");
@@ -637,9 +638,19 @@ function getPropertyConfig_(propertyId) {
 
 function inferPropertyId_(sourceUrl) {
   var matches = Object.keys(PROPERTY_CONFIGS).filter(function (propertyId) {
-    return sourceUrl.indexOf(ALLOWED_ORIGIN + PROPERTY_CONFIGS[propertyId].path) === 0;
+    return isAllowedPropertySource_(sourceUrl, PROPERTY_CONFIGS[propertyId]);
   });
   return matches.length === 1 ? matches[0] : "";
+}
+
+function isAllowedPropertySource_(sourceUrl, propertyConfig) {
+  var baseUrl = text_(sourceUrl, 1000).split("#")[0].split("?")[0];
+  var configuredPaths = propertyConfig && Array.isArray(propertyConfig.allowedPaths)
+    ? propertyConfig.allowedPaths
+    : [propertyConfig && propertyConfig.path];
+  return configuredPaths.some(function (path) {
+    return /^\/[a-zA-Z0-9/_\-.]*$/.test(path || "") && baseUrl === ALLOWED_ORIGIN + path;
+  });
 }
 
 function safeCampaignValue_(value, maxLength) {
@@ -658,7 +669,7 @@ function sanitizeInternalUrl_(value) {
   if (raw.indexOf(ALLOWED_ORIGIN + "/") !== 0 || /[\s<>]/.test(raw)) return "";
   var parts = raw.split("?");
   var base = parts.shift();
-  if (!/^https:\/\/znempreendimentos\.com\.br\/[a-zA-Z0-9/_-]*$/.test(base)) return "";
+  if (!/^https:\/\/znempreendimentos\.com\.br\/[a-zA-Z0-9/_.-]*$/.test(base)) return "";
   var cleanPairs = [];
   parts.join("?").split("&").forEach(function (pair) {
     if (!pair) return;
