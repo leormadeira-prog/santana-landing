@@ -13,7 +13,7 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 
 O contrato obrigatório de identificação é `property_id`. O piloto usa `property_id = gamboas`. Novos empreendimentos devem receber outro identificador estável, sem criar nomes de evento diferentes.
 
-Os dados básicos do Gamboas ficam em `site.config.json` e nos atributos `data-property-*` da landing. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. Essa pequena duplicação é validada automaticamente e evita introduzir uma etapa de build antes de existir um segundo empreendimento.
+Os dados básicos do Gamboas ficam em `site.config.json` e nos atributos `data-property-*` da landing. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. As rotas aceitas também são explícitas em `allowedPaths`; a raiz e a página da unidade de 39,1 m² são válidas, enquanto qualquer outra subpágina é rejeitada. Essa pequena duplicação é validada automaticamente e evita introduzir uma etapa de build antes de existir um segundo empreendimento.
 
 ## Consentimentos independentes e versionados
 
