@@ -45,7 +45,7 @@ O gerador produz metadados sociais, canonical, `Article`, `BreadcrumbList`, auto
 
 ## Medição e atribuição
 
-A medição só é ativada apó a escolha `accepted` na preferência compartilhada `zn-measurement-consent`.
+A medição só é ativada após a escolha `accepted` na preferência compartilhada e versionada `zn-measurement-consent`. O leitor aceita tanto o formato legado quanto o registro JSON de `measurement-2026-08-19`, mantendo a escolha consistente entre artigos e landing.
 
 Com consentimento, a camada editorial envia:
 
@@ -54,7 +54,7 @@ Com consentimento, a camada editorial envia:
 - GA4 `select_content` para clique em CTA;
 - Meta `PageView`, `ViewContent` e `ContentCTAClick`.
 
-Ao chegar a uma landing pelo mesmo domínio, o mecanismo `growth-v1` identifica o slug em `/conteudos/<slug>/` como `contentOrigin`. O lead conserva essa origem, o CTA utilizado e o empreendimento escolhido sem criar UTMs internas que sobrescrevam a aquisição real.
+Ao chegar a uma landing pelo mesmo domínio, o mecanismo `growth-v2` identifica o slug em `/conteudos/<slug>/` como `contentOrigin`. O lead conserva essa origem, o CTA utilizado e o empreendimento escolhido sem criar UTMs internas que sobrescrevam a aquisição real.
 
 ## Primeiro cluster
 

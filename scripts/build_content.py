@@ -280,6 +280,17 @@ def replace_generated_block(source: str, name: str, generated: str) -> str:
     return pattern.sub(f"{start}\n{generated}\n{end}", source)
 
 
+def replace_data_attribute(source: str, name: str, value: str) -> str:
+    pattern = re.compile(rf"({re.escape(name)}=)([\"'])[^\"']*\2")
+    if not pattern.search(source):
+        raise ValueError(f"Atributo {name} ausente")
+    return pattern.sub(
+        lambda match: f"{match.group(1)}{match.group(2)}{value}{match.group(2)}",
+        source,
+        count=1,
+    )
+
+
 def write_or_check(path: Path, expected: str, check: bool, errors: list[str]) -> None:
     current = path.read_text(encoding="utf-8") if path.exists() else ""
     if check:
@@ -312,7 +323,13 @@ def main() -> int:
             errors.append(str(exc))
 
     hub = HUB_PATH.read_text(encoding="utf-8")
-    hub_expected = replace_generated_block(hub, "CONTENT_CARDS", "\n".join(render_card(article) for article in articles))
+    hub_expected = replace_data_attribute(hub, "data-ga-measurement-id", config["gaMeasurementId"])
+    hub_expected = replace_data_attribute(hub_expected, "data-meta-pixel-id", config["metaPixelId"])
+    hub_expected = replace_generated_block(
+        hub_expected,
+        "CONTENT_CARDS",
+        "\n".join(render_card(article) for article in articles),
+    )
     write_or_check(HUB_PATH, hub_expected, args.check, errors)
 
     sitemap = SITEMAP_PATH.read_text(encoding="utf-8")

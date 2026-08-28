@@ -11,7 +11,7 @@ O Gamboas é o piloto, não a infraestrutura. O sobrado da Vila Isolina Mazzei �
 5. **O que deverá virar dados:** descrição, características, galeria, plantas, coordenadas, metadata e configuração comercial de cada novo empreendimento.
 6. **Como adicionar o segundo empreendimento hoje:** cadastrar a propriedade em `site.config.json` e `PROPERTY_CONFIGS`, criar sua pasta com conteúdo e imagens, declarar os atributos `data-property-*` e executar o validador.
 7. **Implementação atual:** `gamboas` e `sobrado_isolina` usam o mesmo endpoint, a mesma taxonomia de eventos e o mesmo consentimento de medição; cada landing mantém HTML, CSS e conteúdo próprios.
-8. **Tracking já multiempreendimento:** `view_item`, `form_start`, `contact`, `generate_lead` e `schedule_visit` carregam `property_id`; a planilha e a CAPI usam o mesmo identificador.
+8. **Tracking já multiempreendimento:** `page_view`, `view_item`, `form_start`, `click_cta`, `view_plants`, `click_whatsapp`, `generate_lead` e o `schedule_visit` legado carregam `property_id`; a planilha e a CAPI usam o mesmo identificador.
 9. **O que ainda não é compartilhado:** HTML/CSS, página de obrigado e perguntas comerciais continuam materializados por imóvel para evitar abstrações prematuras.
 10. **Menor próxima evolução:** extrair somente utilitários estáveis de formulário e atribuição depois de validar o sobrado em produção.
 

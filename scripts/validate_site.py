@@ -88,8 +88,8 @@ def main() -> int:
         errors.append("O Meta Pixel ID está ausente ou inválido em site.config.json.")
     if not re.fullmatch(r"G-[A-Z0-9]+", ga_measurement_id):
         errors.append("O ID do GA4 está ausente ou inválido em site.config.json.")
-    if attribution_version != "growth-v1":
-        errors.append("A versão de atribuição deve ser 'growth-v1'.")
+    if attribution_version != "growth-v2":
+        errors.append("A versão de atribuição deve ser 'growth-v2'.")
     if not isinstance(properties, dict) or not properties:
         errors.append("site.config.json deve declarar ao menos um empreendimento em 'properties'.")
         properties = {}
@@ -212,6 +212,10 @@ def main() -> int:
 
     attribution_fields = (
         "measurementConsent",
+        "measurementConsentVersion",
+        "measurementConsentAt",
+        "attendanceConsentVersion",
+        "attendanceConsentAt",
         "firstPageUrl",
         "initialReferrer",
         "contentOrigin",
@@ -242,6 +246,29 @@ def main() -> int:
         errors.append("A auditoria multiempreendimento está ausente ou incompleta.")
     if 'FormStart: "form_start"' not in app_js:
         errors.append("O evento form_start com contexto do empreendimento está ausente.")
+    event_markers = (
+        'PageView: "page_view"',
+        'Lead: "generate_lead"',
+        'ClickWhatsApp: "click_whatsapp"',
+        'ViewPlants: "view_plants"',
+        'ClickCta: "click_cta"',
+        'PageView: "PageView"',
+        'Contact: "Contact"',
+    )
+    if any(marker not in app_js for marker in event_markers):
+        errors.append("A taxonomia de eventos do funil está ausente ou incompleta.")
+    if "send_page_view: false" not in app_js or 'track("PageView"' not in app_js:
+        errors.append("PageView deve ser emitido explicitamente, uma única vez e após consentimento.")
+    if "result.stored !== true" not in app_js or "result.id !== eventId" not in app_js:
+        errors.append("A conversão do navegador só pode ocorrer após confirmar a persistência do mesmo event_id.")
+    if "zn-lead-summary" in app_js:
+        errors.append("Dados de lead não podem ser persistidos no armazenamento do navegador.")
+    persistence_marker = "sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);"
+    capi_marker = "var capiResults = sendCapiEvents_(lead);"
+    persistence_position = apps_script.find(persistence_marker)
+    capi_position = apps_script.find(capi_marker)
+    if persistence_position == -1 or capi_position == -1 or persistence_position > capi_position:
+        errors.append("O Apps Script deve persistir a linha completa antes de chamar a CAPI.")
     if re.search(r"\bTEST\d{3,}\b", "\n".join(sources.values())):
         errors.append("Código temporário META_TEST_EVENT_CODE encontrado no repositório.")
     content_measurement_markers = (
@@ -250,6 +277,7 @@ def main() -> int:
         'window.gtag("event", "select_content"',
         'window.fbq("track", "ViewContent"',
         'window.fbq("trackCustom", "ContentCTAClick"',
+        'MEASUREMENT_CONSENT_VERSION = "measurement-2026-08-19"',
     )
     if any(marker not in content_js for marker in content_measurement_markers):
         errors.append("A medição consentida do Content Engine está ausente ou incompleta.")
@@ -284,6 +312,36 @@ def main() -> int:
         )
         if any(marker not in apps_script for marker in server_markers):
             errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
+        if 'name="website"' not in property_html:
+            errors.append(f"Honeypot antispam ausente no formulário de {property_id}.")
+        if property_id == "gamboas":
+            required_copy = (
+                "Imagens do apartamento decorado, meramente ilustrativas. "
+                "As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, "
+                "marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo."
+            )
+            if required_copy not in property_html:
+                errors.append(f"Disclaimer completo de imagens e contrapiso ausente em {property_id}.")
+            if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
+                errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
+        if property_id == "sobrado_isolina":
+            required_copy = (
+                "O vídeo combina imagens reais do imóvel com cenas decoradas meramente ilustrativas. "
+                "Móveis e decoração não inclusos."
+            )
+            if required_copy not in property_html:
+                errors.append("Disclaimer do vídeo e da decoração ausente no sobrado.")
+            if not re.search(r'<source\b[^>]*src=["\'][^"\']*sobrado-isolina-reels\.mp4["\'][^>]*type=["\']video/mp4["\']', property_html):
+                errors.append("Vídeo MP4 do sobrado ausente ou sem tipo declarado.")
+
+    content_hub_html = page_content.get(CONTENTS_INDEX_PATH, "")
+    expected_content_hub_values = {
+        "data-ga-measurement-id": ga_measurement_id,
+        "data-meta-pixel-id": meta_pixel_id,
+    }
+    for attribute, expected_value in expected_content_hub_values.items():
+        if not re.search(rf'{attribute}=["\']{re.escape(expected_value)}["\']', content_hub_html):
+            errors.append(f"{attribute} do hub de conteúdo não coincide com a configuração.")
 
     for article in content_articles:
         slug = str(article.get("slug", ""))
@@ -370,21 +428,29 @@ def main() -> int:
 
     local_paths: set[str] = set()
     for index_path, page_html in pages:
+        referenced_values: list[str] = []
         for attribute in ("src", "href"):
-            for value in re.findall(rf'{attribute}=["\']([^"\']+)["\']', page_html):
-                parsed = urlparse(value)
-                if parsed.scheme or value.startswith(("#", "mailto:", "tel:", "javascript:")):
-                    continue
-                clean = parsed.path
-                if not clean or clean.endswith("/"):
-                    continue
-                target = (ROOT / clean.lstrip("/")) if clean.startswith("/") else (index_path.parent / clean)
-                try:
-                    relative = str(target.resolve().relative_to(ROOT.resolve()))
-                except ValueError:
-                    errors.append(f"Caminho local fora do repositório: {value}")
-                    continue
-                local_paths.add(relative)
+            referenced_values.extend(re.findall(rf'{attribute}=["\']([^"\']+)["\']', page_html))
+        for srcset in re.findall(r'srcset=["\']([^"\']+)["\']', page_html):
+            referenced_values.extend(
+                candidate.strip().split()[0]
+                for candidate in srcset.split(",")
+                if candidate.strip()
+            )
+        for value in referenced_values:
+            parsed = urlparse(value)
+            if parsed.scheme or value.startswith(("#", "mailto:", "tel:", "javascript:")):
+                continue
+            clean = parsed.path
+            if not clean or clean.endswith("/"):
+                continue
+            target = (ROOT / clean.lstrip("/")) if clean.startswith("/") else (index_path.parent / clean)
+            try:
+                relative = str(target.resolve().relative_to(ROOT.resolve()))
+            except ValueError:
+                errors.append(f"Caminho local fora do repositório: {value}")
+                continue
+            local_paths.add(relative)
 
     ignored_suffixes = (".html",)
     for relative_path in sorted(local_paths):

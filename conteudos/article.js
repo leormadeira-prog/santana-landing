@@ -9,6 +9,7 @@
   var CONTENT_CATEGORY = String(body.dataset.contentCategory || "").trim();
   var CONSENT_KEY = "zn-measurement-consent";
   var LEGACY_CONSENT_KEY = "gamboas-analytics-consent";
+  var MEASUREMENT_CONSENT_VERSION = "measurement-2026-08-19";
   var measurementActive = false;
 
   function readLocalValue(key, legacyKey) {
@@ -27,7 +28,21 @@
 
   function measurementConsent() {
     var value = readLocalValue(CONSENT_KEY, LEGACY_CONSENT_KEY);
-    return value === "accepted" || value === "rejected" ? value : "unknown";
+    if (value === "accepted" || value === "rejected") return value;
+    try {
+      var record = JSON.parse(value || "{}");
+      return record.state === "accepted" || record.state === "rejected" ? record.state : "unknown";
+    } catch (_) {
+      return "unknown";
+    }
+  }
+
+  function saveMeasurementConsent(state) {
+    writeLocalValue(CONSENT_KEY, JSON.stringify({
+      state: state,
+      version: MEASUREMENT_CONSENT_VERSION,
+      updatedAt: new Date().toISOString()
+    }));
   }
 
   function installGoogleAnalytics() {
@@ -98,12 +113,12 @@
   else if (consent !== "rejected" && banner) banner.hidden = false;
 
   if (accept) accept.addEventListener("click", function () {
-    writeLocalValue(CONSENT_KEY, "accepted");
+    saveMeasurementConsent("accepted");
     if (banner) banner.hidden = true;
     activateMeasurement();
   });
   if (reject) reject.addEventListener("click", function () {
-    writeLocalValue(CONSENT_KEY, "rejected");
+    saveMeasurementConsent("rejected");
     if (banner) banner.hidden = true;
   });
 

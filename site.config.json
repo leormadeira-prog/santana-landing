@@ -3,7 +3,7 @@
   "whatsapp": "5511926271721",
   "metaPixelId": "28317074327887665",
   "gaMeasurementId": "G-NFEM9HPFLR",
-  "attributionVersion": "growth-v1",
+  "attributionVersion": "growth-v2",
   "properties": {
     "gamboas": {
       "slug": "gamboas",
@@ -13,6 +13,7 @@
       "currency": "BRL",
       "trackingCtas": [
         "cabecalho",
+        "hero-mobile",
         "planta",
         "cta-final",
         "cta-fixo-mobile"
