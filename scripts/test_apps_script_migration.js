@@ -136,10 +136,29 @@ const liveManualHeaders = [
 
 assert.equal(context.INTEGRATION_VERSION, "growth-v2");
 assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
+assert.equal(context.SOBRADO_SHEET_NAME, "Leads Sobrado Isolina");
+assert.equal(context.PROPERTY_CONFIGS.gamboas.sheetName, "Leads Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.sheetName, "Leads Sobrado Isolina");
 assert.ok(
   appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
     appsScript.indexOf("var capiResults = sendCapiEvents_(lead);")
 );
+
+{
+  const sheets = {
+    "Leads Gamboas": { name: "Leads Gamboas" },
+    "Leads Sobrado Isolina": { name: "Leads Sobrado Isolina" }
+  };
+  const originalGetSpreadsheet = context.getSpreadsheet_;
+  context.getSpreadsheet_ = () => ({
+    getSheetByName: (name) => sheets[name] || null,
+    insertSheet: (name) => ({ name })
+  });
+  assert.equal(context.getPropertyLeadSheet_("gamboas"), sheets["Leads Gamboas"]);
+  assert.equal(context.getPropertyLeadSheet_("sobrado_isolina"), sheets["Leads Sobrado Isolina"]);
+  assert.throws(() => context.getPropertyLeadSheet_("imovel_inexistente"), /INVALID_PROPERTY/);
+  context.getSpreadsheet_ = originalGetSpreadsheet;
+}
 
 assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/?utm_source=teste"),
@@ -256,7 +275,7 @@ assert.throws(
   context.LockService = {
     getScriptLock: () => ({ waitLock() {}, releaseLock() {} })
   };
-  context.getLeadSheet_ = () => sheet;
+  context.getPropertyLeadSheet_ = () => sheet;
   context.findEventRow_ = () => 0;
   context.json_ = (data) => data;
   context.sendCapiEvents_ = () => {
@@ -353,7 +372,7 @@ assert.throws(
     liveManualHeaders.map((_, index) => index === 30 ? "Operação preservada" : "")
   ]);
 
-  context.getLeadSheet_ = () => sheet;
+  context.getPropertyLeadSheet_ = () => sheet;
   context.findEventRow_ = () => 0;
   context.sendCapiEvents_ = () => ({ sent: false, details: "CAPI não configurada" });
   const eventId = "lead-live-schema-123";

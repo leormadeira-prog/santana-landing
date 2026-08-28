@@ -12,6 +12,7 @@
 
 var SHEET_NAME = "Leads Gamboas";
 var META_SHEET_NAME = "Leads Meta Gamboas";
+var SOBRADO_SHEET_NAME = "Leads Sobrado Isolina";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v2";
 var META_GRAPH_VERSION = "v24.0";
@@ -21,6 +22,7 @@ var ALLOWED_ATTRIBUTION_QUERY_FIELDS = [
 ];
 var PROPERTY_CONFIGS = {
   gamboas: {
+    sheetName: SHEET_NAME,
     path: "/gamboas/",
     allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
@@ -35,6 +37,7 @@ var PROPERTY_CONFIGS = {
     visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
   },
   sobrado_isolina: {
+    sheetName: SOBRADO_SHEET_NAME,
     path: "/sobrado-isolina/",
     allowedPaths: ["/sobrado-isolina/"],
     name: "Sobrado Vila Isolina Mazzei",
@@ -161,13 +164,17 @@ function setup() {
   var sheet = getLeadSheet_();
   PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
   ensureLeadSchema_(sheet);
+  var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
+  ensureLeadSchema_(sobradoSheet);
   var metaSheet = getMetaLeadSheet_();
   ensureMetaLeadSchema_(metaSheet, sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, sheet.getLastColumn());
+  sobradoSheet.setFrozenRows(1);
+  sobradoSheet.autoResizeColumns(1, sobradoSheet.getLastColumn());
   metaSheet.setFrozenRows(1);
   metaSheet.autoResizeColumns(1, metaSheet.getLastColumn());
-  return "Integração preparada nas abas \"" + SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
+  return "Integração preparada nas abas \"" + SHEET_NAME + "\", \"" + SOBRADO_SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
 }
 
 /**
@@ -297,7 +304,7 @@ function doPost(event) {
     var lead = parseLead_(event);
     validateLead_(lead);
 
-    var sheet = getLeadSheet_();
+    var sheet = getPropertyLeadSheet_(lead.property_id);
     var headerColumns = ensureLeadSchema_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
@@ -458,6 +465,15 @@ function getSpreadsheet_() {
 function getLeadSheet_() {
   var spreadsheet = getSpreadsheet_();
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
+}
+
+function getPropertyLeadSheet_(propertyId) {
+  var normalizedPropertyId = text_(propertyId, 120).toLowerCase();
+  var propertyConfig = PROPERTY_CONFIGS[normalizedPropertyId];
+  var sheetName = propertyConfig && text_(propertyConfig.sheetName, 100);
+  if (!sheetName) throw new Error("INVALID_PROPERTY");
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
 }
 
 function getMetaLeadSheet_() {

@@ -7,11 +7,11 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 - Meta Pixel: `28317074327887665`
 - Google Analytics 4: `G-NFEM9HPFLR`
 - Conversions API: Apps Script, com token em `META_ACCESS_TOKEN`
-- Planilha oficial: aba `Leads Gamboas`
+- Planilha oficial: abas `Leads Gamboas`, `Leads Sobrado Isolina` e `Leads Meta Gamboas`
 
 ## Multiempreendimento
 
-O contrato obrigatório de identificação é `property_id`. As landings atuais usam `gamboas` e `sobrado_isolina`, sem criar nomes de evento diferentes.
+O contrato obrigatório de identificação é `property_id`. As landings atuais usam `gamboas` e `sobrado_isolina`, sem criar nomes de evento diferentes. Cada configuração declara sua aba de destino; por isso, o sobrado é gravado em `Leads Sobrado Isolina` sem misturar os registros operacionais do Gamboas.
 
 Os dados básicos dos imóveis ficam em `site.config.json` e nos atributos `data-property-*` das landings. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. As rotas aceitas também são explícitas em `allowedPaths`: o Gamboas aceita a página principal e a oferta da unidade de 39,1 m²; o sobrado aceita somente sua landing canônica. Essa pequena duplicação é validada automaticamente.
 
