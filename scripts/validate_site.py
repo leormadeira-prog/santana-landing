@@ -320,8 +320,11 @@ def main() -> int:
         robots = ""
     if f"Sitemap: https://{domain}/sitemap.xml" not in robots:
         errors.append("robots.txt deve declarar a URL canônica do sitemap.")
-    if "Disallow: /gamboas/obrigado/" not in robots:
-        errors.append("robots.txt deve impedir o rastreamento da página de obrigado.")
+    for property_data in properties.values():
+        property_path = str(property_data.get("path", ""))
+        expected_disallow = f"Disallow: {property_path}obrigado/"
+        if expected_disallow not in robots:
+            errors.append(f"robots.txt deve declarar '{expected_disallow}'.")
 
     try:
         sitemap_root = ET.parse(SITEMAP_PATH).getroot()

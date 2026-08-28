@@ -11,7 +11,7 @@ Esta integração transforma uma Planilha Google em um endpoint compartilhado pa
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
 6. Autorize o acesso à planilha. A aba **Leads Gamboas** e os cabeçalhos serão criados automaticamente.
 
-O `setup()` preserva as colunas operacionais **U:AB** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações), grava o **ID do empreendimento em AC** e cria a atribuição do Growth Engine em **AD:AK**. Execute `setup()` novamente depois de instalar esta versão para adicionar os novos cabeçalhos sem apagar os leads existentes. Se a versão anterior da atribuição já tiver criado AC:AJ, o próprio `setup()` desloca esses dados uma coluna para a direita antes de inserir o empreendimento.
+O `setup()` preserva as colunas operacionais **U:AB** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações), grava o **ID do empreendimento em AC**, mantém a atribuição do Growth Engine em **AD:AK** e adiciona em **AL:AN** a relação com a região, o perfil sugerido e o critério automático quando esses campos existirem. Execute `setup()` novamente depois de instalar esta versão para adicionar os novos cabeçalhos sem apagar os leads existentes. Se a versão anterior da atribuição já tiver criado AC:AJ, o próprio `setup()` desloca esses dados uma coluna para a direita antes de inserir o empreendimento.
 
 ## 2. Publicar como app da Web
 
@@ -27,7 +27,7 @@ A URL `/dev` é somente de teste e exige login; ela não funciona para visitante
 
 O endpoint do Gamboas está configurado em `LEAD_API_URL`, dentro de `gamboas/app.js`. Antes de substituir essa URL no futuro, confirme:
 
-1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v1"` e `"properties": ["gamboas"]`;
+1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v1"` e as propriedades `gamboas` e `sobrado_isolina`;
 2. enviar um lead controlado pela landing;
 3. confirmar que a linha apareceu na aba **Leads Gamboas**.
 
@@ -55,7 +55,7 @@ Antes do merge ou de uma nova campanha:
 2. envie um lead controlado depois de aceitar a medição e confirme `CAPI enviada: Sim`;
 3. verifique `Lead` e, se aplicável, `Schedule` como navegador e servidor no Gerenciador de Eventos;
 4. envie um segundo lead controlado após recusar a medição e confirme que ele foi salvo, mas a CAPI não foi enviada;
-5. confira **AC:AK**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário e última página.
+5. confira **AC:AN**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário, última página e qualificação, quando aplicável.
 
 O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes controlados. Nenhum código `TEST...` deve ficar gravado no repositório ou nas propriedades da implantação de produção.
 

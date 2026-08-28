@@ -11,9 +11,9 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 
 ## Multiempreendimento
 
-O contrato obrigatório de identificação é `property_id`. O piloto usa `property_id = gamboas`. Novos empreendimentos devem receber outro identificador estável, sem criar nomes de evento diferentes.
+O contrato obrigatório de identificação é `property_id`. As landings atuais usam `gamboas` e `sobrado_isolina`, sem criar nomes de evento diferentes.
 
-Os dados básicos do Gamboas ficam em `site.config.json` e nos atributos `data-property-*` da landing. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. Essa pequena duplicação é validada automaticamente e evita introduzir uma etapa de build antes de existir um segundo empreendimento.
+Os dados básicos dos imóveis ficam em `site.config.json` e nos atributos `data-property-*` das landings. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. Essa pequena duplicação é validada automaticamente.
 
 ## Consentimentos independentes
 
@@ -61,6 +61,7 @@ O Search Console fornece consultas orgânicas de forma agregada. Não se deve pr
 - **U:AB:** operação comercial manual;
 - **AC:** `property_id` do empreendimento;
 - **AD:AK:** consentimento de medição e atribuição `growth-v1`.
+- **AL:AN:** relação com a região, perfil sugerido e critério automático, preenchidos quando a landing tiver regras próprias de qualificação.
 
 ## Checklist de produção
 

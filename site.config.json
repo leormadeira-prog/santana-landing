@@ -1,6 +1,6 @@
 {
   "domain": "znempreendimentos.com.br",
-  "whatsapp": "5511999841721",
+  "whatsapp": "5511926271721",
   "metaPixelId": "28317074327887665",
   "gaMeasurementId": "G-NFEM9HPFLR",
   "attributionVersion": "growth-v1",
@@ -14,6 +14,20 @@
       "trackingCtas": [
         "cabecalho",
         "planta",
+        "cta-final",
+        "cta-fixo-mobile"
+      ]
+    },
+    "sobrado_isolina": {
+      "slug": "sobrado_isolina",
+      "path": "/sobrado-isolina/",
+      "name": "Sobrado Vila Isolina Mazzei",
+      "priceFrom": 790000,
+      "currency": "BRL",
+      "trackingCtas": [
+        "cabecalho",
+        "hero",
+        "diferenciais",
         "cta-final",
         "cta-fixo-mobile"
       ]

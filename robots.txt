@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /gamboas/obrigado/
+Disallow: /sobrado-isolina/obrigado/
 
 Sitemap: https://znempreendimentos.com.br/sitemap.xml

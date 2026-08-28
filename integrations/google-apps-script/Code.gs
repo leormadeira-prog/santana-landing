@@ -18,7 +18,60 @@ var PROPERTY_CONFIGS = {
     path: "/gamboas/",
     name: "Edifício Gamboas",
     priceFrom: 295000,
-    currency: "BRL"
+    currency: "BRL",
+    allowedOptions: {
+      purchaseTimeline: ["Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
+      purchaseMethod: ["Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
+      downPayment: ["Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
+      visitInterest: ["Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
+    },
+    visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
+  },
+  sobrado_isolina: {
+    path: "/sobrado-isolina/",
+    name: "Sobrado Vila Isolina Mazzei",
+    priceFrom: 790000,
+    currency: "BRL",
+    allowedOptions: {
+      regionRelation: [
+        "Moro na região.",
+        "Já morei ou trabalho na região.",
+        "Frequento ou conheço bem a região.",
+        "Conheço pouco, mas quero morar na Zona Norte.",
+        "Ainda não conheço a região."
+      ],
+      downPayment: [
+        "R$ 170 mil ou mais.",
+        "Entre R$ 150 mil e R$ 169 mil.",
+        "Entre R$ 100 mil e R$ 149 mil.",
+        "Menos de R$ 100 mil.",
+        "Pretendo comprar à vista.",
+        "Ainda preciso avaliar."
+      ],
+      purchaseMethod: [
+        "Financiamento já pré-aprovado.",
+        "Financiamento ainda não simulado.",
+        "Entrada com FGTS e financiamento.",
+        "Dependo da venda de outro imóvel.",
+        "Compra à vista.",
+        "Ainda estou avaliando."
+      ],
+      purchaseTimeline: [
+        "Assim que encontrar o imóvel certo.",
+        "Nos próximos 30 dias.",
+        "Entre 2 e 3 meses.",
+        "Entre 4 e 6 meses.",
+        "Estou apenas pesquisando."
+      ],
+      visitInterest: [
+        "Durante a semana.",
+        "No próximo sábado.",
+        "No próximo domingo, se disponível.",
+        "Primeiro quero receber mais informações.",
+        "Ainda não pretendo visitar."
+      ]
+    },
+    visitIntentValues: ["Durante a semana.", "No próximo sábado.", "No próximo domingo, se disponível."]
   }
 };
 var BASE_HEADERS = [
@@ -64,16 +117,23 @@ var ATTRIBUTION_HEADERS = [
   "Última página antes da conversão",
   "Versão da atribuição"
 ];
+var QUALIFICATION_HEADERS = [
+  "Relação com a região",
+  "Perfil sugerido",
+  "Critério automático"
+];
 var OPERATION_START_COLUMN = BASE_HEADERS.length + 1;
 var ATTRIBUTION_START_COLUMN = OPERATION_START_COLUMN + OPERATION_HEADERS.length;
+var QUALIFICATION_START_COLUMN = ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length;
 
 function setup() {
   var sheet = getLeadSheet_();
   ensureHeaders_(sheet, 1, BASE_HEADERS, true);
   ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
   ensureAttributionHeaders_(sheet);
+  ensureHeaders_(sheet, QUALIFICATION_START_COLUMN, QUALIFICATION_HEADERS, true);
   sheet.setFrozenRows(1);
-  sheet.autoResizeColumns(1, ATTRIBUTION_START_COLUMN + ATTRIBUTION_HEADERS.length - 1);
+  sheet.autoResizeColumns(1, QUALIFICATION_START_COLUMN + QUALIFICATION_HEADERS.length - 1);
   return "Integração preparada na aba \"" + SHEET_NAME + "\".";
 }
 
@@ -97,6 +157,7 @@ function doPost(event) {
     ensureHeaders_(sheet, 1, BASE_HEADERS, true);
     ensureHeaders_(sheet, OPERATION_START_COLUMN, OPERATION_HEADERS, false);
     ensureAttributionHeaders_(sheet);
+    ensureHeaders_(sheet, QUALIFICATION_START_COLUMN, QUALIFICATION_HEADERS, true);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
       return json_({ ok: true, id: lead.eventId, duplicate: true });
@@ -137,6 +198,12 @@ function doPost(event) {
       safeCell_(lead.lastTouchUrl),
       safeCell_(lead.attributionVersion)
     ]]);
+    var suggestedProfile = suggestProfile_(lead);
+    sheet.getRange(row, QUALIFICATION_START_COLUMN, 1, QUALIFICATION_HEADERS.length).setValues([[
+      safeCell_(lead.regionRelation),
+      safeCell_(suggestedProfile.profile),
+      safeCell_(suggestedProfile.reason)
+    ]]);
 
     return json_({ ok: true, id: lead.eventId });
   } catch (error) {
@@ -168,12 +235,7 @@ function validateLead_(lead) {
   var lastTouch = text_(lead.lastTouchUrl, 1000) || source;
   var contentOrigin = text_(lead.contentOrigin, 120).toLowerCase();
   var ctaOrigin = text_(lead.ctaOrigin, 120).toLowerCase();
-  var allowedOptions = {
-    purchaseTimeline: ["Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
-    purchaseMethod: ["Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
-    downPayment: ["Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
-    visitInterest: ["Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
-  };
+  var allowedOptions = propertyConfig && propertyConfig.allowedOptions;
 
   if (name.split(/\s+/).length < 2) throw new Error("INVALID_NAME");
   if (!/^[0-9]{10,11}$/.test(phone) || /^(\d)\1+$/.test(phone)) throw new Error("INVALID_PHONE");
@@ -207,6 +269,7 @@ function validateLead_(lead) {
   lead.firstTouchAt = text_(lead.firstTouchAt, 50);
   lead.lastTouchUrl = lastTouch;
   lead.attributionVersion = text_(lead.attributionVersion, 50) || "legacy";
+  lead.regionRelation = text_(lead.regionRelation, 200);
 }
 
 function getLeadSheet_() {
@@ -226,6 +289,28 @@ function inferPropertyId_(sourceUrl) {
     return sourceUrl.indexOf(ALLOWED_ORIGIN + PROPERTY_CONFIGS[propertyId].path) === 0;
   });
   return matches.length === 1 ? matches[0] : "";
+}
+
+function suggestProfile_(lead) {
+  if (lead.property_id !== "sobrado_isolina") return { profile: "", reason: "" };
+
+  var highEntry = ["R$ 170 mil ou mais.", "Entre R$ 150 mil e R$ 169 mil.", "Pretendo comprar à vista."].indexOf(lead.downPayment) !== -1;
+  var upToNinetyDays = ["Assim que encontrar o imóvel certo.", "Nos próximos 30 dias.", "Entre 2 e 3 meses."].indexOf(lead.purchaseTimeline) !== -1;
+  var acceptsVisit = PROPERTY_CONFIGS.sobrado_isolina.visitIntentValues.indexOf(lead.visitInterest) !== -1;
+
+  if (highEntry && upToNinetyDays && acceptsVisit) {
+    return { profile: "Quente", reason: "Entrada de R$ 150 mil ou mais, compra em até 90 dias e disponibilidade para visita." };
+  }
+  if (lead.purchaseTimeline === "Entre 4 e 6 meses." || lead.purchaseMethod === "Dependo da venda de outro imóvel.") {
+    return { profile: "Futuro", reason: "Prazo de 4 a 6 meses ou compra condicionada à venda de outro imóvel." };
+  }
+  if (lead.downPayment === "Ainda preciso avaliar." && lead.visitInterest === "Ainda não pretendo visitar.") {
+    return { profile: "Pesquisa", reason: "Entrada indefinida e sem intenção atual de visita." };
+  }
+  if (lead.downPayment === "Entre R$ 100 mil e R$ 149 mil." || lead.purchaseMethod === "Financiamento ainda não simulado.") {
+    return { profile: "Potencial", reason: "Entrada entre R$ 100 mil e R$ 149 mil ou financiamento ainda não simulado." };
+  }
+  return { profile: "Revisar", reason: "Combinação não contemplada pelas regras automáticas; requer avaliação comercial." };
 }
 
 function ensureHeaders_(sheet, startColumn, headers, strict) {
@@ -308,7 +393,7 @@ function sendCapiEvents_(lead) {
         content_name: propertyConfig.name
       }
   }];
-  if (lead.visitInterest.indexOf("Sim") === 0) {
+  if (propertyConfig.visitIntentValues.indexOf(lead.visitInterest) !== -1) {
     events.push({
       event_name: "Schedule",
       event_time: now,
