@@ -13,6 +13,8 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 
 O contrato obrigatório de identificação é `property_id`. As landings atuais usam `gamboas` e `sobrado_isolina`, sem criar nomes de evento diferentes. Cada configuração declara sua aba de destino; por isso, o sobrado é gravado em `Leads Sobrado Isolina` sem misturar os registros operacionais do Gamboas.
 
+Formulários instantâneos da Meta usam `META_LEADS_FORM_PROPERTY_MAP` para associar cada ID de formulário ao respectivo `property_id`. Formulários do Gamboas são importados em `Leads Meta Gamboas`; o formulário do sobrado é importado em `Leads Sobrado Isolina`, junto dos envios da landing, com deduplicação pelo ID do lead da Meta.
+
 Os dados básicos dos imóveis ficam em `site.config.json` e nos atributos `data-property-*` das landings. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. As rotas aceitas também são explícitas em `allowedPaths`: o Gamboas aceita a página principal e a oferta da unidade de 39,1 m²; o sobrado aceita somente sua landing canônica. Essa pequena duplicação é validada automaticamente.
 
 ## Consentimentos independentes e versionados
