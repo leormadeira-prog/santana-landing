@@ -139,6 +139,8 @@ assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
 assert.equal(context.SOBRADO_SHEET_NAME, "Leads Sobrado Isolina");
 assert.equal(context.PROPERTY_CONFIGS.gamboas.sheetName, "Leads Gamboas");
 assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.sheetName, "Leads Sobrado Isolina");
+assert.equal(context.PROPERTY_CONFIGS.gamboas.metaSheetName, "Leads Meta Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.metaSheetName, "Leads Sobrado Isolina");
 assert.ok(
   appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
     appsScript.indexOf("var capiResults = sendCapiEvents_(lead);")
@@ -158,6 +160,27 @@ assert.ok(
   assert.equal(context.getPropertyLeadSheet_("sobrado_isolina"), sheets["Leads Sobrado Isolina"]);
   assert.throws(() => context.getPropertyLeadSheet_("imovel_inexistente"), /INVALID_PROPERTY/);
   context.getSpreadsheet_ = originalGetSpreadsheet;
+}
+
+{
+  const values = {
+    META_LEADS_FORM_PROPERTY_MAP: "1600394864773425:gamboas,1047487454931895:gamboas,2143126276600637:sobrado_isolina"
+  };
+  const forms = context.getMetaLeadFormConfigs_({
+    getProperty: (key) => values[key] || ""
+  });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(forms)),
+    [
+      { formId: "1600394864773425", propertyId: "gamboas" },
+      { formId: "1047487454931895", propertyId: "gamboas" },
+      { formId: "2143126276600637", propertyId: "sobrado_isolina" }
+    ]
+  );
+  assert.throws(
+    () => context.getMetaLeadFormConfigs_({ getProperty: () => "999999:imovel_inexistente" }),
+    /META_LEADS_FORM_MAP_INVALID/
+  );
 }
 
 assert.equal(
@@ -550,6 +573,39 @@ assert.throws(
   context.mergeEventIds_(knownIds, { "lead-manual-1": true });
   assert.equal(knownIds["lead-manual-1"], true);
   assert.equal(context.normalizeMetaKey_("Gostaria de agendar uma visita?"), "gostaria_de_agendar_uma_visita");
+}
+
+{
+  const sobradoSheet = new MockSheet();
+  context.ensureLeadSchema_(sobradoSheet);
+  context.ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
+  const sobradoMetaLead = {
+    id: "sobrado-lead-1",
+    created_time: "2026-08-29T08:00:00-03:00",
+    form_id: "2143126276600637",
+    campaign_name: "ISOLINA | LEADS | FORM MAIOR INTENÇÃO | SOBRADO 790K | 08-2026",
+    adset_name: "FORM | ZONA NORTE | MORADIA | SOBRADO 790K",
+    ad_name: "REELS | SOBRADO 3 SUÍTES | 790K | A",
+    platform: "instagram",
+    field_data: [
+      { name: "full_name", values: ["Pessoa Sobrado"] },
+      { name: "phone_number", values: ["+55 11 99999-0000"] },
+      { name: "Qual é a sua relação com a Vila Isolina Mazzei e a Zona Norte?", values: ["Moro na região."] },
+      { name: "Quanto você pretende utilizar como entrada, considerando recursos próprios e/ou FGTS?", values: ["R$ 170 mil ou mais."] },
+      { name: "Como pretende realizar a compra?", values: ["Financiamento já pré-aprovado."] },
+      { name: "Para quando pretende comprar o imóvel?", values: ["Nos próximos 30 dias."] },
+      { name: "Se o imóvel atender às suas condições, quando poderia visitá-lo?", values: ["No próximo sábado."] }
+    ]
+  };
+
+  context.appendMetaLead_(sobradoSheet, sobradoMetaLead, "sobrado_isolina");
+  const columns = context.headerColumns_(sobradoSheet);
+  const column = (header) => context.headerColumn_(columns, header);
+  assert.equal(sobradoSheet.valueAt(2, column("ID do empreendimento")), "sobrado_isolina");
+  assert.equal(sobradoSheet.valueAt(2, column("Relação com a região")), "Moro na região.");
+  assert.equal(sobradoSheet.valueAt(2, column("Perfil sugerido")), "Quente");
+  assert.match(sobradoSheet.valueAt(2, column("Critério automático")), /até 90 dias/);
+  assert.equal(sobradoSheet.valueAt(2, column("Meta Form ID")), "2143126276600637");
 }
 
 console.log("Apps Script migration and Meta lead tests passed.");

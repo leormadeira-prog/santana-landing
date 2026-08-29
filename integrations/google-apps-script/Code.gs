@@ -23,6 +23,7 @@ var ALLOWED_ATTRIBUTION_QUERY_FIELDS = [
 var PROPERTY_CONFIGS = {
   gamboas: {
     sheetName: SHEET_NAME,
+    metaSheetName: META_SHEET_NAME,
     path: "/gamboas/",
     allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
@@ -38,6 +39,7 @@ var PROPERTY_CONFIGS = {
   },
   sobrado_isolina: {
     sheetName: SOBRADO_SHEET_NAME,
+    metaSheetName: SOBRADO_SHEET_NAME,
     path: "/sobrado-isolina/",
     allowedPaths: ["/sobrado-isolina/"],
     name: "Sobrado Vila Isolina Mazzei",
@@ -166,6 +168,7 @@ function setup() {
   ensureLeadSchema_(sheet);
   var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
   ensureLeadSchema_(sobradoSheet);
+  ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
   var metaSheet = getMetaLeadSheet_();
   ensureMetaLeadSchema_(metaSheet, sheet);
   sheet.setFrozenRows(1);
@@ -213,34 +216,53 @@ function removeMetaLeadSync() {
  */
 function getMetaLeadSyncStatus() {
   var properties = PropertiesService.getScriptProperties();
-  var rawFormIds = text_(
-    properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
-    1000
-  );
+  var formConfigs = [];
+  var configurationError = "";
+  try {
+    formConfigs = getMetaLeadFormConfigs_(properties);
+  } catch (error) {
+    configurationError = text_(error && error.message, 300);
+  }
   var triggerCount = ScriptApp.getProjectTriggers().filter(function (trigger) {
     return trigger.getHandlerFunction() === META_LEAD_SYNC_FUNCTION;
   }).length;
-  var destinationSheetConfigured = false;
-  var destinationRows = 0;
+  var destinations = [];
   try {
     var spreadsheetId = properties.getProperty("SPREADSHEET_ID");
     var spreadsheet = spreadsheetId ? SpreadsheetApp.openById(spreadsheetId) : SpreadsheetApp.getActiveSpreadsheet();
-    var destinationSheet = spreadsheet && spreadsheet.getSheetByName(META_SHEET_NAME);
-    destinationSheetConfigured = Boolean(destinationSheet);
-    destinationRows = destinationSheet ? Math.max(destinationSheet.getLastRow() - 1, 0) : 0;
+    var seenDestinations = {};
+    formConfigs.forEach(function (formConfig) {
+      var propertyConfig = getPropertyConfig_(formConfig.propertyId);
+      var sheetName = propertyConfig.metaSheetName || propertyConfig.sheetName;
+      if (seenDestinations[sheetName]) return;
+      seenDestinations[sheetName] = true;
+      var destinationSheet = spreadsheet && spreadsheet.getSheetByName(sheetName);
+      destinations.push({
+        propertyId: formConfig.propertyId,
+        sheet: sheetName,
+        configured: Boolean(destinationSheet),
+        rows: destinationSheet ? Math.max(destinationSheet.getLastRow() - 1, 0) : 0
+      });
+    });
   } catch (_) {}
+  var gamboasDestination = destinations.filter(function (destination) {
+    return destination.propertyId === "gamboas";
+  })[0] || { configured: false, rows: 0 };
   return {
     spreadsheetConfigured: Boolean(properties.getProperty("SPREADSHEET_ID")),
     accessTokenConfigured: Boolean(properties.getProperty("META_LEADS_ACCESS_TOKEN")),
-    formIds: rawFormIds.split(",").map(function (value) {
-      return text_(value, 100).replace(/\D/g, "");
-    }).filter(function (value) { return value; }),
+    formIds: formConfigs.map(function (formConfig) { return formConfig.formId; }),
+    formMappings: formConfigs.map(function (formConfig) {
+      return formConfig.formId + ":" + formConfig.propertyId;
+    }),
     destinationSheet: META_SHEET_NAME,
-    destinationSheetConfigured: destinationSheetConfigured,
-    destinationRows: destinationRows,
+    destinationSheetConfigured: gamboasDestination.configured,
+    destinationRows: gamboasDestination.rows,
+    destinations: destinations,
     triggerCount: triggerCount,
     lastSyncAt: properties.getProperty("META_LEADS_LAST_SYNC_AT") || "",
-    lastError: properties.getProperty("META_LEADS_LAST_ERROR") || ""
+    lastError: properties.getProperty("META_LEADS_LAST_ERROR") || "",
+    configurationError: configurationError
   };
 }
 
@@ -253,23 +275,33 @@ function syncMetaInstantFormLeads() {
   lock.waitLock(30000);
   try {
     var config = getMetaLeadConfig_();
-    var manualSheet = getLeadSheet_();
-    ensureLeadSchema_(manualSheet);
-    var sheet = getMetaLeadSheet_();
-    ensureMetaLeadSchema_(sheet, manualSheet);
-
-    var existingIds = getExistingEventIds_(sheet);
-    mergeEventIds_(existingIds, getExistingEventIds_(manualSheet));
+    var destinations = {};
+    var existingIds = {};
+    config.forms.forEach(function (formConfig) {
+      if (destinations[formConfig.propertyId]) return;
+      var propertySheet = getPropertyLeadSheet_(formConfig.propertyId);
+      ensureLeadSchema_(propertySheet);
+      var destinationSheet = getMetaLeadDestinationSheet_(formConfig.propertyId);
+      ensureMetaLeadSchema_(destinationSheet, propertySheet);
+      destinations[formConfig.propertyId] = destinationSheet;
+      mergeEventIds_(existingIds, getExistingEventIds_(propertySheet));
+      mergeEventIds_(existingIds, getExistingEventIds_(destinationSheet));
+    });
     var pending = [];
-    config.formIds.forEach(function (formId) {
-      pending = pending.concat(fetchNewMetaLeads_(formId, config.accessToken, existingIds));
+    config.forms.forEach(function (formConfig) {
+      var formLeads = fetchNewMetaLeads_(formConfig.formId, config.accessToken, existingIds);
+      formLeads.forEach(function (metaLead) {
+        metaLead._property_id = formConfig.propertyId;
+      });
+      pending = pending.concat(formLeads);
     });
 
     pending.sort(function (left, right) {
       return parseMetaDate_(left.created_time).getTime() - parseMetaDate_(right.created_time).getTime();
     });
     pending.forEach(function (metaLead) {
-      appendMetaLead_(sheet, metaLead);
+      var propertyId = text_(metaLead._property_id, 120).toLowerCase();
+      appendMetaLead_(destinations[propertyId], metaLead, propertyId);
       existingIds[metaEventId_(metaLead.id)] = true;
     });
 
@@ -481,19 +513,49 @@ function getMetaLeadSheet_() {
   return spreadsheet.getSheetByName(META_SHEET_NAME) || spreadsheet.insertSheet(META_SHEET_NAME);
 }
 
+function getMetaLeadDestinationSheet_(propertyId) {
+  var propertyConfig = getPropertyConfig_(text_(propertyId, 120).toLowerCase());
+  var sheetName = text_(propertyConfig.metaSheetName || propertyConfig.sheetName, 100);
+  if (!sheetName) throw new Error("INVALID_PROPERTY");
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+}
+
 function getMetaLeadConfig_() {
   var properties = PropertiesService.getScriptProperties();
   var token = text_(properties.getProperty("META_LEADS_ACCESS_TOKEN"), 3000);
-  var rawFormIds = text_(
+  var forms = getMetaLeadFormConfigs_(properties);
+  if (!token) throw new Error("META_LEADS_TOKEN_REQUIRED");
+  return {
+    accessToken: token,
+    forms: forms,
+    formIds: forms.map(function (formConfig) { return formConfig.formId; })
+  };
+}
+
+function getMetaLeadFormConfigs_(properties) {
+  var rawMap = text_(properties.getProperty("META_LEADS_FORM_PROPERTY_MAP"), 3000);
+  var rawLegacyIds = text_(
     properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
     1000
   );
-  var formIds = rawFormIds.split(",").map(function (value) {
-    return text_(value, 100).replace(/\D/g, "");
-  }).filter(function (value) { return value; });
-  if (!token) throw new Error("META_LEADS_TOKEN_REQUIRED");
-  if (!formIds.length) throw new Error("META_LEADS_FORM_REQUIRED");
-  return { accessToken: token, formIds: formIds };
+  var entries = rawMap
+    ? rawMap.split(",")
+    : rawLegacyIds.split(",").map(function (formId) { return formId + ":gamboas"; });
+  var seen = {};
+  var forms = [];
+  entries.forEach(function (entry) {
+    var parts = text_(entry, 240).split(":");
+    var formId = text_(parts[0], 100).replace(/\D/g, "");
+    var propertyId = text_(parts[1], 120).toLowerCase();
+    if (!formId || !PROPERTY_CONFIGS[propertyId]) throw new Error("META_LEADS_FORM_MAP_INVALID");
+    if (seen[formId] && seen[formId] !== propertyId) throw new Error("META_LEADS_FORM_MAP_INVALID");
+    if (seen[formId]) return;
+    seen[formId] = propertyId;
+    forms.push({ formId: formId, propertyId: propertyId });
+  });
+  if (!forms.length) throw new Error("META_LEADS_FORM_REQUIRED");
+  return forms;
 }
 
 function getExistingEventIds_(sheet) {
@@ -555,10 +617,12 @@ function fetchNewMetaLeads_(formId, accessToken, existingIds) {
   return leads;
 }
 
-function appendMetaLead_(sheet, metaLead) {
+function appendMetaLead_(sheet, metaLead, propertyId) {
   var headerColumns = headerColumns_(sheet);
-  var requiredHeaders = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, META_EXTRA_HEADERS);
+  var requiredHeaders = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, META_EXTRA_HEADERS);
   if (!hasMappedHeaders_(headerColumns, requiredHeaders)) throw new Error("HEADER_MISMATCH");
+  propertyId = text_(propertyId, 120).toLowerCase() || "gamboas";
+  getPropertyConfig_(propertyId);
   var answers = metaAnswers_(metaLead.field_data);
   var firstName = firstMetaAnswer_(answers, ["first_name", "primeiro_nome", "nome"]);
   var lastName = firstMetaAnswer_(answers, ["last_name", "sobrenome"]);
@@ -569,17 +633,32 @@ function appendMetaLead_(sheet, metaLead) {
   ]));
   var email = firstMetaAnswer_(answers, ["email", "e_mail", "endereco_de_email"]);
   var purchaseTimeline = firstMetaAnswer_(answers, [
-    "em_quanto_tempo_pretende_comprar", "quanto_tempo_pretende_comprar", "prazo_de_compra"
+    "em_quanto_tempo_pretende_comprar", "quanto_tempo_pretende_comprar", "prazo_de_compra",
+    "para_quando_pretende_comprar_o_imovel"
   ]);
   var purchaseMethod = firstMetaAnswer_(answers, [
-    "como_pretende_comprar", "forma_de_compra", "modalidade_de_compra"
+    "como_pretende_comprar", "forma_de_compra", "modalidade_de_compra",
+    "como_pretende_realizar_a_compra"
   ]);
   var downPayment = firstMetaAnswer_(answers, [
-    "possui_valor_para_entrada", "valor_para_entrada", "valor_de_entrada", "entrada"
+    "possui_valor_para_entrada", "valor_para_entrada", "valor_de_entrada", "entrada",
+    "quanto_voce_pretende_utilizar_como_entrada_considerando_recursos_proprios_e_ou_fgts"
   ]);
   var visitInterest = firstMetaAnswer_(answers, [
-    "gostaria_de_agendar_uma_visita", "agendar_uma_visita", "interesse_em_visita", "visita"
+    "gostaria_de_agendar_uma_visita", "agendar_uma_visita", "interesse_em_visita", "visita",
+    "se_o_imovel_atender_as_suas_condicoes_quando_poderia_visita_lo"
   ]);
+  var regionRelation = firstMetaAnswer_(answers, [
+    "qual_e_a_sua_relacao_com_a_vila_isolina_mazzei_e_a_zona_norte", "relacao_com_a_regiao"
+  ]);
+  var suggestedProfile = suggestProfile_({
+    property_id: propertyId,
+    regionRelation: regionRelation,
+    purchaseTimeline: purchaseTimeline,
+    purchaseMethod: purchaseMethod,
+    downPayment: downPayment,
+    visitInterest: visitInterest
+  });
   var createdAt = parseMetaDate_(metaLead.created_time);
   var formId = text_(metaLead.form_id, 100);
   var eventId = metaEventId_(metaLead.id);
@@ -610,7 +689,7 @@ function appendMetaLead_(sheet, metaLead) {
     "Resposta CAPI": "Não aplicável: lead convertido dentro da Meta",
     "Status": "Novo",
     "Observações": safeCell_(buildMetaLeadObservations_(metaLead, answers)),
-    "ID do empreendimento": "gamboas",
+    "ID do empreendimento": safeCell_(propertyId),
     "Consentimento de medição": "Não informado",
     "Referência inicial": "Meta Instant Form",
     "Conteúdo de origem": safeCell_(adName || campaignName),
@@ -620,6 +699,9 @@ function appendMetaLead_(sheet, metaLead) {
     "Versão da atribuição": "meta-leads-v1",
     "Versão do consentimento de atendimento": safeCell_("meta-form-" + formId),
     "Consentimento de atendimento em": createdAt,
+    "Relação com a região": safeCell_(regionRelation),
+    "Perfil sugerido": safeCell_(suggestedProfile.profile),
+    "Critério automático": safeCell_(suggestedProfile.reason),
     "Email": safeCell_(email),
     "Meta Lead ID": safeCell_(metaLead.id),
     "Meta Form ID": safeCell_(formId),

@@ -80,19 +80,19 @@ Esta versão importa os leads do formulário instantâneo para a aba separada **
 
 Em **Configurações do projeto → Propriedades do script**, crie:
 
-- `META_LEADS_FORM_ID`: ID numérico do formulário **GAMBOAS | HIGH INTENT | 08-2026**;
+- `META_LEADS_FORM_PROPERTY_MAP`: pares `ID_DO_FORMULARIO:property_id` separados por vírgula. Exemplo: `1600394864773425:gamboas,1047487454931895:gamboas,2143126276600637:sobrado_isolina`;
 - `META_LEADS_ACCESS_TOKEN`: token com permissão `leads_retrieval` e acesso à Página que possui o formulário.
 
-Para importar mais de um formulário, use `META_LEADS_FORM_IDS` com os IDs separados por vírgula. Não grave tokens neste repositório, em código da landing ou em capturas de tela.
+`META_LEADS_FORM_ID` e `META_LEADS_FORM_IDS` continuam aceitos para instalações antigas e são associados ao Gamboas. O mapa é obrigatório quando formulários de empreendimentos diferentes compartilham a integração. Não grave tokens neste repositório, em código da landing ou em capturas de tela.
 
 Depois de salvar as propriedades:
 
 1. execute `setup()` para preservar a planilha atual, criar **Leads Meta Gamboas** e registrar o ID da planilha para os gatilhos;
 2. execute `setupMetaLeadSync()` uma vez e aceite as permissões solicitadas;
-3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, o ID do formulário, `destinationSheetConfigured: true` e `triggerCount: 1`;
+3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, todos os pares em `formMappings`, os destinos corretos e `triggerCount: 1`;
 4. envie um lead controlado pelo formulário da Meta;
 5. aguarde até cinco minutos ou execute `syncMetaInstantFormLeads()` manualmente;
-6. confirme a nova linha na aba **Leads Meta Gamboas**, com `Status: Novo`, o ID `meta-...` na coluna **ID do evento** e os campos técnicos da Meta preenchidos;
+6. confirme a nova linha na aba configurada: formulários do Gamboas em **Leads Meta Gamboas** e formulários do sobrado em **Leads Sobrado Isolina**, com `Status: Novo`, o ID `meta-...` na coluna **ID do evento** e os campos técnicos da Meta preenchidos;
 7. confira que a quantidade e o conteúdo das linhas da aba manual **Leads Gamboas** não foram alterados.
 
 O diagnóstico nunca devolve o token. Se houver falha, `getMetaLeadSyncStatus()` mostra a data do último sucesso e a última mensagem de erro. Leads instantâneos não são reenviados pela CAPI deste script, pois a conversão já aconteceu dentro da Meta.
