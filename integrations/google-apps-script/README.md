@@ -9,11 +9,11 @@ Esta integração transforma uma Planilha Google em um endpoint compartilhado pa
 3. Apague o conteúdo inicial de `Code.gs` e cole todo o conteúdo deste repositório em `integrations/google-apps-script/Code.gs`.
 4. Salve o projeto com o nome **Captura de leads — Gamboas**.
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
-6. Autorize o acesso à planilha. A aba manual **Leads Gamboas** será preservada e a aba automática **Leads Meta Gamboas** será criada com os mesmos campos operacionais.
+6. Autorize o acesso à planilha. A aba manual **Leads Gamboas** será preservada; as abas **Leads Sobrado Isolina** e **Leads Meta Gamboas** serão criadas ou atualizadas com os campos operacionais correspondentes.
 
 O `setup()` preserva as colunas manuais **C** (`Ordem`) e **F** (`Contato responde`), as colunas operacionais **W:AD** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações) e o bloco bruto dos formulários da Meta. O **ID do empreendimento fica em AE**, a atribuição em **AF:AM** e as versões/datas dos consentimentos em **AN:AQ**. Execute `setup()` novamente depois de instalar esta versão para inserir os novos campos antes do bloco bruto da Meta, sem apagar leads ou dados operacionais existentes. Estruturas anteriores sem as duas colunas manuais ou sem `property_id` também são migradas automaticamente.
 
-A aba **Leads Meta Gamboas** replica os cabeçalhos reais da aba manual, inclusive campos personalizados como `Valor Finan. Pré Aprov.`, e acrescenta: email, IDs e nomes de formulário/campanha/conjunto/anúncio, plataforma, indicador orgânico e data da importação. A criação e as sincronizações não movem, alteram nem apagam as linhas manuais. IDs que já existam em qualquer uma das duas abas são tratados como conhecidos para evitar duplicidade.
+A relação com a região, o perfil sugerido e o critério automático são acrescentados ao final dos cabeçalhos existentes, sem deslocar campos personalizados. Leads enviados pela landing do sobrado são gravados exclusivamente em **Leads Sobrado Isolina**; os envios do Gamboas continuam em **Leads Gamboas**. A aba **Leads Meta Gamboas** replica os cabeçalhos reais da aba manual, inclusive campos como `Valor Finan. Pré Aprov.`, e acrescenta: email, IDs e nomes de formulário/campanha/conjunto/anúncio, plataforma, indicador orgânico e data da importação. A criação e as sincronizações não movem, alteram nem apagam as linhas manuais. IDs que já existam nas duas abas do Gamboas são tratados como conhecidos para evitar duplicidade na importação da Meta.
 
 ## 2. Publicar como app da Web
 
@@ -29,16 +29,16 @@ A URL `/dev` é somente de teste e exige login; ela não funciona para visitante
 
 O endpoint do Gamboas está configurado em `LEAD_API_URL`, dentro de `gamboas/app.js`. Antes de substituir essa URL no futuro, confirme:
 
-1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v2"` e `"properties": ["gamboas"]`;
+1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v2"` e as propriedades `gamboas` e `sobrado_isolina`;
 2. enviar um lead controlado pela landing;
-3. confirmar que a linha apareceu na aba **Leads Gamboas**.
+3. confirmar que a linha apareceu na aba correta: **Leads Gamboas** para `gamboas` ou **Leads Sobrado Isolina** para `sobrado_isolina`.
 
 O navegador precisa fazer uma requisição simples para evitar o preflight CORS. Por isso, ao conectar a landing, o corpo será JSON com `Content-Type: text/plain`. O sucesso só é aceito se a resposta final contiver `ok: true`, `stored: true`, `version: growth-v2` e o mesmo `event_id` enviado. Uma tentativa repetida reutiliza o ID pendente, e o servidor responde como duplicata sem criar outra linha.
 
 ### Ordem obrigatória de publicação
 
 1. publicar primeiro esta versão do Apps Script;
-2. executar `setup()` e conferir a extensão dos cabeçalhos de integração até **AQ**;
+2. executar `setup()` e conferir as três abas, a extensão dos cabeçalhos de integração até **AQ** e os três cabeçalhos de qualificação acrescentados ao final;
 3. abrir `/exec` e confirmar `growth-v2`;
 4. realizar um envio controlado e conferir a linha;
 5. somente então publicar a landing `growth-v2`.
@@ -69,7 +69,8 @@ Antes do merge ou de uma nova campanha:
 4. envie um segundo lead controlado após recusar a medição e confirme que ele foi salvo, mas a CAPI não foi enviada;
 5. confira **AE:AQ**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário, última página e as versões/datas dos dois consentimentos;
 6. repita um `event_id` controlado e confirme que a resposta indica duplicata sem criar uma segunda linha;
-7. confirme que URLs registradas não conservam parâmetros fora da lista permitida nem consultas de referçcias externas.
+7. confirme em **Leads Sobrado Isolina** a relação com a região, o perfil sugerido e o critério automático;
+8. confirme que URLs registradas não conservam parâmetros fora da lista permitida nem consultas de referências externas.
 
 O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes controlados. Nenhum código `TEST...` deve ficar gravado no repositório ou nas propriedades da implantação de produção.
 

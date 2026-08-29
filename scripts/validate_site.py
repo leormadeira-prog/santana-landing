@@ -314,15 +314,25 @@ def main() -> int:
             errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
         if 'name="website"' not in property_html:
             errors.append(f"Honeypot antispam ausente no formulário de {property_id}.")
-        required_copy = (
-            "Imagens do apartamento decorado, meramente ilustrativas. "
-            "As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, "
-            "marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo."
-        )
-        if required_copy not in property_html:
-            errors.append(f"Disclaimer completo de imagens e contrapiso ausente em {property_id}.")
-        if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
-            errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
+        if property_id == "gamboas":
+            required_copy = (
+                "Imagens do apartamento decorado, meramente ilustrativas. "
+                "As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, "
+                "marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo."
+            )
+            if required_copy not in property_html:
+                errors.append(f"Disclaimer completo de imagens e contrapiso ausente em {property_id}.")
+            if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
+                errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
+        if property_id == "sobrado_isolina":
+            required_copy = (
+                "O vídeo combina imagens reais do imóvel com cenas decoradas meramente ilustrativas. "
+                "Móveis e decoração não inclusos."
+            )
+            if required_copy not in property_html:
+                errors.append("Disclaimer do vídeo e da decoração ausente no sobrado.")
+            if not re.search(r'<source\b[^>]*src=["\'][^"\']*sobrado-isolina-reels\.mp4["\'][^>]*type=["\']video/mp4["\']', property_html):
+                errors.append("Vídeo MP4 do sobrado ausente ou sem tipo declarado.")
 
     content_hub_html = page_content.get(CONTENTS_INDEX_PATH, "")
     expected_content_hub_values = {
@@ -368,8 +378,11 @@ def main() -> int:
         robots = ""
     if f"Sitemap: https://{domain}/sitemap.xml" not in robots:
         errors.append("robots.txt deve declarar a URL canônica do sitemap.")
-    if "Disallow: /gamboas/obrigado/" not in robots:
-        errors.append("robots.txt deve impedir o rastreamento da página de obrigado.")
+    for property_data in properties.values():
+        property_path = str(property_data.get("path", ""))
+        expected_disallow = f"Disallow: {property_path}obrigado/"
+        if expected_disallow not in robots:
+            errors.append(f"robots.txt deve declarar '{expected_disallow}'.")
 
     try:
         sitemap_root = ET.parse(SITEMAP_PATH).getroot()

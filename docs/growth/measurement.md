@@ -7,13 +7,13 @@ Este documento é a referência operacional da medição do Growth Engine. IDs p
 - Meta Pixel: `28317074327887665`
 - Google Analytics 4: `G-NFEM9HPFLR`
 - Conversions API: Apps Script, com token em `META_ACCESS_TOKEN`
-- Planilha oficial: aba `Leads Gamboas`
+- Planilha oficial: abas `Leads Gamboas`, `Leads Sobrado Isolina` e `Leads Meta Gamboas`
 
 ## Multiempreendimento
 
-O contrato obrigatório de identificação é `property_id`. O piloto usa `property_id = gamboas`. Novos empreendimentos devem receber outro identificador estável, sem criar nomes de evento diferentes.
+O contrato obrigatório de identificação é `property_id`. As landings atuais usam `gamboas` e `sobrado_isolina`, sem criar nomes de evento diferentes. Cada configuração declara sua aba de destino; por isso, o sobrado é gravado em `Leads Sobrado Isolina` sem misturar os registros operacionais do Gamboas.
 
-Os dados básicos do Gamboas ficam em `site.config.json` e nos atributos `data-property-*` da landing. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. As rotas aceitas também são explícitas em `allowedPaths`; a raiz e a página da unidade de 39,1 m² são válidas, enquanto qualquer outra subpágina é rejeitada. Essa pequena duplicação é validada automaticamente e evita introduzir uma etapa de build antes de existir um segundo empreendimento.
+Os dados básicos dos imóveis ficam em `site.config.json` e nos atributos `data-property-*` das landings. O Apps Script possui a configuração equivalente em `PROPERTY_CONFIGS`, que funciona como lista permitida do servidor. As rotas aceitas também são explícitas em `allowedPaths`: o Gamboas aceita a página principal e a oferta da unidade de 39,1 m²; o sobrado aceita somente sua landing canônica. Essa pequena duplicação é validada automaticamente.
 
 ## Consentimentos independentes e versionados
 
@@ -69,7 +69,7 @@ O Search Console fornece consultas orgânicas de forma agregada. Não se deve pr
 - **AE:** `property_id` do empreendimento;
 - **AF:AM:** consentimento de medição e atribuição;
 - **AN:AQ:** versões e datas dos consentimentos de medição e atendimento;
-- **AR em diante:** bloco bruto dos formulários da Meta, preservado pela migração.
+- **AR em diante:** campos personalizados e o bloco bruto dos formulários da Meta são preservados; relação com a região, perfil sugerido e critério automático são acrescentados por cabeçalho, sem deslocar dados existentes.
 
 ## Checklist de produção
 

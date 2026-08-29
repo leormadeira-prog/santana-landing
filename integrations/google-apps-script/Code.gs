@@ -12,6 +12,7 @@
 
 var SHEET_NAME = "Leads Gamboas";
 var META_SHEET_NAME = "Leads Meta Gamboas";
+var SOBRADO_SHEET_NAME = "Leads Sobrado Isolina";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v2";
 var META_GRAPH_VERSION = "v24.0";
@@ -21,11 +22,67 @@ var ALLOWED_ATTRIBUTION_QUERY_FIELDS = [
 ];
 var PROPERTY_CONFIGS = {
   gamboas: {
+    sheetName: SHEET_NAME,
     path: "/gamboas/",
     allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
     priceFrom: 295000,
-    currency: "BRL"
+    currency: "BRL",
+    allowedOptions: {
+      purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
+      purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
+      downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
+      visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
+    },
+    visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
+  },
+  sobrado_isolina: {
+    sheetName: SOBRADO_SHEET_NAME,
+    path: "/sobrado-isolina/",
+    allowedPaths: ["/sobrado-isolina/"],
+    name: "Sobrado Vila Isolina Mazzei",
+    priceFrom: 790000,
+    currency: "BRL",
+    allowedOptions: {
+      regionRelation: [
+        "Moro na região.",
+        "Já morei ou trabalho na região.",
+        "Frequento ou conheço bem a região.",
+        "Conheço pouco, mas quero morar na Zona Norte.",
+        "Ainda não conheço a região."
+      ],
+      downPayment: [
+        "R$ 170 mil ou mais.",
+        "Entre R$ 150 mil e R$ 169 mil.",
+        "Entre R$ 100 mil e R$ 149 mil.",
+        "Menos de R$ 100 mil.",
+        "Pretendo comprar à vista.",
+        "Ainda preciso avaliar."
+      ],
+      purchaseMethod: [
+        "Financiamento já pré-aprovado.",
+        "Financiamento ainda não simulado.",
+        "Entrada com FGTS e financiamento.",
+        "Dependo da venda de outro imóvel.",
+        "Compra à vista.",
+        "Ainda estou avaliando."
+      ],
+      purchaseTimeline: [
+        "Assim que encontrar o imóvel certo.",
+        "Nos próximos 30 dias.",
+        "Entre 2 e 3 meses.",
+        "Entre 4 e 6 meses.",
+        "Estou apenas pesquisando."
+      ],
+      visitInterest: [
+        "Durante a semana.",
+        "No próximo sábado.",
+        "No próximo domingo, se disponível.",
+        "Primeiro quero receber mais informações.",
+        "Ainda não pretendo visitar."
+      ]
+    },
+    visitIntentValues: ["Durante a semana.", "No próximo sábado.", "No próximo domingo, se disponível."]
   }
 };
 var BASE_HEADERS = [
@@ -77,6 +134,11 @@ var ATTRIBUTION_HEADERS = [
   "Versão do consentimento de atendimento",
   "Consentimento de atendimento em"
 ];
+var QUALIFICATION_HEADERS = [
+  "Relação com a região",
+  "Perfil sugerido",
+  "Critério automático"
+];
 var META_EXTRA_HEADERS = [
   "Email",
   "Meta Lead ID",
@@ -102,13 +164,17 @@ function setup() {
   var sheet = getLeadSheet_();
   PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
   ensureLeadSchema_(sheet);
+  var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
+  ensureLeadSchema_(sobradoSheet);
   var metaSheet = getMetaLeadSheet_();
   ensureMetaLeadSchema_(metaSheet, sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, sheet.getLastColumn());
+  sobradoSheet.setFrozenRows(1);
+  sobradoSheet.autoResizeColumns(1, sobradoSheet.getLastColumn());
   metaSheet.setFrozenRows(1);
   metaSheet.autoResizeColumns(1, metaSheet.getLastColumn());
-  return "Integração preparada nas abas \"" + SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
+  return "Integração preparada nas abas \"" + SHEET_NAME + "\", \"" + SOBRADO_SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
 }
 
 /**
@@ -238,7 +304,7 @@ function doPost(event) {
     var lead = parseLead_(event);
     validateLead_(lead);
 
-    var sheet = getLeadSheet_();
+    var sheet = getPropertyLeadSheet_(lead.property_id);
     var headerColumns = ensureLeadSchema_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
@@ -246,6 +312,7 @@ function doPost(event) {
     }
 
     var row = sheet.getLastRow() + 1;
+    var suggestedProfile = suggestProfile_(lead);
     var leadRow = emptyMappedRow_(headerColumns);
     setMappedValues_(leadRow, headerColumns, {
       "Recebido em": new Date(),
@@ -281,7 +348,10 @@ function doPost(event) {
       "Versão do consentimento de medição": safeCell_(lead.measurementConsentVersion),
       "Consentimento de medição atualizado em": safeCell_(lead.measurementConsentAt),
       "Versão do consentimento de atendimento": safeCell_(lead.attendanceConsentVersion),
-      "Consentimento de atendimento em": safeCell_(lead.attendanceConsentAt)
+      "Consentimento de atendimento em": safeCell_(lead.attendanceConsentAt),
+      "Relação com a região": safeCell_(lead.regionRelation),
+      "Perfil sugerido": safeCell_(suggestedProfile.profile),
+      "Critério automático": safeCell_(suggestedProfile.reason)
     });
     sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);
 
@@ -325,12 +395,7 @@ function validateLead_(lead) {
   var lastTouch = sanitizeInternalUrl_(lead.lastTouchUrl || source);
   var contentOrigin = text_(lead.contentOrigin, 120).toLowerCase();
   var ctaOrigin = text_(lead.ctaOrigin, 120).toLowerCase();
-  var allowedOptions = {
-    purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
-    purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
-    downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
-    visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
-  };
+  var allowedOptions = propertyConfig && propertyConfig.allowedOptions;
 
   if (name.length < 2) throw new Error("INVALID_NAME");
   if (!/^[0-9]{10,11}$/.test(phone) || /^(\d)\1+$/.test(phone)) throw new Error("INVALID_PHONE");
@@ -380,6 +445,7 @@ function validateLead_(lead) {
   lead.firstTouchAt = text_(lead.firstTouchAt, 50);
   lead.lastTouchUrl = lastTouch;
   lead.attributionVersion = text_(lead.attributionVersion, 50) || "legacy";
+  lead.regionRelation = text_(lead.regionRelation, 200);
   lead.measurementConsentVersion = text_(lead.measurementConsentVersion, 80) || "legacy";
   lead.measurementConsentAt = text_(lead.measurementConsentAt, 50);
   lead.attendanceConsentVersion = text_(lead.attendanceConsentVersion, 80) || "legacy";
@@ -399,6 +465,15 @@ function getSpreadsheet_() {
 function getLeadSheet_() {
   var spreadsheet = getSpreadsheet_();
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
+}
+
+function getPropertyLeadSheet_(propertyId) {
+  var normalizedPropertyId = text_(propertyId, 120).toLowerCase();
+  var propertyConfig = PROPERTY_CONFIGS[normalizedPropertyId];
+  var sheetName = propertyConfig && text_(propertyConfig.sheetName, 100);
+  if (!sheetName) throw new Error("INVALID_PROPERTY");
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
 }
 
 function getMetaLeadSheet_() {
@@ -643,6 +718,28 @@ function inferPropertyId_(sourceUrl) {
   return matches.length === 1 ? matches[0] : "";
 }
 
+function suggestProfile_(lead) {
+  if (lead.property_id !== "sobrado_isolina") return { profile: "", reason: "" };
+
+  var highEntry = ["R$ 170 mil ou mais.", "Entre R$ 150 mil e R$ 169 mil.", "Pretendo comprar à vista."].indexOf(lead.downPayment) !== -1;
+  var upToNinetyDays = ["Assim que encontrar o imóvel certo.", "Nos próximos 30 dias.", "Entre 2 e 3 meses."].indexOf(lead.purchaseTimeline) !== -1;
+  var acceptsVisit = PROPERTY_CONFIGS.sobrado_isolina.visitIntentValues.indexOf(lead.visitInterest) !== -1;
+
+  if (highEntry && upToNinetyDays && acceptsVisit) {
+    return { profile: "Quente", reason: "Entrada de R$ 150 mil ou mais, compra em até 90 dias e disponibilidade para visita." };
+  }
+  if (lead.purchaseTimeline === "Entre 4 e 6 meses." || lead.purchaseMethod === "Dependo da venda de outro imóvel.") {
+    return { profile: "Futuro", reason: "Prazo de 4 a 6 meses ou compra condicionada à venda de outro imóvel." };
+  }
+  if (lead.downPayment === "Ainda preciso avaliar." && lead.visitInterest === "Ainda não pretendo visitar.") {
+    return { profile: "Pesquisa", reason: "Entrada indefinida e sem intenção atual de visita." };
+  }
+  if (lead.downPayment === "Entre R$ 100 mil e R$ 149 mil." || lead.purchaseMethod === "Financiamento ainda não simulado.") {
+    return { profile: "Potencial", reason: "Entrada entre R$ 100 mil e R$ 149 mil ou financiamento ainda não simulado." };
+  }
+  return { profile: "Revisar", reason: "Combinação não contemplada pelas regras automáticas; requer avaliação comercial." };
+}
+
 function isAllowedPropertySource_(sourceUrl, propertyConfig) {
   var baseUrl = text_(sourceUrl, 1000).split("#")[0].split("?")[0];
   var configuredPaths = propertyConfig && Array.isArray(propertyConfig.allowedPaths)
@@ -717,10 +814,22 @@ function ensureLeadSchema_(sheet) {
   ensureBaseHeaders_(sheet);
   ensureOperationHeaders_(sheet);
   ensureAttributionHeaders_(sheet);
+  ensureQualificationHeaders_(sheet);
   var columns = headerColumns_(sheet);
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS);
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS);
   if (!hasMappedHeaders_(columns, required)) throw new Error("HEADER_MISMATCH");
   return columns;
+}
+
+function ensureQualificationHeaders_(sheet) {
+  var columns = headerColumns_(sheet);
+  var missing = QUALIFICATION_HEADERS.filter(function (header) {
+    return !headerColumn_(columns, header);
+  });
+  if (!missing.length) return;
+  var nextColumn = sheet.getLastColumn() + 1;
+  ensureColumnCapacity_(sheet, nextColumn + missing.length - 1);
+  sheet.getRange(1, nextColumn, 1, missing.length).setValues([missing]).setFontWeight("bold");
 }
 
 function ensureMetaLeadSchema_(sheet, manualSheet) {
@@ -905,7 +1014,7 @@ function normalizeHeaderKey_(value) {
 }
 
 function emptyMappedRow_(columns, additionalHeaders) {
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, additionalHeaders || []);
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, additionalHeaders || []);
   var lastColumn = required.reduce(function (maximum, header) {
     return Math.max(maximum, headerColumn_(columns, header));
   }, 0);
@@ -968,7 +1077,7 @@ function sendCapiEvents_(lead) {
         content_name: propertyConfig.name
       }
   }];
-  if (lead.visitInterest.indexOf("Sim") === 0) {
+  if (propertyConfig.visitIntentValues.indexOf(lead.visitInterest) !== -1) {
     events.push({
       event_name: "Schedule",
       event_time: now,

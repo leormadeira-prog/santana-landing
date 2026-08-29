@@ -18,6 +18,20 @@
         "cta-final",
         "cta-fixo-mobile"
       ]
+    },
+    "sobrado_isolina": {
+      "slug": "sobrado_isolina",
+      "path": "/sobrado-isolina/",
+      "name": "Sobrado Vila Isolina Mazzei",
+      "priceFrom": 790000,
+      "currency": "BRL",
+      "trackingCtas": [
+        "cabecalho",
+        "hero",
+        "diferenciais",
+        "cta-final",
+        "cta-fixo-mobile"
+      ]
     }
   },
   "productionBranch": "main"
