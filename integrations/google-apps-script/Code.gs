@@ -1,3 +1,20 @@
+function registerCoberturaMetaForm() {
+  var properties = PropertiesService.getScriptProperties();
+  var key = "META_LEADS_FORM_PROPERTY_MAP";
+  var items = [
+    "1420240299983352:gamboas",
+    "1399156208207843:gamboas",
+    "1672655833794110:gamboas"
+  ];
+  var current = properties.getProperty(key) || "";
+  var parts = current.split(",").map(function (value) { return value.trim(); }).filter(String);
+  items.forEach(function (item) {
+    if (parts.indexOf(item) === -1) parts.push(item);
+  });
+  properties.setProperty(key, parts.join(","));
+  return properties.getProperty(key);
+}
+
 /**
  * Recebe os leads dos empreendimentos e os grava na aba operacional.
  *
@@ -12,6 +29,7 @@
 
 var SHEET_NAME = "Leads Gamboas";
 var META_SHEET_NAME = "Leads Meta Gamboas";
+var META_TEST_SHEET_NAME = "Leads Teste Meta";
 var SOBRADO_SHEET_NAME = "Leads Sobrado Isolina";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v2";
@@ -141,6 +159,10 @@ var QUALIFICATION_HEADERS = [
   "Perfil sugerido",
   "Critério automático"
 ];
+var DATA_QUALITY_HEADERS = [
+  "Data/horário da visita",
+  "Registro de teste?"
+];
 var META_EXTRA_HEADERS = [
   "Email",
   "Meta Lead ID",
@@ -171,13 +193,17 @@ function setup() {
   ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
   var metaSheet = getMetaLeadSheet_();
   ensureMetaLeadSchema_(metaSheet, sheet);
+  var metaTestSheet = getMetaTestLeadSheet_();
+  ensureMetaLeadSchema_(metaTestSheet, sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, sheet.getLastColumn());
   sobradoSheet.setFrozenRows(1);
   sobradoSheet.autoResizeColumns(1, sobradoSheet.getLastColumn());
   metaSheet.setFrozenRows(1);
   metaSheet.autoResizeColumns(1, metaSheet.getLastColumn());
-  return "Integração preparada nas abas \"" + SHEET_NAME + "\", \"" + SOBRADO_SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
+  metaTestSheet.setFrozenRows(1);
+  metaTestSheet.autoResizeColumns(1, metaTestSheet.getLastColumn());
+  return "Integração preparada nas abas \"" + SHEET_NAME + "\", \"" + SOBRADO_SHEET_NAME + "\", \"" + META_SHEET_NAME + "\" e \"" + META_TEST_SHEET_NAME + "\".";
 }
 
 /**
@@ -277,6 +303,9 @@ function syncMetaInstantFormLeads() {
     var config = getMetaLeadConfig_();
     var destinations = {};
     var existingIds = {};
+    var metaTestSheet = getMetaTestLeadSheet_();
+    ensureMetaLeadSchema_(metaTestSheet, getLeadSheet_());
+    mergeEventIds_(existingIds, getExistingEventIds_(metaTestSheet));
     config.forms.forEach(function (formConfig) {
       if (destinations[formConfig.propertyId]) return;
       var propertySheet = getPropertyLeadSheet_(formConfig.propertyId);
@@ -301,7 +330,8 @@ function syncMetaInstantFormLeads() {
     });
     pending.forEach(function (metaLead) {
       var propertyId = text_(metaLead._property_id, 120).toLowerCase();
-      appendMetaLead_(destinations[propertyId], metaLead, propertyId);
+      var destination = isMetaTestLead_(metaLead) ? metaTestSheet : destinations[propertyId];
+      appendMetaLead_(destination, metaLead, propertyId);
       existingIds[metaEventId_(metaLead.id)] = true;
     });
 
@@ -318,6 +348,46 @@ function syncMetaInstantFormLeads() {
   } finally {
     try { lock.releaseLock(); } catch (_) {}
   }
+}
+
+/**
+ * Corrige a estrutura operacional sem excluir registros.
+ * Os testes antigos são copiados para a aba de testes e marcados na origem.
+ */
+function repairLeadWorkbookV3() {
+  var spreadsheet = getSpreadsheet_();
+  var manualSheet = getLeadSheet_();
+  var metaSheet = getMetaLeadSheet_();
+  var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
+  var testSheet = getMetaTestLeadSheet_();
+
+  ensureLeadSchema_(manualSheet);
+  ensureMetaLeadSchema_(metaSheet, manualSheet);
+  ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
+  ensureMetaLeadSchema_(testSheet, manualSheet);
+
+  var renamedHeaders = repairDuplicateStatusHeader_(sobradoSheet);
+  var visitRepairs = repairMisplacedVisitDates_(sobradoSheet);
+  var normalizedCells = normalizeOperationalValues_(metaSheet) + normalizeOperationalValues_(sobradoSheet);
+  var testRepairs = archiveExistingMetaTests_(metaSheet, testSheet);
+  var identifiers = normalizeMetaIdentifierColumns_(metaSheet) +
+    normalizeMetaIdentifierColumns_(sobradoSheet) +
+    normalizeMetaIdentifierColumns_(testSheet);
+
+  [manualSheet, metaSheet, sobradoSheet, testSheet].forEach(function (sheet) {
+    sheet.setFrozenRows(1);
+  });
+
+  return {
+    ok: true,
+    spreadsheetId: spreadsheet.getId(),
+    duplicateStatusHeadersRenamed: renamedHeaders,
+    visitDatesRepaired: visitRepairs,
+    operationalCellsNormalized: normalizedCells,
+    testsCopied: testRepairs.copied,
+    testsMarkedAtSource: testRepairs.marked,
+    identifiersNormalized: identifiers
+  };
 }
 
 function doGet() {
@@ -513,6 +583,11 @@ function getMetaLeadSheet_() {
   return spreadsheet.getSheetByName(META_SHEET_NAME) || spreadsheet.insertSheet(META_SHEET_NAME);
 }
 
+function getMetaTestLeadSheet_() {
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(META_TEST_SHEET_NAME) || spreadsheet.insertSheet(META_TEST_SHEET_NAME);
+}
+
 function getMetaLeadDestinationSheet_(propertyId) {
   var propertyConfig = getPropertyConfig_(text_(propertyId, 120).toLowerCase());
   var sheetName = text_(propertyConfig.metaSheetName || propertyConfig.sheetName, 100);
@@ -619,7 +694,13 @@ function fetchNewMetaLeads_(formId, accessToken, existingIds) {
 
 function appendMetaLead_(sheet, metaLead, propertyId) {
   var headerColumns = headerColumns_(sheet);
-  var requiredHeaders = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, META_EXTRA_HEADERS);
+  var requiredHeaders = BASE_HEADERS.concat(
+    OPERATION_HEADERS,
+    ATTRIBUTION_HEADERS,
+    QUALIFICATION_HEADERS,
+    DATA_QUALITY_HEADERS,
+    META_EXTRA_HEADERS
+  );
   if (!hasMappedHeaders_(headerColumns, requiredHeaders)) throw new Error("HEADER_MISMATCH");
   propertyId = text_(propertyId, 120).toLowerCase() || "gamboas";
   getPropertyConfig_(propertyId);
@@ -629,7 +710,7 @@ function appendMetaLead_(sheet, metaLead, propertyId) {
   var fullName = firstMetaAnswer_(answers, ["full_name", "nome_completo"]);
   if (!fullName) fullName = text_(firstName + " " + lastName, 120);
   var phone = normalizeBrazilPhone_(firstMetaAnswer_(answers, [
-    "phone_number", "whatsapp", "numero_de_whatsapp", "telefone", "celular"
+    "phone_number", "phone", "whatsapp", "numero_de_whatsapp", "telefone", "celular"
   ]));
   var email = firstMetaAnswer_(answers, ["email", "e_mail", "endereco_de_email"]);
   var purchaseTimeline = firstMetaAnswer_(answers, [
@@ -666,12 +747,13 @@ function appendMetaLead_(sheet, metaLead, propertyId) {
   var campaignName = text_(metaLead.campaign_name, 300);
   var adsetName = text_(metaLead.adset_name, 300);
   var adName = text_(metaLead.ad_name, 300);
+  var isTest = isMetaTestLead_(metaLead);
   var row = sheet.getLastRow() + 1;
 
   var metaRow = emptyMappedRow_(headerColumns, META_EXTRA_HEADERS);
   setMappedValues_(metaRow, headerColumns, {
     "Recebido em": createdAt,
-    "ID do evento": safeCell_(eventId),
+    "ID do evento": safeIdentifierCell_(eventId),
     "Nome completo": safeCell_(fullName),
     "WhatsApp": safeCell_(phone),
     "Prazo de compra": safeCell_(purchaseTimeline),
@@ -687,7 +769,7 @@ function appendMetaLead_(sheet, metaLead, propertyId) {
     "Página de origem": safeCell_(sourceLabel),
     "CAPI enviada": "Não",
     "Resposta CAPI": "Não aplicável: lead convertido dentro da Meta",
-    "Status": "Novo",
+    "Status": isTest ? "Teste Meta" : "Novo",
     "Observações": safeCell_(buildMetaLeadObservations_(metaLead, answers)),
     "ID do empreendimento": safeCell_(propertyId),
     "Consentimento de medição": "Não informado",
@@ -702,20 +784,29 @@ function appendMetaLead_(sheet, metaLead, propertyId) {
     "Relação com a região": safeCell_(regionRelation),
     "Perfil sugerido": safeCell_(suggestedProfile.profile),
     "Critério automático": safeCell_(suggestedProfile.reason),
+    "Registro de teste?": isTest ? "Sim" : "Não",
     "Email": safeCell_(email),
-    "Meta Lead ID": safeCell_(metaLead.id),
-    "Meta Form ID": safeCell_(formId),
-    "Meta Campaign ID": safeCell_(metaLead.campaign_id),
+    "Meta Lead ID": safeIdentifierCell_(metaLead.id),
+    "Meta Form ID": safeIdentifierCell_(formId),
+    "Meta Campaign ID": safeIdentifierCell_(metaLead.campaign_id),
     "Meta Campaign Name": safeCell_(campaignName),
-    "Meta Ad Set ID": safeCell_(metaLead.adset_id),
+    "Meta Ad Set ID": safeIdentifierCell_(metaLead.adset_id),
     "Meta Ad Set Name": safeCell_(adsetName),
-    "Meta Ad ID": safeCell_(metaLead.ad_id),
+    "Meta Ad ID": safeIdentifierCell_(metaLead.ad_id),
     "Meta Ad Name": safeCell_(adName),
     "Meta Platform": safeCell_(metaLead.platform),
     "Meta Organic": metaLead.is_organic === true ? "Sim" : "Não",
     "Importado da Meta em": new Date()
   });
   sheet.getRange(row, 1, 1, metaRow.length).setValues([metaRow]);
+}
+
+function isMetaTestLead_(metaLead) {
+  return (Array.isArray(metaLead && metaLead.field_data) ? metaLead.field_data : []).some(function (field) {
+    return (field && Array.isArray(field.values) ? field.values : []).some(function (value) {
+      return /^\s*<test lead:\s*dummy data/i.test(text_(value, 1000));
+    });
+  });
 }
 
 function metaAnswers_(fieldData) {
@@ -774,7 +865,7 @@ function buildMetaLeadObservations_(metaLead, answers) {
 function isSensitiveMetaAnswerKey_(key) {
   return [
     "full_name", "nome_completo", "first_name", "primeiro_nome", "nome", "last_name", "sobrenome",
-    "phone_number", "whatsapp", "numero_de_whatsapp", "telefone", "celular", "email"
+    "phone_number", "phone", "whatsapp", "numero_de_whatsapp", "telefone", "celular", "email"
   ].indexOf(normalizeMetaKey_(key)) !== -1;
 }
 
@@ -878,6 +969,155 @@ function sanitizeReferrer_(value) {
   return match ? match[1].slice(0, 500) : "";
 }
 
+function repairDuplicateStatusHeader_(sheet) {
+  var lastColumn = sheet.getLastColumn();
+  if (!lastColumn) return 0;
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var statusSeen = false;
+  var renamed = 0;
+  headers.forEach(function (header, index) {
+    if (normalizeHeaderKey_(header) !== normalizeHeaderKey_("Status")) return;
+    if (!statusSeen) {
+      statusSeen = true;
+      return;
+    }
+    sheet.getRange(1, index + 1, 1, 1).setValues([["Status comercial"]]);
+    renamed += 1;
+  });
+  return renamed;
+}
+
+function repairMisplacedVisitDates_(sheet) {
+  ensureDataQualityHeaders_(sheet);
+  var columns = headerColumns_(sheet);
+  var qualificationColumn = headerColumn_(columns, "Qualificado?");
+  var visitDateColumn = headerColumn_(columns, "Data/horário da visita");
+  if (!qualificationColumn || !visitDateColumn || sheet.getLastRow() < 2) return 0;
+  var repaired = 0;
+  var rowCount = sheet.getLastRow() - 1;
+  var qualificationValues = sheet.getRange(2, qualificationColumn, rowCount, 1).getDisplayValues();
+  var visitDateValues = sheet.getRange(2, visitDateColumn, rowCount, 1).getDisplayValues();
+  qualificationValues.forEach(function (row, index) {
+    var value = text_(row[0], 120);
+    if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s|$)/.test(value)) return;
+    if (!text_(visitDateValues[index][0], 120)) {
+      sheet.getRange(index + 2, visitDateColumn, 1, 1).setValues([[safeCell_(value)]]);
+    }
+    sheet.getRange(index + 2, qualificationColumn, 1, 1).setValues([["A confirmar"]]);
+    repaired += 1;
+  });
+  return repaired;
+}
+
+function normalizeOperationalValues_(sheet) {
+  if (sheet.getLastRow() < 2) return 0;
+  var columns = headerColumns_(sheet);
+  var headers = ["Contato responde", "Qualificado?", "Visita confirmada?"];
+  var changed = 0;
+  headers.forEach(function (header) {
+    var column = headerColumn_(columns, header);
+    if (!column) return;
+    var rowCount = sheet.getLastRow() - 1;
+    var values = sheet.getRange(2, column, rowCount, 1).getDisplayValues();
+    values.forEach(function (row, index) {
+      var current = text_(row[0], 120);
+      var normalized = canonicalOperationalValue_(current);
+      if (!normalized || normalized === current) return;
+      sheet.getRange(index + 2, column, 1, 1).setValues([[normalized]]);
+      changed += 1;
+    });
+  });
+  return changed;
+}
+
+function canonicalOperationalValue_(value) {
+  var normalized = normalizeHeaderKey_(value);
+  if (!normalized) return "";
+  if (["sim", "s", "yes"].indexOf(normalized) !== -1) return "Sim";
+  if (["nao", "n", "no"].indexOf(normalized) !== -1) return "Não";
+  if (["a confirmar", "confirmar", "pendente"].indexOf(normalized) !== -1) return "A confirmar";
+  return "";
+}
+
+function archiveExistingMetaTests_(sourceSheet, testSheet) {
+  if (sourceSheet.getLastRow() < 2) return { copied: 0, marked: 0 };
+  var sourceHeaders = sheetHeaders_(sourceSheet);
+  var sourceColumns = headerColumns_(sourceSheet);
+  var testColumns = headerColumns_(testSheet);
+  var existingTestIds = getExistingEventIds_(testSheet);
+  var eventColumn = headerColumn_(sourceColumns, "ID do evento");
+  var statusColumn = headerColumn_(sourceColumns, "Status");
+  var markerColumn = headerColumn_(sourceColumns, "Registro de teste?");
+  var rows = sourceSheet.getRange(2, 1, sourceSheet.getLastRow() - 1, sourceSheet.getLastColumn()).getValues();
+  var displayRows = sourceSheet.getRange(2, 1, sourceSheet.getLastRow() - 1, sourceSheet.getLastColumn()).getDisplayValues();
+  var copied = 0;
+  var marked = 0;
+
+  displayRows.forEach(function (displayRow, index) {
+    var isTest = displayRow.some(function (value) {
+      return /^\s*<test lead:\s*dummy data/i.test(text_(value, 1000));
+    });
+    if (!isTest) return;
+    var sheetRow = index + 2;
+    var eventId = eventColumn ? text_(displayRow[eventColumn - 1], 200) : "";
+    if (eventId && !existingTestIds[eventId]) {
+      var destinationRow = emptyMappedRow_(testColumns, META_EXTRA_HEADERS);
+      sourceHeaders.forEach(function (header, sourceIndex) {
+        var destinationColumn = headerColumn_(testColumns, header);
+        if (destinationColumn) destinationRow[destinationColumn - 1] = rows[index][sourceIndex];
+      });
+      var destinationMarkerColumn = headerColumn_(testColumns, "Registro de teste?");
+      var destinationStatusColumn = headerColumn_(testColumns, "Status");
+      if (destinationMarkerColumn) destinationRow[destinationMarkerColumn - 1] = "Sim";
+      if (destinationStatusColumn) destinationRow[destinationStatusColumn - 1] = "Teste Meta";
+      testSheet.getRange(testSheet.getLastRow() + 1, 1, 1, destinationRow.length).setValues([destinationRow]);
+      existingTestIds[eventId] = true;
+      copied += 1;
+    }
+    if (markerColumn) sourceSheet.getRange(sheetRow, markerColumn, 1, 1).setValues([["Sim"]]);
+    if (statusColumn) sourceSheet.getRange(sheetRow, statusColumn, 1, 1).setValues([["Teste Meta (arquivado)"]]);
+    marked += 1;
+  });
+  return { copied: copied, marked: marked };
+}
+
+function normalizeMetaIdentifierColumns_(sheet) {
+  if (sheet.getLastRow() < 2) return 0;
+  var columns = headerColumns_(sheet);
+  var identifiers = ["Meta Lead ID", "Meta Form ID", "Meta Campaign ID", "Meta Ad Set ID", "Meta Ad ID"];
+  var rowCount = sheet.getLastRow() - 1;
+  identifiers.forEach(function (header) {
+    var column = headerColumn_(columns, header);
+    if (!column) return;
+    var range = sheet.getRange(2, column, rowCount, 1);
+    if (range.setNumberFormat) range.setNumberFormat("@");
+  });
+
+  var eventColumn = headerColumn_(columns, "ID do evento");
+  var leadColumn = headerColumn_(columns, "Meta Lead ID");
+  var formColumn = headerColumn_(columns, "Meta Form ID");
+  var sourceColumn = headerColumn_(columns, "Página de origem");
+  var observationColumn = headerColumn_(columns, "Observações");
+  var repaired = 0;
+  var displayRows = sheet.getRange(2, 1, rowCount, sheet.getLastColumn()).getDisplayValues();
+  displayRows.forEach(function (row, index) {
+    var exactLeadId = eventColumn ? text_(row[eventColumn - 1], 200).replace(/^meta-/, "") : "";
+    if (/^\d{12,}$/.test(exactLeadId) && leadColumn && text_(row[leadColumn - 1], 200) !== exactLeadId) {
+      sheet.getRange(index + 2, leadColumn, 1, 1).setValues([[safeIdentifierCell_(exactLeadId)]]);
+      repaired += 1;
+    }
+    var source = sourceColumn ? text_(row[sourceColumn - 1], 300) : "";
+    var observations = observationColumn ? text_(row[observationColumn - 1], 1000) : "";
+    var formMatch = source.match(/Meta Instant Form\s+(\d{6,})/i) || observations.match(/Form ID:\s*(\d{6,})/i);
+    var exactFormId = formMatch ? formMatch[1] : "";
+    if (exactFormId && formColumn && text_(row[formColumn - 1], 200) !== exactFormId) {
+      sheet.getRange(index + 2, formColumn, 1, 1).setValues([[safeIdentifierCell_(exactFormId)]]);
+      repaired += 1;
+    }
+  });
+  return repaired;
+}
+
 function ensureHeaders_(sheet, startColumn, headers, strict) {
   var range = sheet.getRange(1, startColumn, 1, headers.length);
   var existing = range.getValues()[0];
@@ -897,8 +1137,9 @@ function ensureLeadSchema_(sheet) {
   ensureOperationHeaders_(sheet);
   ensureAttributionHeaders_(sheet);
   ensureQualificationHeaders_(sheet);
+  ensureDataQualityHeaders_(sheet);
   var columns = headerColumns_(sheet);
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS);
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, DATA_QUALITY_HEADERS);
   if (!hasMappedHeaders_(columns, required)) throw new Error("HEADER_MISMATCH");
   return columns;
 }
@@ -906,6 +1147,17 @@ function ensureLeadSchema_(sheet) {
 function ensureQualificationHeaders_(sheet) {
   var columns = headerColumns_(sheet);
   var missing = QUALIFICATION_HEADERS.filter(function (header) {
+    return !headerColumn_(columns, header);
+  });
+  if (!missing.length) return;
+  var nextColumn = sheet.getLastColumn() + 1;
+  ensureColumnCapacity_(sheet, nextColumn + missing.length - 1);
+  sheet.getRange(1, nextColumn, 1, missing.length).setValues([missing]).setFontWeight("bold");
+}
+
+function ensureDataQualityHeaders_(sheet) {
+  var columns = headerColumns_(sheet);
+  var missing = DATA_QUALITY_HEADERS.filter(function (header) {
     return !headerColumn_(columns, header);
   });
   if (!missing.length) return;
@@ -1096,7 +1348,13 @@ function normalizeHeaderKey_(value) {
 }
 
 function emptyMappedRow_(columns, additionalHeaders) {
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, additionalHeaders || []);
+  var required = BASE_HEADERS.concat(
+    OPERATION_HEADERS,
+    ATTRIBUTION_HEADERS,
+    QUALIFICATION_HEADERS,
+    DATA_QUALITY_HEADERS,
+    additionalHeaders || []
+  );
   var lastColumn = required.reduce(function (maximum, header) {
     return Math.max(maximum, headerColumn_(columns, header));
   }, 0);
@@ -1205,6 +1463,11 @@ function text_(value, maxLength) {
 function safeCell_(value) {
   var text = text_(value, 1000);
   return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
+function safeIdentifierCell_(value) {
+  var identifier = safeCell_(value);
+  return /^\d{12,}$/.test(identifier) ? "'" + identifier : identifier;
 }
 
 function publicError_(error) {

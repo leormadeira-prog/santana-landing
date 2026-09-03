@@ -136,6 +136,7 @@ const liveManualHeaders = [
 
 assert.equal(context.INTEGRATION_VERSION, "growth-v2");
 assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
+assert.equal(context.META_TEST_SHEET_NAME, "Leads Teste Meta");
 assert.equal(context.SOBRADO_SHEET_NAME, "Leads Sobrado Isolina");
 assert.equal(context.PROPERTY_CONFIGS.gamboas.sheetName, "Leads Gamboas");
 assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.sheetName, "Leads Sobrado Isolina");
@@ -196,6 +197,15 @@ assert.equal(
   ""
 );
 assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
+assert.equal(context.safeIdentifierCell_("2143126276600637"), "'2143126276600637");
+assert.equal(context.safeIdentifierCell_("campaign-1"), "campaign-1");
+
+assert.equal(context.isMetaTestLead_({
+  field_data: [{ name: "full_name", values: ["<test lead: dummy data for full_name>"] }]
+}), true);
+assert.equal(context.isMetaTestLead_({
+  field_data: [{ name: "full_name", values: ["Pessoa real"] }]
+}), false);
 
 {
   const lead = {
@@ -516,7 +526,7 @@ assert.throws(
     is_organic: false,
     field_data: [
       { name: "full_name", values: ["Maria da Silva"] },
-      { name: "phone_number", values: ["+55 (11) 99999-0000"] },
+      { name: "phone", values: ["+55 (11) 99999-0000"] },
       { name: "email", values: ["maria@example.com"] },
       { name: "Em quanto tempo pretende comprar?", values: ["Em até 3 meses"] },
       { name: "Como pretende comprar?", values: ["Entrada + financiamento"] },
@@ -605,7 +615,7 @@ assert.throws(
   assert.equal(sobradoSheet.valueAt(2, column("Relação com a região")), "Moro na região.");
   assert.equal(sobradoSheet.valueAt(2, column("Perfil sugerido")), "Quente");
   assert.match(sobradoSheet.valueAt(2, column("Critério automático")), /até 90 dias/);
-  assert.equal(sobradoSheet.valueAt(2, column("Meta Form ID")), "2143126276600637");
+  assert.equal(sobradoSheet.valueAt(2, column("Meta Form ID")), "'2143126276600637");
 }
 
 console.log("Apps Script migration and Meta lead tests passed.");
