@@ -138,9 +138,12 @@ assert.equal(context.INTEGRATION_VERSION, "growth-v2");
 assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
 assert.equal(context.META_TEST_SHEET_NAME, "Leads Teste Meta");
 assert.equal(context.SOBRADO_SHEET_NAME, "Leads Sobrado Isolina");
+assert.equal(context.INGLESA_SHEET_NAME, "Leads Residencial Inglesa");
 assert.equal(context.PROPERTY_CONFIGS.gamboas.sheetName, "Leads Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.residencial_inglesa.sheetName, "Leads Residencial Inglesa");
 assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.sheetName, "Leads Sobrado Isolina");
 assert.equal(context.PROPERTY_CONFIGS.gamboas.metaSheetName, "Leads Meta Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.residencial_inglesa.metaSheetName, "Leads Residencial Inglesa");
 assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.metaSheetName, "Leads Sobrado Isolina");
 assert.ok(
   appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
@@ -150,6 +153,7 @@ assert.ok(
 {
   const sheets = {
     "Leads Gamboas": { name: "Leads Gamboas" },
+    "Leads Residencial Inglesa": { name: "Leads Residencial Inglesa" },
     "Leads Sobrado Isolina": { name: "Leads Sobrado Isolina" }
   };
   const originalGetSpreadsheet = context.getSpreadsheet_;
@@ -158,6 +162,10 @@ assert.ok(
     insertSheet: (name) => ({ name })
   });
   assert.equal(context.getPropertyLeadSheet_("gamboas"), sheets["Leads Gamboas"]);
+  assert.equal(
+    context.getPropertyLeadSheet_("residencial_inglesa"),
+    sheets["Leads Residencial Inglesa"]
+  );
   assert.equal(context.getPropertyLeadSheet_("sobrado_isolina"), sheets["Leads Sobrado Isolina"]);
   assert.throws(() => context.getPropertyLeadSheet_("imovel_inexistente"), /INVALID_PROPERTY/);
   context.getSpreadsheet_ = originalGetSpreadsheet;
@@ -189,6 +197,10 @@ assert.equal(
   "gamboas"
 );
 assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/residencial-inglesa/?utm_source=teste"),
+  "residencial_inglesa"
+);
+assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=teste"),
   "gamboas"
 );
@@ -206,6 +218,26 @@ assert.equal(context.isMetaTestLead_({
 assert.equal(context.isMetaTestLead_({
   field_data: [{ name: "full_name", values: ["Pessoa real"] }]
 }), false);
+
+{
+  const lead = {
+    fullName: "Pessoa Inglesa",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-inglesa-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "residencial_inglesa",
+    sourceUrl: "https://znempreendimentos.com.br/residencial-inglesa/?utm_source=Meta%20Ads"
+  };
+
+  context.validateLead_(lead);
+  assert.equal(lead.property_id, "residencial_inglesa");
+  assert.equal(
+    lead.sourceUrl,
+    "https://znempreendimentos.com.br/residencial-inglesa/?utm_source=Meta-Ads"
+  );
+}
 
 {
   const lead = {

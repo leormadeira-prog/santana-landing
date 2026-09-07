@@ -31,6 +31,7 @@ var SHEET_NAME = "Leads Gamboas";
 var META_SHEET_NAME = "Leads Meta Gamboas";
 var META_TEST_SHEET_NAME = "Leads Teste Meta";
 var SOBRADO_SHEET_NAME = "Leads Sobrado Isolina";
+var INGLESA_SHEET_NAME = "Leads Residencial Inglesa";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v2";
 var META_GRAPH_VERSION = "v24.0";
@@ -46,6 +47,22 @@ var PROPERTY_CONFIGS = {
     allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
     priceFrom: 295000,
+    currency: "BRL",
+    allowedOptions: {
+      purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
+      purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
+      downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
+      visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
+    },
+    visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
+  },
+  residencial_inglesa: {
+    sheetName: INGLESA_SHEET_NAME,
+    metaSheetName: INGLESA_SHEET_NAME,
+    path: "/residencial-inglesa/",
+    allowedPaths: ["/residencial-inglesa/"],
+    name: "Residencial Inglesa",
+    priceFrom: 310000,
     currency: "BRL",
     allowedOptions: {
       purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],

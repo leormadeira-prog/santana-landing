@@ -114,6 +114,8 @@ def main() -> int:
             errors.append(f"Preço inicial inválido para o empreendimento {property_id}.")
         if not re.fullmatch(r"[A-Z]{3}", str(property_data.get("currency", ""))):
             errors.append(f"Moeda inválida para o empreendimento {property_id}.")
+        if not str(property_data.get("imageDisclaimer", "")).strip():
+            errors.append(f"Disclaimer de imagens ausente para o empreendimento {property_id}.")
         if not isinstance(property_data.get("trackingCtas"), list):
             errors.append(f"CTAs de tracking ausentes para o empreendimento {property_id}.")
         property_pages[property_id] = ROOT / property_path.strip("/") / "index.html"
@@ -314,23 +316,14 @@ def main() -> int:
             errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
         if 'name="website"' not in property_html:
             errors.append(f"Honeypot antispam ausente no formulário de {property_id}.")
-        if property_id == "gamboas":
-            required_copy = (
-                "Imagens do apartamento decorado, meramente ilustrativas. "
-                "As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, "
-                "marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo."
-            )
-            if required_copy not in property_html:
-                errors.append(f"Disclaimer completo de imagens e contrapiso ausente em {property_id}.")
-            if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
-                errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
+        required_copy = str(property_data.get("imageDisclaimer", ""))
+        if required_copy not in property_html:
+            errors.append(f"Disclaimer completo de imagens ausente em {property_id}.")
+        if property_id in {"gamboas", "residencial_inglesa"} and not re.search(
+            r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html
+        ):
+            errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
         if property_id == "sobrado_isolina":
-            required_copy = (
-                "O vídeo combina imagens reais do imóvel com cenas decoradas meramente ilustrativas. "
-                "Móveis e decoração não inclusos."
-            )
-            if required_copy not in property_html:
-                errors.append("Disclaimer do vídeo e da decoração ausente no sobrado.")
             if not re.search(r'<source\b[^>]*src=["\'][^"\']*sobrado-isolina-reels\.mp4["\'][^>]*type=["\']video/mp4["\']', property_html):
                 errors.append("Vídeo MP4 do sobrado ausente ou sem tipo declarado.")
 

@@ -11,10 +11,26 @@
       "name": "Edifício Gamboas",
       "priceFrom": 295000,
       "currency": "BRL",
+      "imageDisclaimer": "Imagens do apartamento decorado, meramente ilustrativas. As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo.",
       "trackingCtas": [
         "cabecalho",
         "hero-mobile",
         "planta",
+        "cta-final",
+        "cta-fixo-mobile"
+      ]
+    },
+    "residencial_inglesa": {
+      "slug": "residencial_inglesa",
+      "path": "/residencial-inglesa/",
+      "name": "Residencial Inglesa",
+      "priceFrom": 310000,
+      "currency": "BRL",
+      "imageDisclaimer": "Imagens com decoração e marcenaria virtuais, meramente ilustrativas. As unidades não incluem móveis, eletrodomésticos, marcenaria, luminárias e itens de decoração. Consulte as especificações e o memorial descritivo.",
+      "trackingCtas": [
+        "cabecalho",
+        "hero-mobile",
+        "detalhes",
         "cta-final",
         "cta-fixo-mobile"
       ]
@@ -25,6 +41,7 @@
       "name": "Sobrado Vila Isolina Mazzei",
       "priceFrom": 790000,
       "currency": "BRL",
+      "imageDisclaimer": "O vídeo combina imagens reais do imóvel com cenas decoradas meramente ilustrativas. Móveis e decoração não inclusos.",
       "trackingCtas": [
         "cabecalho",
         "hero",
