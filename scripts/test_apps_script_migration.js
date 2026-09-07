@@ -136,10 +136,61 @@ const liveManualHeaders = [
 
 assert.equal(context.INTEGRATION_VERSION, "growth-v2");
 assert.equal(context.META_SHEET_NAME, "Leads Meta Gamboas");
+assert.equal(context.META_TEST_SHEET_NAME, "Leads Teste Meta");
+assert.equal(context.SOBRADO_SHEET_NAME, "Leads Sobrado Isolina");
+assert.equal(context.INGLESA_SHEET_NAME, "Leads Residencial Inglesa");
+assert.equal(context.PROPERTY_CONFIGS.gamboas.sheetName, "Leads Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.residencial_inglesa.sheetName, "Leads Residencial Inglesa");
+assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.sheetName, "Leads Sobrado Isolina");
+assert.equal(context.PROPERTY_CONFIGS.gamboas.metaSheetName, "Leads Meta Gamboas");
+assert.equal(context.PROPERTY_CONFIGS.residencial_inglesa.metaSheetName, "Leads Residencial Inglesa");
+assert.equal(context.PROPERTY_CONFIGS.sobrado_isolina.metaSheetName, "Leads Sobrado Isolina");
 assert.ok(
   appsScript.indexOf("sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);") <
     appsScript.indexOf("var capiResults = sendCapiEvents_(lead);")
 );
+
+{
+  const sheets = {
+    "Leads Gamboas": { name: "Leads Gamboas" },
+    "Leads Residencial Inglesa": { name: "Leads Residencial Inglesa" },
+    "Leads Sobrado Isolina": { name: "Leads Sobrado Isolina" }
+  };
+  const originalGetSpreadsheet = context.getSpreadsheet_;
+  context.getSpreadsheet_ = () => ({
+    getSheetByName: (name) => sheets[name] || null,
+    insertSheet: (name) => ({ name })
+  });
+  assert.equal(context.getPropertyLeadSheet_("gamboas"), sheets["Leads Gamboas"]);
+  assert.equal(
+    context.getPropertyLeadSheet_("residencial_inglesa"),
+    sheets["Leads Residencial Inglesa"]
+  );
+  assert.equal(context.getPropertyLeadSheet_("sobrado_isolina"), sheets["Leads Sobrado Isolina"]);
+  assert.throws(() => context.getPropertyLeadSheet_("imovel_inexistente"), /INVALID_PROPERTY/);
+  context.getSpreadsheet_ = originalGetSpreadsheet;
+}
+
+{
+  const values = {
+    META_LEADS_FORM_PROPERTY_MAP: "1600394864773425:gamboas,1047487454931895:gamboas,2143126276600637:sobrado_isolina"
+  };
+  const forms = context.getMetaLeadFormConfigs_({
+    getProperty: (key) => values[key] || ""
+  });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(forms)),
+    [
+      { formId: "1600394864773425", propertyId: "gamboas" },
+      { formId: "1047487454931895", propertyId: "gamboas" },
+      { formId: "2143126276600637", propertyId: "sobrado_isolina" }
+    ]
+  );
+  assert.throws(
+    () => context.getMetaLeadFormConfigs_({ getProperty: () => "999999:imovel_inexistente" }),
+    /META_LEADS_FORM_MAP_INVALID/
+  );
+}
 
 assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/?utm_source=teste"),
@@ -149,7 +200,24 @@ assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/residencial-inglesa/?utm_source=teste"),
   "residencial_inglesa"
 );
+assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=teste"),
+  "gamboas"
+);
+assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html"),
+  ""
+);
 assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
+assert.equal(context.safeIdentifierCell_("2143126276600637"), "'2143126276600637");
+assert.equal(context.safeIdentifierCell_("campaign-1"), "campaign-1");
+
+assert.equal(context.isMetaTestLead_({
+  field_data: [{ name: "full_name", values: ["<test lead: dummy data for full_name>"] }]
+}), true);
+assert.equal(context.isMetaTestLead_({
+  field_data: [{ name: "full_name", values: ["Pessoa real"] }]
+}), false);
 
 {
   const lead = {
@@ -213,6 +281,46 @@ assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
   assert.equal(lead.visitInterest, "");
 }
 
+{
+  const lead = {
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-unit-39m-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex#formulario",
+    firstPageUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex",
+    lastTouchUrl: "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex",
+    measurementConsent: "unknown"
+  };
+
+  context.validateLead_(lead);
+
+  assert.equal(
+    lead.sourceUrl,
+    "https://znempreendimentos.com.br/gamboas/unidade-39m.html?utm_source=qa_codex"
+  );
+}
+
+assert.throws(
+  () => context.validateLead_({
+    fullName: "Pessoa Teste",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-source-blocked-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "gamboas",
+    sourceUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    firstPageUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    lastTouchUrl: "https://znempreendimentos.com.br/gamboas/unidade-nao-autorizada.html",
+    measurementConsent: "unknown"
+  }),
+  /INVALID_SOURCE/
+);
+
 assert.throws(
   () => context.validateLead_({
     fullName: "Pessoa Teste",
@@ -232,7 +340,7 @@ assert.throws(
   context.LockService = {
     getScriptLock: () => ({ waitLock() {}, releaseLock() {} })
   };
-  context.getLeadSheet_ = () => sheet;
+  context.getPropertyLeadSheet_ = () => sheet;
   context.findEventRow_ = () => 0;
   context.json_ = (data) => data;
   context.sendCapiEvents_ = () => {
@@ -329,7 +437,7 @@ assert.throws(
     liveManualHeaders.map((_, index) => index === 30 ? "Operação preservada" : "")
   ]);
 
-  context.getLeadSheet_ = () => sheet;
+  context.getPropertyLeadSheet_ = () => sheet;
   context.findEventRow_ = () => 0;
   context.sendCapiEvents_ = () => ({ sent: false, details: "CAPI não configurada" });
   const eventId = "lead-live-schema-123";
@@ -450,7 +558,7 @@ assert.throws(
     is_organic: false,
     field_data: [
       { name: "full_name", values: ["Maria da Silva"] },
-      { name: "phone_number", values: ["+55 (11) 99999-0000"] },
+      { name: "phone", values: ["+55 (11) 99999-0000"] },
       { name: "email", values: ["maria@example.com"] },
       { name: "Em quanto tempo pretende comprar?", values: ["Em até 3 meses"] },
       { name: "Como pretende comprar?", values: ["Entrada + financiamento"] },
@@ -507,6 +615,39 @@ assert.throws(
   context.mergeEventIds_(knownIds, { "lead-manual-1": true });
   assert.equal(knownIds["lead-manual-1"], true);
   assert.equal(context.normalizeMetaKey_("Gostaria de agendar uma visita?"), "gostaria_de_agendar_uma_visita");
+}
+
+{
+  const sobradoSheet = new MockSheet();
+  context.ensureLeadSchema_(sobradoSheet);
+  context.ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
+  const sobradoMetaLead = {
+    id: "sobrado-lead-1",
+    created_time: "2026-08-29T08:00:00-03:00",
+    form_id: "2143126276600637",
+    campaign_name: "ISOLINA | LEADS | FORM MAIOR INTENÇÃO | SOBRADO 790K | 08-2026",
+    adset_name: "FORM | ZONA NORTE | MORADIA | SOBRADO 790K",
+    ad_name: "REELS | SOBRADO 3 SUÍTES | 790K | A",
+    platform: "instagram",
+    field_data: [
+      { name: "full_name", values: ["Pessoa Sobrado"] },
+      { name: "phone_number", values: ["+55 11 99999-0000"] },
+      { name: "Qual é a sua relação com a Vila Isolina Mazzei e a Zona Norte?", values: ["Moro na região."] },
+      { name: "Quanto você pretende utilizar como entrada, considerando recursos próprios e/ou FGTS?", values: ["R$ 170 mil ou mais."] },
+      { name: "Como pretende realizar a compra?", values: ["Financiamento já pré-aprovado."] },
+      { name: "Para quando pretende comprar o imóvel?", values: ["Nos próximos 30 dias."] },
+      { name: "Se o imóvel atender às suas condições, quando poderia visitá-lo?", values: ["No próximo sábado."] }
+    ]
+  };
+
+  context.appendMetaLead_(sobradoSheet, sobradoMetaLead, "sobrado_isolina");
+  const columns = context.headerColumns_(sobradoSheet);
+  const column = (header) => context.headerColumn_(columns, header);
+  assert.equal(sobradoSheet.valueAt(2, column("ID do empreendimento")), "sobrado_isolina");
+  assert.equal(sobradoSheet.valueAt(2, column("Relação com a região")), "Moro na região.");
+  assert.equal(sobradoSheet.valueAt(2, column("Perfil sugerido")), "Quente");
+  assert.match(sobradoSheet.valueAt(2, column("Critério automático")), /até 90 dias/);
+  assert.equal(sobradoSheet.valueAt(2, column("Meta Form ID")), "'2143126276600637");
 }
 
 console.log("Apps Script migration and Meta lead tests passed.");

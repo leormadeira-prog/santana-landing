@@ -9,11 +9,11 @@ Esta integração transforma uma Planilha Google em um endpoint compartilhado pa
 3. Apague o conteúdo inicial de `Code.gs` e cole todo o conteúdo deste repositório em `integrations/google-apps-script/Code.gs`.
 4. Salve o projeto com o nome **Captura de leads — Gamboas**.
 5. No seletor de funções, escolha `setup` e clique em **Executar**.
-6. Autorize o acesso à planilha. A aba manual **Leads Gamboas** será preservada e a aba automática **Leads Meta Gamboas** será criada com os mesmos campos operacionais.
+6. Autorize o acesso à planilha. A aba manual **Leads Gamboas** será preservada; as abas **Leads Sobrado Isolina** e **Leads Meta Gamboas** serão criadas ou atualizadas com os campos operacionais correspondentes.
 
 O `setup()` preserva as colunas manuais **C** (`Ordem`) e **F** (`Contato responde`), as colunas operacionais **W:AD** (`Status`, primeiro contato, qualificação, visita, comparecimento, proposta, venda e observações) e o bloco bruto dos formulários da Meta. O **ID do empreendimento fica em AE**, a atribuição em **AF:AM** e as versões/datas dos consentimentos em **AN:AQ**. Execute `setup()` novamente depois de instalar esta versão para inserir os novos campos antes do bloco bruto da Meta, sem apagar leads ou dados operacionais existentes. Estruturas anteriores sem as duas colunas manuais ou sem `property_id` também são migradas automaticamente.
 
-A aba **Leads Meta Gamboas** replica os cabeçalhos reais da aba manual, inclusive campos personalizados como `Valor Finan. Pré Aprov.`, e acrescenta: email, IDs e nomes de formulário/campanha/conjunto/anúncio, plataforma, indicador orgânico e data da importação. A criação e as sincronizações não movem, alteram nem apagam as linhas manuais. IDs que já existam em qualquer uma das duas abas são tratados como conhecidos para evitar duplicidade.
+A relação com a região, o perfil sugerido e o critério automático são acrescentados ao final dos cabeçalhos existentes, sem deslocar campos personalizados. Leads enviados pela landing do sobrado são gravados exclusivamente em **Leads Sobrado Isolina**; os envios do Gamboas continuam em **Leads Gamboas**. A aba **Leads Meta Gamboas** replica os cabeçalhos reais da aba manual, inclusive campos como `Valor Finan. Pré Aprov.`, e acrescenta: email, IDs e nomes de formulário/campanha/conjunto/anúncio, plataforma, indicador orgânico e data da importação. A criação e as sincronizações não movem, alteram nem apagam as linhas manuais. IDs que já existam nas duas abas do Gamboas são tratados como conhecidos para evitar duplicidade na importação da Meta.
 
 ## 2. Publicar como app da Web
 
@@ -29,16 +29,16 @@ A URL `/dev` é somente de teste e exige login; ela não funciona para visitante
 
 O endpoint do Gamboas está configurado em `LEAD_API_URL`, dentro de `gamboas/app.js`. Antes de substituir essa URL no futuro, confirme:
 
-1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v2"` e `"properties": ["gamboas"]`;
+1. abrir a URL `/exec` diretamente e receber JSON com `"ok": true`, `"version": "growth-v2"` e as propriedades `gamboas` e `sobrado_isolina`;
 2. enviar um lead controlado pela landing;
-3. confirmar que a linha apareceu na aba **Leads Gamboas**.
+3. confirmar que a linha apareceu na aba correta: **Leads Gamboas** para `gamboas` ou **Leads Sobrado Isolina** para `sobrado_isolina`.
 
 O navegador precisa fazer uma requisição simples para evitar o preflight CORS. Por isso, ao conectar a landing, o corpo será JSON com `Content-Type: text/plain`. O sucesso só é aceito se a resposta final contiver `ok: true`, `stored: true`, `version: growth-v2` e o mesmo `event_id` enviado. Uma tentativa repetida reutiliza o ID pendente, e o servidor responde como duplicata sem criar outra linha.
 
 ### Ordem obrigatória de publicação
 
 1. publicar primeiro esta versão do Apps Script;
-2. executar `setup()` e conferir a extensão dos cabeçalhos de integração até **AQ**;
+2. executar `setup()` e conferir as três abas, a extensão dos cabeçalhos de integração até **AQ** e os três cabeçalhos de qualificação acrescentados ao final;
 3. abrir `/exec` e confirmar `growth-v2`;
 4. realizar um envio controlado e conferir a linha;
 5. somente então publicar a landing `growth-v2`.
@@ -53,7 +53,7 @@ No projeto do Apps Script, abra **Configurações do projeto → Propriedades do
 - `META_ACCESS_TOKEN`: token gerado pelo Gerenciador de Eventos
 - `META_TEST_EVENT_CODE`: código temporário mostrado em **Eventos de teste**; remova esta propriedade depois da validação
 
-O servidor envia `Lead` e preserva `Schedule` para clientes antigos que ainda enviem uma opção afirmativa de visita. O formulário atual do Gamboas é curto e não solicita agendamento nesta etapa. Cada evento leva `property_id`, e a configuração `PROPERTY_CONFIGS` valida a URL, o nome, o preço e a moeda do empreendimento. Para adicionar outro imóvel, inclua uma nova entrada nessa configuração; não duplique a integração. O token fica nas propriedades privadas do Apps Script e nunca é exposto no JavaScript da landing ou no GitHub.
+O servidor envia `Lead` e preserva `Schedule` para clientes antigos que ainda enviem uma opção afirmativa de visita. O formulário atual do Gamboas é curto e não solicita agendamento nesta etapa. Cada evento leva `property_id`, e a configuração `PROPERTY_CONFIGS` valida a URL, o nome, o preço e a moeda do empreendimento. O Gamboas aceita somente as rotas declaradas em `allowedPaths`: a raiz `/gamboas/` e a oferta `/gamboas/unidade-39m.html`; outras subpáginas continuam bloqueadas. Para adicionar outro imóvel, inclua uma nova entrada nessa configuração; não duplique a integração. O token fica nas propriedades privadas do Apps Script e nunca é exposto no JavaScript da landing ou no GitHub.
 
 Durante a transição, uma landing antiga que ainda não envie `property_id` continua aceita: o servidor infere o empreendimento pelo caminho cadastrado em `PROPERTY_CONFIGS`. Isso permite publicar primeiro o Apps Script e somente depois fazer o merge da landing, sem interromper a captura. Landings novas devem sempre enviar o campo explicitamente.
 
@@ -69,7 +69,8 @@ Antes do merge ou de uma nova campanha:
 4. envie um segundo lead controlado após recusar a medição e confirme que ele foi salvo, mas a CAPI não foi enviada;
 5. confira **AE:AQ**: empreendimento, escolha de medição, primeira página, referência, conteúdo, CTA, horário, última página e as versões/datas dos dois consentimentos;
 6. repita um `event_id` controlado e confirme que a resposta indica duplicata sem criar uma segunda linha;
-7. confirme que URLs registradas não conservam parâmetros fora da lista permitida nem consultas de referçcias externas.
+7. confirme em **Leads Sobrado Isolina** a relação com a região, o perfil sugerido e o critério automático;
+8. confirme que URLs registradas não conservam parâmetros fora da lista permitida nem consultas de referências externas.
 
 O código apenas lê `META_TEST_EVENT_CODE` de forma opcional para testes controlados. Nenhum código `TEST...` deve ficar gravado no repositório ou nas propriedades da implantação de produção.
 
@@ -79,19 +80,19 @@ Esta versão importa os leads do formulário instantâneo para a aba separada **
 
 Em **Configurações do projeto → Propriedades do script**, crie:
 
-- `META_LEADS_FORM_ID`: ID numérico do formulário **GAMBOAS | HIGH INTENT | 08-2026**;
+- `META_LEADS_FORM_PROPERTY_MAP`: pares `ID_DO_FORMULARIO:property_id` separados por vírgula. Exemplo: `1600394864773425:gamboas,1047487454931895:gamboas,2143126276600637:sobrado_isolina`;
 - `META_LEADS_ACCESS_TOKEN`: token com permissão `leads_retrieval` e acesso à Página que possui o formulário.
 
-Para importar mais de um formulário, use `META_LEADS_FORM_IDS` com os IDs separados por vírgula. Não grave tokens neste repositório, em código da landing ou em capturas de tela.
+`META_LEADS_FORM_ID` e `META_LEADS_FORM_IDS` continuam aceitos para instalações antigas e são associados ao Gamboas. O mapa é obrigatório quando formulários de empreendimentos diferentes compartilham a integração. Não grave tokens neste repositório, em código da landing ou em capturas de tela.
 
 Depois de salvar as propriedades:
 
 1. execute `setup()` para preservar a planilha atual, criar **Leads Meta Gamboas** e registrar o ID da planilha para os gatilhos;
 2. execute `setupMetaLeadSync()` uma vez e aceite as permissões solicitadas;
-3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, o ID do formulário, `destinationSheetConfigured: true` e `triggerCount: 1`;
+3. execute `getMetaLeadSyncStatus()` e confirme `accessTokenConfigured: true`, todos os pares em `formMappings`, os destinos corretos e `triggerCount: 1`;
 4. envie um lead controlado pelo formulário da Meta;
 5. aguarde até cinco minutos ou execute `syncMetaInstantFormLeads()` manualmente;
-6. confirme a nova linha na aba **Leads Meta Gamboas**, com `Status: Novo`, o ID `meta-...` na coluna **ID do evento** e os campos técnicos da Meta preenchidos;
+6. confirme a nova linha na aba configurada: formulários do Gamboas em **Leads Meta Gamboas** e formulários do sobrado em **Leads Sobrado Isolina**, com `Status: Novo`, o ID `meta-...` na coluna **ID do evento** e os campos técnicos da Meta preenchidos;
 7. confira que a quantidade e o conteúdo das linhas da aba manual **Leads Gamboas** não foram alterados.
 
 O diagnóstico nunca devolve o token. Se houver falha, `getMetaLeadSyncStatus()` mostra a data do último sucesso e a última mensagem de erro. Leads instantâneos não são reenviados pela CAPI deste script, pois a conversão já aconteceu dentro da Meta.

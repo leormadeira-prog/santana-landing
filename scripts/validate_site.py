@@ -319,8 +319,13 @@ def main() -> int:
         required_copy = str(property_data.get("imageDisclaimer", ""))
         if required_copy not in property_html:
             errors.append(f"Disclaimer completo de imagens ausente em {property_id}.")
-        if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
+        if property_id in {"gamboas", "residencial_inglesa"} and not re.search(
+            r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html
+        ):
             errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
+        if property_id == "sobrado_isolina":
+            if not re.search(r'<source\b[^>]*src=["\'][^"\']*sobrado-isolina-reels\.mp4["\'][^>]*type=["\']video/mp4["\']', property_html):
+                errors.append("Vídeo MP4 do sobrado ausente ou sem tipo declarado.")
 
     content_hub_html = page_content.get(CONTENTS_INDEX_PATH, "")
     expected_content_hub_values = {
@@ -367,9 +372,10 @@ def main() -> int:
     if f"Sitemap: https://{domain}/sitemap.xml" not in robots:
         errors.append("robots.txt deve declarar a URL canônica do sitemap.")
     for property_data in properties.values():
-        thanks_path = f"{property_data.get('path', '')}obrigado/"
-        if f"Disallow: {thanks_path}" not in robots:
-            errors.append(f"robots.txt deve impedir o rastreamento de {thanks_path}.")
+        property_path = str(property_data.get("path", ""))
+        expected_disallow = f"Disallow: {property_path}obrigado/"
+        if expected_disallow not in robots:
+            errors.append(f"robots.txt deve declarar '{expected_disallow}'.")
 
     try:
         sitemap_root = ET.parse(SITEMAP_PATH).getroot()

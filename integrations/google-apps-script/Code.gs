@@ -1,3 +1,20 @@
+function registerCoberturaMetaForm() {
+  var properties = PropertiesService.getScriptProperties();
+  var key = "META_LEADS_FORM_PROPERTY_MAP";
+  var items = [
+    "1420240299983352:gamboas",
+    "1399156208207843:gamboas",
+    "1672655833794110:gamboas"
+  ];
+  var current = properties.getProperty(key) || "";
+  var parts = current.split(",").map(function (value) { return value.trim(); }).filter(String);
+  items.forEach(function (item) {
+    if (parts.indexOf(item) === -1) parts.push(item);
+  });
+  properties.setProperty(key, parts.join(","));
+  return properties.getProperty(key);
+}
+
 /**
  * Recebe os leads dos empreendimentos e os grava na aba operacional.
  *
@@ -12,6 +29,9 @@
 
 var SHEET_NAME = "Leads Gamboas";
 var META_SHEET_NAME = "Leads Meta Gamboas";
+var META_TEST_SHEET_NAME = "Leads Teste Meta";
+var SOBRADO_SHEET_NAME = "Leads Sobrado Isolina";
+var INGLESA_SHEET_NAME = "Leads Residencial Inglesa";
 var ALLOWED_ORIGIN = "https://znempreendimentos.com.br";
 var INTEGRATION_VERSION = "growth-v2";
 var META_GRAPH_VERSION = "v24.0";
@@ -21,16 +41,85 @@ var ALLOWED_ATTRIBUTION_QUERY_FIELDS = [
 ];
 var PROPERTY_CONFIGS = {
   gamboas: {
+    sheetName: SHEET_NAME,
+    metaSheetName: META_SHEET_NAME,
     path: "/gamboas/",
+    allowedPaths: ["/gamboas/", "/gamboas/unidade-39m.html"],
     name: "Edifício Gamboas",
     priceFrom: 295000,
-    currency: "BRL"
+    currency: "BRL",
+    allowedOptions: {
+      purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
+      purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
+      downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
+      visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
+    },
+    visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
   },
   residencial_inglesa: {
+    sheetName: INGLESA_SHEET_NAME,
+    metaSheetName: INGLESA_SHEET_NAME,
     path: "/residencial-inglesa/",
+    allowedPaths: ["/residencial-inglesa/"],
     name: "Residencial Inglesa",
     priceFrom: 310000,
-    currency: "BRL"
+    currency: "BRL",
+    allowedOptions: {
+      purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
+      purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
+      downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
+      visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
+    },
+    visitIntentValues: ["Sim, nesta semana", "Sim, nas próximas semanas"]
+  },
+  sobrado_isolina: {
+    sheetName: SOBRADO_SHEET_NAME,
+    metaSheetName: SOBRADO_SHEET_NAME,
+    path: "/sobrado-isolina/",
+    allowedPaths: ["/sobrado-isolina/"],
+    name: "Sobrado Vila Isolina Mazzei",
+    priceFrom: 790000,
+    currency: "BRL",
+    allowedOptions: {
+      regionRelation: [
+        "Moro na região.",
+        "Já morei ou trabalho na região.",
+        "Frequento ou conheço bem a região.",
+        "Conheço pouco, mas quero morar na Zona Norte.",
+        "Ainda não conheço a região."
+      ],
+      downPayment: [
+        "R$ 170 mil ou mais.",
+        "Entre R$ 150 mil e R$ 169 mil.",
+        "Entre R$ 100 mil e R$ 149 mil.",
+        "Menos de R$ 100 mil.",
+        "Pretendo comprar à vista.",
+        "Ainda preciso avaliar."
+      ],
+      purchaseMethod: [
+        "Financiamento já pré-aprovado.",
+        "Financiamento ainda não simulado.",
+        "Entrada com FGTS e financiamento.",
+        "Dependo da venda de outro imóvel.",
+        "Compra à vista.",
+        "Ainda estou avaliando."
+      ],
+      purchaseTimeline: [
+        "Assim que encontrar o imóvel certo.",
+        "Nos próximos 30 dias.",
+        "Entre 2 e 3 meses.",
+        "Entre 4 e 6 meses.",
+        "Estou apenas pesquisando."
+      ],
+      visitInterest: [
+        "Durante a semana.",
+        "No próximo sábado.",
+        "No próximo domingo, se disponível.",
+        "Primeiro quero receber mais informações.",
+        "Ainda não pretendo visitar."
+      ]
+    },
+    visitIntentValues: ["Durante a semana.", "No próximo sábado.", "No próximo domingo, se disponível."]
   }
 };
 var BASE_HEADERS = [
@@ -82,6 +171,15 @@ var ATTRIBUTION_HEADERS = [
   "Versão do consentimento de atendimento",
   "Consentimento de atendimento em"
 ];
+var QUALIFICATION_HEADERS = [
+  "Relação com a região",
+  "Perfil sugerido",
+  "Critério automático"
+];
+var DATA_QUALITY_HEADERS = [
+  "Data/horário da visita",
+  "Registro de teste?"
+];
 var META_EXTRA_HEADERS = [
   "Email",
   "Meta Lead ID",
@@ -107,13 +205,22 @@ function setup() {
   var sheet = getLeadSheet_();
   PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", sheet.getParent().getId());
   ensureLeadSchema_(sheet);
+  var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
+  ensureLeadSchema_(sobradoSheet);
+  ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
   var metaSheet = getMetaLeadSheet_();
   ensureMetaLeadSchema_(metaSheet, sheet);
+  var metaTestSheet = getMetaTestLeadSheet_();
+  ensureMetaLeadSchema_(metaTestSheet, sheet);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, sheet.getLastColumn());
+  sobradoSheet.setFrozenRows(1);
+  sobradoSheet.autoResizeColumns(1, sobradoSheet.getLastColumn());
   metaSheet.setFrozenRows(1);
   metaSheet.autoResizeColumns(1, metaSheet.getLastColumn());
-  return "Integração preparada nas abas \"" + SHEET_NAME + "\" e \"" + META_SHEET_NAME + "\".";
+  metaTestSheet.setFrozenRows(1);
+  metaTestSheet.autoResizeColumns(1, metaTestSheet.getLastColumn());
+  return "Integração preparada nas abas \"" + SHEET_NAME + "\", \"" + SOBRADO_SHEET_NAME + "\", \"" + META_SHEET_NAME + "\" e \"" + META_TEST_SHEET_NAME + "\".";
 }
 
 /**
@@ -152,34 +259,53 @@ function removeMetaLeadSync() {
  */
 function getMetaLeadSyncStatus() {
   var properties = PropertiesService.getScriptProperties();
-  var rawFormIds = text_(
-    properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
-    1000
-  );
+  var formConfigs = [];
+  var configurationError = "";
+  try {
+    formConfigs = getMetaLeadFormConfigs_(properties);
+  } catch (error) {
+    configurationError = text_(error && error.message, 300);
+  }
   var triggerCount = ScriptApp.getProjectTriggers().filter(function (trigger) {
     return trigger.getHandlerFunction() === META_LEAD_SYNC_FUNCTION;
   }).length;
-  var destinationSheetConfigured = false;
-  var destinationRows = 0;
+  var destinations = [];
   try {
     var spreadsheetId = properties.getProperty("SPREADSHEET_ID");
     var spreadsheet = spreadsheetId ? SpreadsheetApp.openById(spreadsheetId) : SpreadsheetApp.getActiveSpreadsheet();
-    var destinationSheet = spreadsheet && spreadsheet.getSheetByName(META_SHEET_NAME);
-    destinationSheetConfigured = Boolean(destinationSheet);
-    destinationRows = destinationSheet ? Math.max(destinationSheet.getLastRow() - 1, 0) : 0;
+    var seenDestinations = {};
+    formConfigs.forEach(function (formConfig) {
+      var propertyConfig = getPropertyConfig_(formConfig.propertyId);
+      var sheetName = propertyConfig.metaSheetName || propertyConfig.sheetName;
+      if (seenDestinations[sheetName]) return;
+      seenDestinations[sheetName] = true;
+      var destinationSheet = spreadsheet && spreadsheet.getSheetByName(sheetName);
+      destinations.push({
+        propertyId: formConfig.propertyId,
+        sheet: sheetName,
+        configured: Boolean(destinationSheet),
+        rows: destinationSheet ? Math.max(destinationSheet.getLastRow() - 1, 0) : 0
+      });
+    });
   } catch (_) {}
+  var gamboasDestination = destinations.filter(function (destination) {
+    return destination.propertyId === "gamboas";
+  })[0] || { configured: false, rows: 0 };
   return {
     spreadsheetConfigured: Boolean(properties.getProperty("SPREADSHEET_ID")),
     accessTokenConfigured: Boolean(properties.getProperty("META_LEADS_ACCESS_TOKEN")),
-    formIds: rawFormIds.split(",").map(function (value) {
-      return text_(value, 100).replace(/\D/g, "");
-    }).filter(function (value) { return value; }),
+    formIds: formConfigs.map(function (formConfig) { return formConfig.formId; }),
+    formMappings: formConfigs.map(function (formConfig) {
+      return formConfig.formId + ":" + formConfig.propertyId;
+    }),
     destinationSheet: META_SHEET_NAME,
-    destinationSheetConfigured: destinationSheetConfigured,
-    destinationRows: destinationRows,
+    destinationSheetConfigured: gamboasDestination.configured,
+    destinationRows: gamboasDestination.rows,
+    destinations: destinations,
     triggerCount: triggerCount,
     lastSyncAt: properties.getProperty("META_LEADS_LAST_SYNC_AT") || "",
-    lastError: properties.getProperty("META_LEADS_LAST_ERROR") || ""
+    lastError: properties.getProperty("META_LEADS_LAST_ERROR") || "",
+    configurationError: configurationError
   };
 }
 
@@ -192,23 +318,37 @@ function syncMetaInstantFormLeads() {
   lock.waitLock(30000);
   try {
     var config = getMetaLeadConfig_();
-    var manualSheet = getLeadSheet_();
-    ensureLeadSchema_(manualSheet);
-    var sheet = getMetaLeadSheet_();
-    ensureMetaLeadSchema_(sheet, manualSheet);
-
-    var existingIds = getExistingEventIds_(sheet);
-    mergeEventIds_(existingIds, getExistingEventIds_(manualSheet));
+    var destinations = {};
+    var existingIds = {};
+    var metaTestSheet = getMetaTestLeadSheet_();
+    ensureMetaLeadSchema_(metaTestSheet, getLeadSheet_());
+    mergeEventIds_(existingIds, getExistingEventIds_(metaTestSheet));
+    config.forms.forEach(function (formConfig) {
+      if (destinations[formConfig.propertyId]) return;
+      var propertySheet = getPropertyLeadSheet_(formConfig.propertyId);
+      ensureLeadSchema_(propertySheet);
+      var destinationSheet = getMetaLeadDestinationSheet_(formConfig.propertyId);
+      ensureMetaLeadSchema_(destinationSheet, propertySheet);
+      destinations[formConfig.propertyId] = destinationSheet;
+      mergeEventIds_(existingIds, getExistingEventIds_(propertySheet));
+      mergeEventIds_(existingIds, getExistingEventIds_(destinationSheet));
+    });
     var pending = [];
-    config.formIds.forEach(function (formId) {
-      pending = pending.concat(fetchNewMetaLeads_(formId, config.accessToken, existingIds));
+    config.forms.forEach(function (formConfig) {
+      var formLeads = fetchNewMetaLeads_(formConfig.formId, config.accessToken, existingIds);
+      formLeads.forEach(function (metaLead) {
+        metaLead._property_id = formConfig.propertyId;
+      });
+      pending = pending.concat(formLeads);
     });
 
     pending.sort(function (left, right) {
       return parseMetaDate_(left.created_time).getTime() - parseMetaDate_(right.created_time).getTime();
     });
     pending.forEach(function (metaLead) {
-      appendMetaLead_(sheet, metaLead);
+      var propertyId = text_(metaLead._property_id, 120).toLowerCase();
+      var destination = isMetaTestLead_(metaLead) ? metaTestSheet : destinations[propertyId];
+      appendMetaLead_(destination, metaLead, propertyId);
       existingIds[metaEventId_(metaLead.id)] = true;
     });
 
@@ -227,6 +367,46 @@ function syncMetaInstantFormLeads() {
   }
 }
 
+/**
+ * Corrige a estrutura operacional sem excluir registros.
+ * Os testes antigos são copiados para a aba de testes e marcados na origem.
+ */
+function repairLeadWorkbookV3() {
+  var spreadsheet = getSpreadsheet_();
+  var manualSheet = getLeadSheet_();
+  var metaSheet = getMetaLeadSheet_();
+  var sobradoSheet = getPropertyLeadSheet_("sobrado_isolina");
+  var testSheet = getMetaTestLeadSheet_();
+
+  ensureLeadSchema_(manualSheet);
+  ensureMetaLeadSchema_(metaSheet, manualSheet);
+  ensureMetaLeadSchema_(sobradoSheet, sobradoSheet);
+  ensureMetaLeadSchema_(testSheet, manualSheet);
+
+  var renamedHeaders = repairDuplicateStatusHeader_(sobradoSheet);
+  var visitRepairs = repairMisplacedVisitDates_(sobradoSheet);
+  var normalizedCells = normalizeOperationalValues_(metaSheet) + normalizeOperationalValues_(sobradoSheet);
+  var testRepairs = archiveExistingMetaTests_(metaSheet, testSheet);
+  var identifiers = normalizeMetaIdentifierColumns_(metaSheet) +
+    normalizeMetaIdentifierColumns_(sobradoSheet) +
+    normalizeMetaIdentifierColumns_(testSheet);
+
+  [manualSheet, metaSheet, sobradoSheet, testSheet].forEach(function (sheet) {
+    sheet.setFrozenRows(1);
+  });
+
+  return {
+    ok: true,
+    spreadsheetId: spreadsheet.getId(),
+    duplicateStatusHeadersRenamed: renamedHeaders,
+    visitDatesRepaired: visitRepairs,
+    operationalCellsNormalized: normalizedCells,
+    testsCopied: testRepairs.copied,
+    testsMarkedAtSource: testRepairs.marked,
+    identifiersNormalized: identifiers
+  };
+}
+
 function doGet() {
   return json_({
     ok: true,
@@ -243,7 +423,7 @@ function doPost(event) {
     var lead = parseLead_(event);
     validateLead_(lead);
 
-    var sheet = getLeadSheet_();
+    var sheet = getPropertyLeadSheet_(lead.property_id);
     var headerColumns = ensureLeadSchema_(sheet);
     var existingRow = findEventRow_(sheet, lead.eventId);
     if (existingRow) {
@@ -251,6 +431,7 @@ function doPost(event) {
     }
 
     var row = sheet.getLastRow() + 1;
+    var suggestedProfile = suggestProfile_(lead);
     var leadRow = emptyMappedRow_(headerColumns);
     setMappedValues_(leadRow, headerColumns, {
       "Recebido em": new Date(),
@@ -286,7 +467,10 @@ function doPost(event) {
       "Versão do consentimento de medição": safeCell_(lead.measurementConsentVersion),
       "Consentimento de medição atualizado em": safeCell_(lead.measurementConsentAt),
       "Versão do consentimento de atendimento": safeCell_(lead.attendanceConsentVersion),
-      "Consentimento de atendimento em": safeCell_(lead.attendanceConsentAt)
+      "Consentimento de atendimento em": safeCell_(lead.attendanceConsentAt),
+      "Relação com a região": safeCell_(lead.regionRelation),
+      "Perfil sugerido": safeCell_(suggestedProfile.profile),
+      "Critério automático": safeCell_(suggestedProfile.reason)
     });
     sheet.getRange(row, 1, 1, leadRow.length).setValues([leadRow]);
 
@@ -330,12 +514,7 @@ function validateLead_(lead) {
   var lastTouch = sanitizeInternalUrl_(lead.lastTouchUrl || source);
   var contentOrigin = text_(lead.contentOrigin, 120).toLowerCase();
   var ctaOrigin = text_(lead.ctaOrigin, 120).toLowerCase();
-  var allowedOptions = {
-    purchaseTimeline: ["", "Imediatamente", "Em até 3 meses", "De 3 a 6 meses", "Apenas pesquisando"],
-    purchaseMethod: ["", "Financiamento bancário", "Entrada + financiamento", "Recursos próprios", "Ainda preciso avaliar"],
-    downPayment: ["", "Até R$ 30 mil", "De R$ 30 mil a R$ 60 mil", "Acima de R$ 60 mil", "Ainda não possuo"],
-    visitInterest: ["", "Sim, nesta semana", "Sim, nas próximas semanas", "Primeiro quero receber informações"]
-  };
+  var allowedOptions = propertyConfig && propertyConfig.allowedOptions;
 
   if (name.length < 2) throw new Error("INVALID_NAME");
   if (!/^[0-9]{10,11}$/.test(phone) || /^(\d)\1+$/.test(phone)) throw new Error("INVALID_PHONE");
@@ -347,7 +526,7 @@ function validateLead_(lead) {
     throw new Error("SPAM_DETECTED");
   }
   if (!propertyConfig || !/^[a-z0-9][a-z0-9_-]{0,119}$/.test(propertyId)) throw new Error("INVALID_PROPERTY");
-  if (source.split("?")[0] !== ALLOWED_ORIGIN + propertyConfig.path) throw new Error("INVALID_SOURCE");
+  if (!isAllowedPropertySource_(source, propertyConfig)) throw new Error("INVALID_SOURCE");
   if (["accepted", "rejected", "unknown"].indexOf(measurement) === -1) throw new Error("INVALID_MEASUREMENT_CONSENT");
   if (firstPage.indexOf(ALLOWED_ORIGIN + "/") !== 0 || lastTouch.indexOf(ALLOWED_ORIGIN + "/") !== 0) {
     throw new Error("INVALID_ATTRIBUTION");
@@ -385,6 +564,7 @@ function validateLead_(lead) {
   lead.firstTouchAt = text_(lead.firstTouchAt, 50);
   lead.lastTouchUrl = lastTouch;
   lead.attributionVersion = text_(lead.attributionVersion, 50) || "legacy";
+  lead.regionRelation = text_(lead.regionRelation, 200);
   lead.measurementConsentVersion = text_(lead.measurementConsentVersion, 80) || "legacy";
   lead.measurementConsentAt = text_(lead.measurementConsentAt, 50);
   lead.attendanceConsentVersion = text_(lead.attendanceConsentVersion, 80) || "legacy";
@@ -406,24 +586,68 @@ function getLeadSheet_() {
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
 }
 
+function getPropertyLeadSheet_(propertyId) {
+  var normalizedPropertyId = text_(propertyId, 120).toLowerCase();
+  var propertyConfig = PROPERTY_CONFIGS[normalizedPropertyId];
+  var sheetName = propertyConfig && text_(propertyConfig.sheetName, 100);
+  if (!sheetName) throw new Error("INVALID_PROPERTY");
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+}
+
 function getMetaLeadSheet_() {
   var spreadsheet = getSpreadsheet_();
   return spreadsheet.getSheetByName(META_SHEET_NAME) || spreadsheet.insertSheet(META_SHEET_NAME);
 }
 
+function getMetaTestLeadSheet_() {
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(META_TEST_SHEET_NAME) || spreadsheet.insertSheet(META_TEST_SHEET_NAME);
+}
+
+function getMetaLeadDestinationSheet_(propertyId) {
+  var propertyConfig = getPropertyConfig_(text_(propertyId, 120).toLowerCase());
+  var sheetName = text_(propertyConfig.metaSheetName || propertyConfig.sheetName, 100);
+  if (!sheetName) throw new Error("INVALID_PROPERTY");
+  var spreadsheet = getSpreadsheet_();
+  return spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+}
+
 function getMetaLeadConfig_() {
   var properties = PropertiesService.getScriptProperties();
   var token = text_(properties.getProperty("META_LEADS_ACCESS_TOKEN"), 3000);
-  var rawFormIds = text_(
+  var forms = getMetaLeadFormConfigs_(properties);
+  if (!token) throw new Error("META_LEADS_TOKEN_REQUIRED");
+  return {
+    accessToken: token,
+    forms: forms,
+    formIds: forms.map(function (formConfig) { return formConfig.formId; })
+  };
+}
+
+function getMetaLeadFormConfigs_(properties) {
+  var rawMap = text_(properties.getProperty("META_LEADS_FORM_PROPERTY_MAP"), 3000);
+  var rawLegacyIds = text_(
     properties.getProperty("META_LEADS_FORM_IDS") || properties.getProperty("META_LEADS_FORM_ID"),
     1000
   );
-  var formIds = rawFormIds.split(",").map(function (value) {
-    return text_(value, 100).replace(/\D/g, "");
-  }).filter(function (value) { return value; });
-  if (!token) throw new Error("META_LEADS_TOKEN_REQUIRED");
-  if (!formIds.length) throw new Error("META_LEADS_FORM_REQUIRED");
-  return { accessToken: token, formIds: formIds };
+  var entries = rawMap
+    ? rawMap.split(",")
+    : rawLegacyIds.split(",").map(function (formId) { return formId + ":gamboas"; });
+  var seen = {};
+  var forms = [];
+  entries.forEach(function (entry) {
+    var parts = text_(entry, 240).split(":");
+    var formId = text_(parts[0], 100).replace(/\D/g, "");
+    var propertyId = text_(parts[1], 120).toLowerCase();
+    if (!formId || !PROPERTY_CONFIGS[propertyId]) throw new Error("META_LEADS_FORM_MAP_INVALID");
+    if (seen[formId] && seen[formId] !== propertyId) throw new Error("META_LEADS_FORM_MAP_INVALID");
+    if (seen[formId]) return;
+    seen[formId] = propertyId;
+    forms.push({ formId: formId, propertyId: propertyId });
+  });
+  if (!forms.length) throw new Error("META_LEADS_FORM_REQUIRED");
+  return forms;
 }
 
 function getExistingEventIds_(sheet) {
@@ -485,31 +709,54 @@ function fetchNewMetaLeads_(formId, accessToken, existingIds) {
   return leads;
 }
 
-function appendMetaLead_(sheet, metaLead) {
+function appendMetaLead_(sheet, metaLead, propertyId) {
   var headerColumns = headerColumns_(sheet);
-  var requiredHeaders = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, META_EXTRA_HEADERS);
+  var requiredHeaders = BASE_HEADERS.concat(
+    OPERATION_HEADERS,
+    ATTRIBUTION_HEADERS,
+    QUALIFICATION_HEADERS,
+    DATA_QUALITY_HEADERS,
+    META_EXTRA_HEADERS
+  );
   if (!hasMappedHeaders_(headerColumns, requiredHeaders)) throw new Error("HEADER_MISMATCH");
+  propertyId = text_(propertyId, 120).toLowerCase() || "gamboas";
+  getPropertyConfig_(propertyId);
   var answers = metaAnswers_(metaLead.field_data);
   var firstName = firstMetaAnswer_(answers, ["first_name", "primeiro_nome", "nome"]);
   var lastName = firstMetaAnswer_(answers, ["last_name", "sobrenome"]);
   var fullName = firstMetaAnswer_(answers, ["full_name", "nome_completo"]);
   if (!fullName) fullName = text_(firstName + " " + lastName, 120);
   var phone = normalizeBrazilPhone_(firstMetaAnswer_(answers, [
-    "phone_number", "whatsapp", "numero_de_whatsapp", "telefone", "celular"
+    "phone_number", "phone", "whatsapp", "numero_de_whatsapp", "telefone", "celular"
   ]));
   var email = firstMetaAnswer_(answers, ["email", "e_mail", "endereco_de_email"]);
   var purchaseTimeline = firstMetaAnswer_(answers, [
-    "em_quanto_tempo_pretende_comprar", "quanto_tempo_pretende_comprar", "prazo_de_compra"
+    "em_quanto_tempo_pretende_comprar", "quanto_tempo_pretende_comprar", "prazo_de_compra",
+    "para_quando_pretende_comprar_o_imovel"
   ]);
   var purchaseMethod = firstMetaAnswer_(answers, [
-    "como_pretende_comprar", "forma_de_compra", "modalidade_de_compra"
+    "como_pretende_comprar", "forma_de_compra", "modalidade_de_compra",
+    "como_pretende_realizar_a_compra"
   ]);
   var downPayment = firstMetaAnswer_(answers, [
-    "possui_valor_para_entrada", "valor_para_entrada", "valor_de_entrada", "entrada"
+    "possui_valor_para_entrada", "valor_para_entrada", "valor_de_entrada", "entrada",
+    "quanto_voce_pretende_utilizar_como_entrada_considerando_recursos_proprios_e_ou_fgts"
   ]);
   var visitInterest = firstMetaAnswer_(answers, [
-    "gostaria_de_agendar_uma_visita", "agendar_uma_visita", "interesse_em_visita", "visita"
+    "gostaria_de_agendar_uma_visita", "agendar_uma_visita", "interesse_em_visita", "visita",
+    "se_o_imovel_atender_as_suas_condicoes_quando_poderia_visita_lo"
   ]);
+  var regionRelation = firstMetaAnswer_(answers, [
+    "qual_e_a_sua_relacao_com_a_vila_isolina_mazzei_e_a_zona_norte", "relacao_com_a_regiao"
+  ]);
+  var suggestedProfile = suggestProfile_({
+    property_id: propertyId,
+    regionRelation: regionRelation,
+    purchaseTimeline: purchaseTimeline,
+    purchaseMethod: purchaseMethod,
+    downPayment: downPayment,
+    visitInterest: visitInterest
+  });
   var createdAt = parseMetaDate_(metaLead.created_time);
   var formId = text_(metaLead.form_id, 100);
   var eventId = metaEventId_(metaLead.id);
@@ -517,12 +764,13 @@ function appendMetaLead_(sheet, metaLead) {
   var campaignName = text_(metaLead.campaign_name, 300);
   var adsetName = text_(metaLead.adset_name, 300);
   var adName = text_(metaLead.ad_name, 300);
+  var isTest = isMetaTestLead_(metaLead);
   var row = sheet.getLastRow() + 1;
 
   var metaRow = emptyMappedRow_(headerColumns, META_EXTRA_HEADERS);
   setMappedValues_(metaRow, headerColumns, {
     "Recebido em": createdAt,
-    "ID do evento": safeCell_(eventId),
+    "ID do evento": safeIdentifierCell_(eventId),
     "Nome completo": safeCell_(fullName),
     "WhatsApp": safeCell_(phone),
     "Prazo de compra": safeCell_(purchaseTimeline),
@@ -538,9 +786,9 @@ function appendMetaLead_(sheet, metaLead) {
     "Página de origem": safeCell_(sourceLabel),
     "CAPI enviada": "Não",
     "Resposta CAPI": "Não aplicável: lead convertido dentro da Meta",
-    "Status": "Novo",
+    "Status": isTest ? "Teste Meta" : "Novo",
     "Observações": safeCell_(buildMetaLeadObservations_(metaLead, answers)),
-    "ID do empreendimento": "gamboas",
+    "ID do empreendimento": safeCell_(propertyId),
     "Consentimento de medição": "Não informado",
     "Referência inicial": "Meta Instant Form",
     "Conteúdo de origem": safeCell_(adName || campaignName),
@@ -550,20 +798,32 @@ function appendMetaLead_(sheet, metaLead) {
     "Versão da atribuição": "meta-leads-v1",
     "Versão do consentimento de atendimento": safeCell_("meta-form-" + formId),
     "Consentimento de atendimento em": createdAt,
+    "Relação com a região": safeCell_(regionRelation),
+    "Perfil sugerido": safeCell_(suggestedProfile.profile),
+    "Critério automático": safeCell_(suggestedProfile.reason),
+    "Registro de teste?": isTest ? "Sim" : "Não",
     "Email": safeCell_(email),
-    "Meta Lead ID": safeCell_(metaLead.id),
-    "Meta Form ID": safeCell_(formId),
-    "Meta Campaign ID": safeCell_(metaLead.campaign_id),
+    "Meta Lead ID": safeIdentifierCell_(metaLead.id),
+    "Meta Form ID": safeIdentifierCell_(formId),
+    "Meta Campaign ID": safeIdentifierCell_(metaLead.campaign_id),
     "Meta Campaign Name": safeCell_(campaignName),
-    "Meta Ad Set ID": safeCell_(metaLead.adset_id),
+    "Meta Ad Set ID": safeIdentifierCell_(metaLead.adset_id),
     "Meta Ad Set Name": safeCell_(adsetName),
-    "Meta Ad ID": safeCell_(metaLead.ad_id),
+    "Meta Ad ID": safeIdentifierCell_(metaLead.ad_id),
     "Meta Ad Name": safeCell_(adName),
     "Meta Platform": safeCell_(metaLead.platform),
     "Meta Organic": metaLead.is_organic === true ? "Sim" : "Não",
     "Importado da Meta em": new Date()
   });
   sheet.getRange(row, 1, 1, metaRow.length).setValues([metaRow]);
+}
+
+function isMetaTestLead_(metaLead) {
+  return (Array.isArray(metaLead && metaLead.field_data) ? metaLead.field_data : []).some(function (field) {
+    return (field && Array.isArray(field.values) ? field.values : []).some(function (value) {
+      return /^\s*<test lead:\s*dummy data/i.test(text_(value, 1000));
+    });
+  });
 }
 
 function metaAnswers_(fieldData) {
@@ -622,7 +882,7 @@ function buildMetaLeadObservations_(metaLead, answers) {
 function isSensitiveMetaAnswerKey_(key) {
   return [
     "full_name", "nome_completo", "first_name", "primeiro_nome", "nome", "last_name", "sobrenome",
-    "phone_number", "whatsapp", "numero_de_whatsapp", "telefone", "celular", "email"
+    "phone_number", "phone", "whatsapp", "numero_de_whatsapp", "telefone", "celular", "email"
   ].indexOf(normalizeMetaKey_(key)) !== -1;
 }
 
@@ -643,9 +903,41 @@ function getPropertyConfig_(propertyId) {
 
 function inferPropertyId_(sourceUrl) {
   var matches = Object.keys(PROPERTY_CONFIGS).filter(function (propertyId) {
-    return sourceUrl.indexOf(ALLOWED_ORIGIN + PROPERTY_CONFIGS[propertyId].path) === 0;
+    return isAllowedPropertySource_(sourceUrl, PROPERTY_CONFIGS[propertyId]);
   });
   return matches.length === 1 ? matches[0] : "";
+}
+
+function suggestProfile_(lead) {
+  if (lead.property_id !== "sobrado_isolina") return { profile: "", reason: "" };
+
+  var highEntry = ["R$ 170 mil ou mais.", "Entre R$ 150 mil e R$ 169 mil.", "Pretendo comprar à vista."].indexOf(lead.downPayment) !== -1;
+  var upToNinetyDays = ["Assim que encontrar o imóvel certo.", "Nos próximos 30 dias.", "Entre 2 e 3 meses."].indexOf(lead.purchaseTimeline) !== -1;
+  var acceptsVisit = PROPERTY_CONFIGS.sobrado_isolina.visitIntentValues.indexOf(lead.visitInterest) !== -1;
+
+  if (highEntry && upToNinetyDays && acceptsVisit) {
+    return { profile: "Quente", reason: "Entrada de R$ 150 mil ou mais, compra em até 90 dias e disponibilidade para visita." };
+  }
+  if (lead.purchaseTimeline === "Entre 4 e 6 meses." || lead.purchaseMethod === "Dependo da venda de outro imóvel.") {
+    return { profile: "Futuro", reason: "Prazo de 4 a 6 meses ou compra condicionada à venda de outro imóvel." };
+  }
+  if (lead.downPayment === "Ainda preciso avaliar." && lead.visitInterest === "Ainda não pretendo visitar.") {
+    return { profile: "Pesquisa", reason: "Entrada indefinida e sem intenção atual de visita." };
+  }
+  if (lead.downPayment === "Entre R$ 100 mil e R$ 149 mil." || lead.purchaseMethod === "Financiamento ainda não simulado.") {
+    return { profile: "Potencial", reason: "Entrada entre R$ 100 mil e R$ 149 mil ou financiamento ainda não simulado." };
+  }
+  return { profile: "Revisar", reason: "Combinação não contemplada pelas regras automáticas; requer avaliação comercial." };
+}
+
+function isAllowedPropertySource_(sourceUrl, propertyConfig) {
+  var baseUrl = text_(sourceUrl, 1000).split("#")[0].split("?")[0];
+  var configuredPaths = propertyConfig && Array.isArray(propertyConfig.allowedPaths)
+    ? propertyConfig.allowedPaths
+    : [propertyConfig && propertyConfig.path];
+  return configuredPaths.some(function (path) {
+    return /^\/[a-zA-Z0-9/_\-.]*$/.test(path || "") && baseUrl === ALLOWED_ORIGIN + path;
+  });
 }
 
 function safeCampaignValue_(value, maxLength) {
@@ -664,7 +956,7 @@ function sanitizeInternalUrl_(value) {
   if (raw.indexOf(ALLOWED_ORIGIN + "/") !== 0 || /[\s<>]/.test(raw)) return "";
   var parts = raw.split("?");
   var base = parts.shift();
-  if (!/^https:\/\/znempreendimentos\.com\.br\/[a-zA-Z0-9/_-]*$/.test(base)) return "";
+  if (!/^https:\/\/znempreendimentos\.com\.br\/[a-zA-Z0-9/_.-]*$/.test(base)) return "";
   var cleanPairs = [];
   parts.join("?").split("&").forEach(function (pair) {
     if (!pair) return;
@@ -694,6 +986,155 @@ function sanitizeReferrer_(value) {
   return match ? match[1].slice(0, 500) : "";
 }
 
+function repairDuplicateStatusHeader_(sheet) {
+  var lastColumn = sheet.getLastColumn();
+  if (!lastColumn) return 0;
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var statusSeen = false;
+  var renamed = 0;
+  headers.forEach(function (header, index) {
+    if (normalizeHeaderKey_(header) !== normalizeHeaderKey_("Status")) return;
+    if (!statusSeen) {
+      statusSeen = true;
+      return;
+    }
+    sheet.getRange(1, index + 1, 1, 1).setValues([["Status comercial"]]);
+    renamed += 1;
+  });
+  return renamed;
+}
+
+function repairMisplacedVisitDates_(sheet) {
+  ensureDataQualityHeaders_(sheet);
+  var columns = headerColumns_(sheet);
+  var qualificationColumn = headerColumn_(columns, "Qualificado?");
+  var visitDateColumn = headerColumn_(columns, "Data/horário da visita");
+  if (!qualificationColumn || !visitDateColumn || sheet.getLastRow() < 2) return 0;
+  var repaired = 0;
+  var rowCount = sheet.getLastRow() - 1;
+  var qualificationValues = sheet.getRange(2, qualificationColumn, rowCount, 1).getDisplayValues();
+  var visitDateValues = sheet.getRange(2, visitDateColumn, rowCount, 1).getDisplayValues();
+  qualificationValues.forEach(function (row, index) {
+    var value = text_(row[0], 120);
+    if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}(?:\s|$)/.test(value)) return;
+    if (!text_(visitDateValues[index][0], 120)) {
+      sheet.getRange(index + 2, visitDateColumn, 1, 1).setValues([[safeCell_(value)]]);
+    }
+    sheet.getRange(index + 2, qualificationColumn, 1, 1).setValues([["A confirmar"]]);
+    repaired += 1;
+  });
+  return repaired;
+}
+
+function normalizeOperationalValues_(sheet) {
+  if (sheet.getLastRow() < 2) return 0;
+  var columns = headerColumns_(sheet);
+  var headers = ["Contato responde", "Qualificado?", "Visita confirmada?"];
+  var changed = 0;
+  headers.forEach(function (header) {
+    var column = headerColumn_(columns, header);
+    if (!column) return;
+    var rowCount = sheet.getLastRow() - 1;
+    var values = sheet.getRange(2, column, rowCount, 1).getDisplayValues();
+    values.forEach(function (row, index) {
+      var current = text_(row[0], 120);
+      var normalized = canonicalOperationalValue_(current);
+      if (!normalized || normalized === current) return;
+      sheet.getRange(index + 2, column, 1, 1).setValues([[normalized]]);
+      changed += 1;
+    });
+  });
+  return changed;
+}
+
+function canonicalOperationalValue_(value) {
+  var normalized = normalizeHeaderKey_(value);
+  if (!normalized) return "";
+  if (["sim", "s", "yes"].indexOf(normalized) !== -1) return "Sim";
+  if (["nao", "n", "no"].indexOf(normalized) !== -1) return "Não";
+  if (["a confirmar", "confirmar", "pendente"].indexOf(normalized) !== -1) return "A confirmar";
+  return "";
+}
+
+function archiveExistingMetaTests_(sourceSheet, testSheet) {
+  if (sourceSheet.getLastRow() < 2) return { copied: 0, marked: 0 };
+  var sourceHeaders = sheetHeaders_(sourceSheet);
+  var sourceColumns = headerColumns_(sourceSheet);
+  var testColumns = headerColumns_(testSheet);
+  var existingTestIds = getExistingEventIds_(testSheet);
+  var eventColumn = headerColumn_(sourceColumns, "ID do evento");
+  var statusColumn = headerColumn_(sourceColumns, "Status");
+  var markerColumn = headerColumn_(sourceColumns, "Registro de teste?");
+  var rows = sourceSheet.getRange(2, 1, sourceSheet.getLastRow() - 1, sourceSheet.getLastColumn()).getValues();
+  var displayRows = sourceSheet.getRange(2, 1, sourceSheet.getLastRow() - 1, sourceSheet.getLastColumn()).getDisplayValues();
+  var copied = 0;
+  var marked = 0;
+
+  displayRows.forEach(function (displayRow, index) {
+    var isTest = displayRow.some(function (value) {
+      return /^\s*<test lead:\s*dummy data/i.test(text_(value, 1000));
+    });
+    if (!isTest) return;
+    var sheetRow = index + 2;
+    var eventId = eventColumn ? text_(displayRow[eventColumn - 1], 200) : "";
+    if (eventId && !existingTestIds[eventId]) {
+      var destinationRow = emptyMappedRow_(testColumns, META_EXTRA_HEADERS);
+      sourceHeaders.forEach(function (header, sourceIndex) {
+        var destinationColumn = headerColumn_(testColumns, header);
+        if (destinationColumn) destinationRow[destinationColumn - 1] = rows[index][sourceIndex];
+      });
+      var destinationMarkerColumn = headerColumn_(testColumns, "Registro de teste?");
+      var destinationStatusColumn = headerColumn_(testColumns, "Status");
+      if (destinationMarkerColumn) destinationRow[destinationMarkerColumn - 1] = "Sim";
+      if (destinationStatusColumn) destinationRow[destinationStatusColumn - 1] = "Teste Meta";
+      testSheet.getRange(testSheet.getLastRow() + 1, 1, 1, destinationRow.length).setValues([destinationRow]);
+      existingTestIds[eventId] = true;
+      copied += 1;
+    }
+    if (markerColumn) sourceSheet.getRange(sheetRow, markerColumn, 1, 1).setValues([["Sim"]]);
+    if (statusColumn) sourceSheet.getRange(sheetRow, statusColumn, 1, 1).setValues([["Teste Meta (arquivado)"]]);
+    marked += 1;
+  });
+  return { copied: copied, marked: marked };
+}
+
+function normalizeMetaIdentifierColumns_(sheet) {
+  if (sheet.getLastRow() < 2) return 0;
+  var columns = headerColumns_(sheet);
+  var identifiers = ["Meta Lead ID", "Meta Form ID", "Meta Campaign ID", "Meta Ad Set ID", "Meta Ad ID"];
+  var rowCount = sheet.getLastRow() - 1;
+  identifiers.forEach(function (header) {
+    var column = headerColumn_(columns, header);
+    if (!column) return;
+    var range = sheet.getRange(2, column, rowCount, 1);
+    if (range.setNumberFormat) range.setNumberFormat("@");
+  });
+
+  var eventColumn = headerColumn_(columns, "ID do evento");
+  var leadColumn = headerColumn_(columns, "Meta Lead ID");
+  var formColumn = headerColumn_(columns, "Meta Form ID");
+  var sourceColumn = headerColumn_(columns, "Página de origem");
+  var observationColumn = headerColumn_(columns, "Observações");
+  var repaired = 0;
+  var displayRows = sheet.getRange(2, 1, rowCount, sheet.getLastColumn()).getDisplayValues();
+  displayRows.forEach(function (row, index) {
+    var exactLeadId = eventColumn ? text_(row[eventColumn - 1], 200).replace(/^meta-/, "") : "";
+    if (/^\d{12,}$/.test(exactLeadId) && leadColumn && text_(row[leadColumn - 1], 200) !== exactLeadId) {
+      sheet.getRange(index + 2, leadColumn, 1, 1).setValues([[safeIdentifierCell_(exactLeadId)]]);
+      repaired += 1;
+    }
+    var source = sourceColumn ? text_(row[sourceColumn - 1], 300) : "";
+    var observations = observationColumn ? text_(row[observationColumn - 1], 1000) : "";
+    var formMatch = source.match(/Meta Instant Form\s+(\d{6,})/i) || observations.match(/Form ID:\s*(\d{6,})/i);
+    var exactFormId = formMatch ? formMatch[1] : "";
+    if (exactFormId && formColumn && text_(row[formColumn - 1], 200) !== exactFormId) {
+      sheet.getRange(index + 2, formColumn, 1, 1).setValues([[safeIdentifierCell_(exactFormId)]]);
+      repaired += 1;
+    }
+  });
+  return repaired;
+}
+
 function ensureHeaders_(sheet, startColumn, headers, strict) {
   var range = sheet.getRange(1, startColumn, 1, headers.length);
   var existing = range.getValues()[0];
@@ -712,10 +1153,34 @@ function ensureLeadSchema_(sheet) {
   ensureBaseHeaders_(sheet);
   ensureOperationHeaders_(sheet);
   ensureAttributionHeaders_(sheet);
+  ensureQualificationHeaders_(sheet);
+  ensureDataQualityHeaders_(sheet);
   var columns = headerColumns_(sheet);
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS);
+  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, QUALIFICATION_HEADERS, DATA_QUALITY_HEADERS);
   if (!hasMappedHeaders_(columns, required)) throw new Error("HEADER_MISMATCH");
   return columns;
+}
+
+function ensureQualificationHeaders_(sheet) {
+  var columns = headerColumns_(sheet);
+  var missing = QUALIFICATION_HEADERS.filter(function (header) {
+    return !headerColumn_(columns, header);
+  });
+  if (!missing.length) return;
+  var nextColumn = sheet.getLastColumn() + 1;
+  ensureColumnCapacity_(sheet, nextColumn + missing.length - 1);
+  sheet.getRange(1, nextColumn, 1, missing.length).setValues([missing]).setFontWeight("bold");
+}
+
+function ensureDataQualityHeaders_(sheet) {
+  var columns = headerColumns_(sheet);
+  var missing = DATA_QUALITY_HEADERS.filter(function (header) {
+    return !headerColumn_(columns, header);
+  });
+  if (!missing.length) return;
+  var nextColumn = sheet.getLastColumn() + 1;
+  ensureColumnCapacity_(sheet, nextColumn + missing.length - 1);
+  sheet.getRange(1, nextColumn, 1, missing.length).setValues([missing]).setFontWeight("bold");
 }
 
 function ensureMetaLeadSchema_(sheet, manualSheet) {
@@ -900,7 +1365,13 @@ function normalizeHeaderKey_(value) {
 }
 
 function emptyMappedRow_(columns, additionalHeaders) {
-  var required = BASE_HEADERS.concat(OPERATION_HEADERS, ATTRIBUTION_HEADERS, additionalHeaders || []);
+  var required = BASE_HEADERS.concat(
+    OPERATION_HEADERS,
+    ATTRIBUTION_HEADERS,
+    QUALIFICATION_HEADERS,
+    DATA_QUALITY_HEADERS,
+    additionalHeaders || []
+  );
   var lastColumn = required.reduce(function (maximum, header) {
     return Math.max(maximum, headerColumn_(columns, header));
   }, 0);
@@ -963,7 +1434,7 @@ function sendCapiEvents_(lead) {
         content_name: propertyConfig.name
       }
   }];
-  if (lead.visitInterest.indexOf("Sim") === 0) {
+  if (propertyConfig.visitIntentValues.indexOf(lead.visitInterest) !== -1) {
     events.push({
       event_name: "Schedule",
       event_time: now,
@@ -1009,6 +1480,11 @@ function text_(value, maxLength) {
 function safeCell_(value) {
   var text = text_(value, 1000);
   return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
+function safeIdentifierCell_(value) {
+  var identifier = safeCell_(value);
+  return /^\d{12,}$/.test(identifier) ? "'" + identifier : identifier;
 }
 
 function publicError_(error) {

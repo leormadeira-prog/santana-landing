@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /gamboas/obrigado/
 Disallow: /residencial-inglesa/obrigado/
+Disallow: /sobrado-isolina/obrigado/
 
 Sitemap: https://znempreendimentos.com.br/sitemap.xml
