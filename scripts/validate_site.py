@@ -114,6 +114,8 @@ def main() -> int:
             errors.append(f"Preço inicial inválido para o empreendimento {property_id}.")
         if not re.fullmatch(r"[A-Z]{3}", str(property_data.get("currency", ""))):
             errors.append(f"Moeda inválida para o empreendimento {property_id}.")
+        if not str(property_data.get("imageDisclaimer", "")).strip():
+            errors.append(f"Disclaimer de imagens ausente para o empreendimento {property_id}.")
         if not isinstance(property_data.get("trackingCtas"), list):
             errors.append(f"CTAs de tracking ausentes para o empreendimento {property_id}.")
         property_pages[property_id] = ROOT / property_path.strip("/") / "index.html"
@@ -314,13 +316,9 @@ def main() -> int:
             errors.append(f"Configuração do empreendimento {property_id} diverge no Apps Script.")
         if 'name="website"' not in property_html:
             errors.append(f"Honeypot antispam ausente no formulário de {property_id}.")
-        required_copy = (
-            "Imagens do apartamento decorado, meramente ilustrativas. "
-            "As unidades são entregues no contrapiso, sem móveis, eletrodomésticos, "
-            "marcenaria e itens de decoração. Consulte as especificações e o memorial descritivo."
-        )
+        required_copy = str(property_data.get("imageDisclaimer", ""))
         if required_copy not in property_html:
-            errors.append(f"Disclaimer completo de imagens e contrapiso ausente em {property_id}.")
+            errors.append(f"Disclaimer completo de imagens ausente em {property_id}.")
         if not re.search(r'<source\b[^>]*type=["\']image/webp["\'][^>]*srcset=', property_html):
             errors.append(f"Imagens responsivas WebP ausentes em {property_id}.")
 
@@ -368,8 +366,10 @@ def main() -> int:
         robots = ""
     if f"Sitemap: https://{domain}/sitemap.xml" not in robots:
         errors.append("robots.txt deve declarar a URL canônica do sitemap.")
-    if "Disallow: /gamboas/obrigado/" not in robots:
-        errors.append("robots.txt deve impedir o rastreamento da página de obrigado.")
+    for property_data in properties.values():
+        thanks_path = f"{property_data.get('path', '')}obrigado/"
+        if f"Disallow: {thanks_path}" not in robots:
+            errors.append(f"robots.txt deve impedir o rastreamento de {thanks_path}.")
 
     try:
         sitemap_root = ET.parse(SITEMAP_PATH).getroot()

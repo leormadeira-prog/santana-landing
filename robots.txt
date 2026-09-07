@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /gamboas/obrigado/
+Disallow: /residencial-inglesa/obrigado/
 
 Sitemap: https://znempreendimentos.com.br/sitemap.xml

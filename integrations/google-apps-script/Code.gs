@@ -25,6 +25,12 @@ var PROPERTY_CONFIGS = {
     name: "Edifício Gamboas",
     priceFrom: 295000,
     currency: "BRL"
+  },
+  residencial_inglesa: {
+    path: "/residencial-inglesa/",
+    name: "Residencial Inglesa",
+    priceFrom: 310000,
+    currency: "BRL"
   }
 };
 var BASE_HEADERS = [

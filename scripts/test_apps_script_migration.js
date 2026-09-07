@@ -145,7 +145,31 @@ assert.equal(
   context.inferPropertyId_("https://znempreendimentos.com.br/gamboas/?utm_source=teste"),
   "gamboas"
 );
+assert.equal(
+  context.inferPropertyId_("https://znempreendimentos.com.br/residencial-inglesa/?utm_source=teste"),
+  "residencial_inglesa"
+);
 assert.equal(context.inferPropertyId_("https://znempreendimentos.com.br/"), "");
+
+{
+  const lead = {
+    fullName: "Pessoa Inglesa",
+    whatsapp: "11987654321",
+    consent: true,
+    eventId: "lead-inglesa-123",
+    website: "",
+    formElapsedMs: 2200,
+    property_id: "residencial_inglesa",
+    sourceUrl: "https://znempreendimentos.com.br/residencial-inglesa/?utm_source=Meta%20Ads"
+  };
+
+  context.validateLead_(lead);
+  assert.equal(lead.property_id, "residencial_inglesa");
+  assert.equal(
+    lead.sourceUrl,
+    "https://znempreendimentos.com.br/residencial-inglesa/?utm_source=Meta-Ads"
+  );
+}
 
 {
   const lead = {
