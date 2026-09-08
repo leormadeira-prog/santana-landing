@@ -715,7 +715,8 @@ select:focus-visible {
 
 .gallery figcaption {
   position: absolute;
-  bottom: 17px;
+  /* As fotos incluem uma faixa de aviso nos 5,5% inferiores. */
+  bottom: calc(5.5% + 12px);
   left: 17px;
   padding: 8px 11px;
   color: #fff;
