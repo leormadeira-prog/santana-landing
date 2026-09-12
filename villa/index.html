@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZN Empreendimentos — VILLA Milano Life Style by Versace Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black: #14110D;
+    --bronze: #2A241E;
+    --bronze-light: #3E362C;
+    --gold: #B08D57;
+    --gold-soft: #C9A468;
+    --ivory: #EDE7DA;
+    --stone: #8C8275;
+    --line: rgba(237,231,218,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);
+    color:var(--ivory);
+    font-family:'Manrope', sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:400;
+    letter-spacing:-0.01em;
+    color:var(--ivory);
+  }
+  a{color:inherit; text-decoration:none;}
+  img{display:block; width:100%; height:100%; object-fit:cover;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 32px;}
+  @media(max-width:640px){ .wrap{padding:0 20px;} }
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--gold-soft); outline-offset:3px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 32px;
+    background:linear-gradient(to bottom, rgba(20,17,13,0.85), transparent);
+  }
+  .brand{display:flex; flex-direction:column; line-height:1;}
+  .brand .zs{font-family:'Fraunces', serif; font-size:22px; letter-spacing:0.02em;}
+  .brand .sub{font-size:10px; letter-spacing:0.14em; color:var(--stone); margin-top:3px;}
+  header nav{display:flex; gap:36px; align-items:center;}
+  header nav a{font-size:14px; color:var(--ivory); opacity:0.85;}
+  header nav a:hover{opacity:1;}
+  .nav-cta{
+    border:1px solid var(--gold); padding:9px 20px; font-size:13px;
+    border-radius:2px;
+  }
+  .nav-cta:hover{background:var(--gold); color:var(--black);}
+  .nav-links{display:flex; gap:32px;}
+  @media(max-width:820px){ .nav-links{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; min-height:100vh; display:flex; align-items:flex-end;
+    overflow:hidden;
+  }
+  .hero-img{position:absolute; inset:0;}
+  .hero-img img{width:100%; height:100%; object-fit:cover;}
+  .hero-scrim{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(20,17,13,0.35) 0%, rgba(20,17,13,0.15) 40%, rgba(20,17,13,0.92) 100%);
+  }
+  .hero-content{position:relative; width:100%; padding:0 32px 88px;}
+  .hero-eyebrow{
+    font-size:13px; color:var(--gold-soft); letter-spacing:0.06em; margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(40px, 6.5vw, 84px);
+    max-width:820px;
+    font-weight:300;
+    margin-bottom:22px;
+  }
+  .hero h1 em{font-style:italic; font-weight:400; color:var(--gold-soft);}
+  .hero-sub{
+    max-width:480px; color:var(--ivory); opacity:0.82; font-size:16px; margin-bottom:36px;
+  }
+  .hero-actions{display:flex; gap:16px; flex-wrap:wrap; align-items:center;}
+  .btn-primary{
+    background:var(--gold); color:var(--black); padding:15px 30px; font-size:14px;
+    font-weight:600; border-radius:2px; border:1px solid var(--gold);
+  }
+  .btn-primary:hover{background:transparent; color:var(--gold);}
+  .btn-ghost{
+    border:1px solid var(--line); color:var(--ivory); padding:15px 30px; font-size:14px;
+    border-radius:2px;
+  }
+  .btn-ghost:hover{border-color:var(--gold-soft); color:var(--gold-soft);}
+
+  /* ---------- STAT STRIP ---------- */
+  .stat-strip{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    background:var(--bronze);
+  }
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(4,1fr);
+  }
+  .stat-item{
+    padding:30px 28px; border-right:1px solid var(--line);
+  }
+  .stat-item:last-child{border-right:none;}
+  .stat-num{font-family:'Fraunces', serif; font-size:28px; color:var(--gold-soft);}
+  .stat-label{font-size:12.5px; color:var(--stone); margin-top:6px;}
+  @media(max-width:760px){
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .stat-item:nth-child(2){border-right:none;}
+  }
+
+  /* ---------- INTRO / POSITIONING ---------- */
+  .intro{padding:120px 0 100px;}
+  .intro-grid{
+    display:grid; grid-template-columns:0.9fr 1.4fr; gap:80px; align-items:start;
+  }
+  .intro-label{font-size:13px; color:var(--gold-soft); letter-spacing:0.04em;}
+  .intro-grid h2{font-size:clamp(28px,3.4vw,42px); font-weight:300; margin-top:14px; line-height:1.25;}
+  .intro-text{font-size:16px; color:var(--ivory); opacity:0.78; max-width:56ch;}
+  .intro-text p + p{margin-top:18px;}
+  @media(max-width:840px){
+    .intro-grid{grid-template-columns:1fr; gap:28px;}
+  }
+
+  /* ---------- GALLERY (editorial, asymmetric) ---------- */
+  .gallery{padding:0 0 20px;}
+  .gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    grid-auto-rows:220px;
+    gap:6px;
+  }
+  .g1{grid-column:1/4; grid-row:1/3;}
+  .g2{grid-column:4/7; grid-row:1/2;}
+  .g3{grid-column:4/6; grid-row:2/3;}
+  .g4{grid-column:6/7; grid-row:2/3;}
+  @media(max-width:760px){
+    .gallery-grid{grid-template-columns:1fr 1fr; grid-auto-rows:180px;}
+    .g1{grid-column:1/3; grid-row:1/2;}
+    .g2{grid-column:1/2; grid-row:2/3;}
+    .g3{grid-column:2/3; grid-row:2/3;}
+    .g4{grid-column:1/3; grid-row:3/4;}
+  }
+
+  /* ---------- AMENITY ROWS ---------- */
+  .amenities{padding:130px 0;}
+  .amenity-head{max-width:640px; margin-bottom:70px;}
+  .amenity-head .intro-label{margin-bottom:14px; display:block;}
+  .amenity-head h2{font-size:clamp(28px,3.4vw,42px); font-weight:300;}
+  .amenity-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+    margin-bottom:110px;
+  }
+  .amenity-row:last-child{margin-bottom:0;}
+  .amenity-row.reverse .amenity-media{order:2;}
+  .amenity-row.reverse .amenity-copy{order:1;}
+  .amenity-media{aspect-ratio:4/3; overflow:hidden;}
+  .amenity-copy .num{font-family:'Fraunces', serif; font-size:15px; color:var(--stone); margin-bottom:16px;}
+  .amenity-copy h3{font-size:26px; font-weight:400; margin-bottom:16px;}
+  .amenity-copy p{color:var(--ivory); opacity:0.75; font-size:15.5px; max-width:44ch;}
+  @media(max-width:800px){
+    .amenity-row, .amenity-row.reverse{grid-template-columns:1fr; gap:24px;}
+    .amenity-row.reverse .amenity-media{order:1;}
+    .amenity-row.reverse .amenity-copy{order:2;}
+  }
+
+  /* ---------- FLOOR PLAN ---------- */
+  .plan{padding:100px 0 130px; background:var(--bronze);}
+  .plan-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:70px; align-items:center;}
+  .plan-media{border:1px solid var(--line); background:var(--black); padding:18px;}
+  .plan-media img{object-fit:contain; aspect-ratio:3/4;}
+  .plan-copy h2{font-size:clamp(26px,3vw,36px); font-weight:300; margin-bottom:24px;}
+  .plan-specs{list-style:none; border-top:1px solid var(--line);}
+  .plan-specs li{
+    display:flex; justify-content:space-between; padding:16px 0;
+    border-bottom:1px solid var(--line); font-size:15px;
+  }
+  .plan-specs li span:first-child{color:var(--stone);}
+  .plan-specs li span:last-child{color:var(--ivory); font-family:'Fraunces', serif;}
+  @media(max-width:840px){ .plan-grid{grid-template-columns:1fr; gap:36px;} }
+
+  /* ---------- LOCATION ---------- */
+  .location{padding:130px 0;}
+  .loc-grid{display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;}
+  .loc-media{aspect-ratio:3/2; overflow:hidden;}
+  .loc-copy h2{font-size:clamp(28px,3.4vw,42px); font-weight:300; margin-bottom:22px;}
+  .loc-copy p{color:var(--ivory); opacity:0.78; font-size:15.5px; max-width:48ch;}
+  .loc-copy p + p{margin-top:16px;}
+  .loc-list{margin-top:28px; display:flex; flex-direction:column; gap:10px;}
+  .loc-list div{
+    display:flex; gap:12px; font-size:14.5px; color:var(--ivory); opacity:0.85;
+    padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+  .loc-list div::before{content:"—"; color:var(--gold-soft);}
+  @media(max-width:840px){ .loc-grid{grid-template-columns:1fr; gap:32px;} .loc-media{order:-1;} }
+
+  /* ---------- LEAD FORM ---------- */
+  .lead{padding:130px 0; background:var(--bronze); position:relative;}
+  .lead-panel{
+    max-width:920px; margin:0 auto;
+    border:1px solid var(--gold); background:var(--black);
+    display:grid; grid-template-columns:1fr 1fr;
+  }
+  .lead-info{padding:56px 48px; border-right:1px solid var(--line);}
+  .lead-info .intro-label{margin-bottom:16px; display:block;}
+  .lead-info h2{font-size:30px; font-weight:300; margin-bottom:18px;}
+  .lead-info p{color:var(--ivory); opacity:0.75; font-size:14.5px; margin-bottom:28px;}
+  .lead-contact{font-size:14px; color:var(--gold-soft); display:block; margin-bottom:8px;}
+  .lead-form{padding:56px 48px; display:flex; flex-direction:column; gap:16px;}
+  .field{display:flex; flex-direction:column; gap:7px;}
+  .field label{font-size:12.5px; color:var(--stone);}
+  .field input, .field textarea{
+    background:transparent; border:none; border-bottom:1px solid var(--line);
+    color:var(--ivory); font-family:'Manrope',sans-serif; font-size:15px; padding:9px 0;
+  }
+  .field textarea{resize:vertical; min-height:60px;}
+  .field input::placeholder, .field textarea::placeholder{color:rgba(237,231,218,0.3);}
+  .field input:focus, .field textarea:focus{border-bottom-color:var(--gold-soft); outline:none;}
+  .submit-btn{
+    margin-top:10px; background:var(--gold); color:var(--black); border:1px solid var(--gold);
+    padding:15px; font-size:14px; font-weight:600; border-radius:2px; cursor:pointer;
+  }
+  .submit-btn:hover{background:transparent; color:var(--gold);}
+  .form-note{font-size:12px; color:var(--stone);}
+  .thanks{display:none; text-align:center; padding:40px 0;}
+  .thanks.show{display:block;}
+  .thanks h3{font-size:22px; margin-bottom:10px; font-weight:400;}
+  .thanks p{color:var(--ivory); opacity:0.7; font-size:14.5px;}
+  @media(max-width:760px){
+    .lead-panel{grid-template-columns:1fr;}
+    .lead-info{border-right:none; border-bottom:1px solid var(--line);}
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:60px 0 40px; border-top:1px solid var(--line);}
+  .footer-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;}
+  footer .brand .zs{font-size:20px;}
+  .footer-meta{font-size:12.5px; color:var(--stone); max-width:520px; line-height:1.7;}
+  .footer-bottom{
+    margin-top:40px; padding-top:24px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-size:12px; color:var(--stone);
+  }
+</style>
+<meta name="description" content="Conheça o VILLA Milano Life Style by Versace Home em Moema. Studio de 28,52 m² entregue, com varanda e ar-condicionado. Atendimento ZN.">
+<link rel="canonical" href="https://znempreendimentos.com.br/villa/">
+<link rel="icon" href="/favicon.ico">
+<meta name="theme-color" content="#14110D">
+<meta property="og:title" content="VILLA Milano Life Style by Versace Home | ZN">
+<meta property="og:description" content="Studio entregue em Moema. Conheça a unidade real e as áreas comuns do VILLA.">
+<meta property="og:url" content="https://znempreendimentos.com.br/villa/">
+<style>
+:root{--stone:#b4a99b}h1,h2,h3{line-height:1.15}header{background:rgba(20,17,13,.97);padding:18px 32px;gap:16px}.brand .sub{font-size:12px;letter-spacing:.08em}.hero-content{padding-top:170px}.hero h1{max-width:940px}.hero-img img{object-position:55% center}.hero-scrim{background:linear-gradient(180deg,rgba(20,17,13,.18),rgba(20,17,13,.88))}section[id]{scroll-margin-top:100px}.hero-eyebrow{font-size:14px}.stat-label,.intro-label,.num,.field label,.form-note,.footer-meta,.footer-bottom{font-size:14px}.amenity-copy p,.loc-copy p,.lead-info p{font-size:16px}.photo-note{font-size:14px;color:var(--stone);margin:18px 0 26px}.plan-media{padding:0;background:white}.plan-media img{aspect-ratio:auto;height:auto}.plan-specs li{gap:18px}.plan-specs li span:last-child{text-align:right;font-family:inherit}.field select{font:inherit;color:var(--ivory);background:var(--black);padding:12px 0;border:0;border-bottom:1px solid var(--line);max-width:100%}.field input:focus-visible,.field textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold-soft);outline-offset:4px}.form-note a{text-decoration:underline}.skip{position:fixed;top:-100px;left:16px;z-index:200;background:var(--gold);color:var(--black);padding:14px}.skip:focus{top:8px}.lead-form-wrap{min-width:0}main{overflow:hidden}
+@media(max-width:640px){header{padding:16px 20px}.brand .zs{font-size:19px}.brand .sub{font-size:12px;max-width:180px}.nav-cta{padding:10px;font-size:13px}.hero{min-height:90svh}.hero-content{padding:150px 0 48px}.hero h1{font-size:44px}.hero-sub{font-size:16px}.hero-actions>*{width:100%;text-align:center}.intro,.amenities,.location,.lead{padding:64px 0}.plan{padding:64px 0}.amenity-head{margin-bottom:36px}.amenity-row{margin-bottom:56px}.lead-info,.lead-form{padding:28px 24px}.stat-item{padding:24px 12px}.stat-num{font-size:25px}.gallery-grid{grid-auto-rows:190px}.plan-grid,.loc-grid{gap:30px}.footer-meta{margin-top:14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "ZN Empreendimentos", "item": "https://znempreendimentos.com.br/"}, {"@type": "ListItem", "position": 2, "name": "VILLA", "item": "https://znempreendimentos.com.br/villa/"}]}</script></head>
+<body data-property-id="villa">
+<a class="skip" href="#principal">Ir para o conteúdo</a>
+
+<header>
+  <a class="brand" href="/" aria-label="ZN Empreendimentos — início">
+    <span class="zs">ZN Empreendimentos</span>
+    <span class="sub">EMPREENDIMENTOS EM SÃO PAULO</span>
+  </a>
+  <nav>
+    <div class="nav-links">
+      <a href="#studio">O studio</a>
+      <a href="#amenidades">Amenidades</a>
+      <a href="#planta">Planta</a>
+      <a href="#localizacao">Localização</a>
+    </div>
+    <a class="nav-cta" href="#lead">Agendar visita</a>
+  </nav>
+</header>
+
+<main id="principal">
+<section class="hero">
+  <div class="hero-img"><img fetchpriority="high" decoding="async" src="/assets/villa/piscina.webp" alt="Foto real da piscina, área comum do VILLA"></div>
+  <div class="hero-scrim"></div>
+  <div class="hero-content">
+    <div class="wrap">
+      <div class="hero-eyebrow">VILLA · MILANO LIFE STYLE BY VERSACE HOME</div>
+      <h1>Versace Home.<br>Seu próximo endereço em <em>Moema.</em></h1>
+      <p class="hero-sub">Na esquina da Av. Ibirapuera, um studio já entregue para finalizar e decorar do seu jeito. Conheça as áreas comuns e veja as fotos reais da unidade.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#lead">Quero visitar o studio</a>
+        <a class="btn-ghost" href="#studio">Ver o imóvel</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stat-strip">
+  <div class="wrap">
+    <div class="stat-grid">
+      <div class="stat-item">
+        <div class="stat-num">28,52 m²</div>
+        <div class="stat-label">Área privativa do studio</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">16º andar</div>
+        <div class="stat-label">Torre 1 · vista para a cidade</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">Moema</div>
+        <div class="stat-label">Esquina da Av. Ibirapuera</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">Entregue</div>
+        <div class="stat-label">Unidade para personalizar</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="intro" id="studio">
+  <div class="wrap">
+    <div class="intro-grid">
+      <div>
+        <span class="intro-label">O imóvel</span>
+        <h2>Um endereço escolhido.<br>Um interior para criar.</h2>
+      </div>
+      <div class="intro-text">
+        <p>O VILLA está na esquina da Av. Ibirapuera com as avenidas Ministro Gabriel de Rezende Passos e Agami, em Moema. O empreendimento traz a assinatura Versace Home em sua decoração e paisagismo.</p>
+        <p>A unidade de 28,52 m² fica no 16º andar e tem varanda e ar-condicionado instalado. As fotos mostram o estado atual: contrapiso, sem mobília e com acabamentos internos a concluir. Um espaço para planejar sua moradia ou preparar para locação.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery" aria-label="Fotos reais da unidade"><div class="wrap"><p class="photo-note">FOTOS REAIS DA UNIDADE · Contrapiso e sem mobília</p></div>
+  <div class="gallery-grid">
+    <div class="g1"><img loading="lazy" decoding="async" src="/assets/villa/studio-varanda.webp" alt="Studio com ar-condicionado e varanda com vista para a cidade"></div>
+    <div class="g2"><img loading="lazy" decoding="async" src="/assets/villa/studio-interior.webp" alt="Sala do studio com porta de vidro para a varanda"></div>
+    <div class="g3"><img loading="lazy" decoding="async" src="/assets/villa/varanda.webp" alt="Varanda privativa do studio"></div>
+    <div class="g4"><img loading="lazy" decoding="async" src="/assets/villa/vista.webp" alt="Vista da cidade de São Paulo a partir do andar alto"></div>
+  </div>
+</section>
+
+<section class="amenities" id="amenidades">
+  <div class="wrap">
+    <div class="amenity-head">
+      <span class="intro-label">Áreas comuns</span>
+      <h2>A experiência começa nas áreas comuns.</h2>
+    </div>
+
+    <div class="amenity-row">
+      <div class="amenity-media"><img loading="lazy" decoding="async" src="/assets/villa/lobby.webp" alt="Lobby de entrada decorado pela Versace Home"></div>
+      <div class="amenity-copy">
+        <div class="num">ÁREA COMUM · Recepção</div>
+        <h3>Um lobby com a curadoria da Versace Home.</h3>
+        <p>As estampas, os tons dourados e o mobiliário dão personalidade ao espaço de recepção. Veja a foto real do lobby do empreendimento.</p>
+      </div>
+    </div>
+
+    <div class="amenity-row reverse">
+      <div class="amenity-media"><img loading="lazy" decoding="async" src="/assets/villa/academia.webp" alt="Academia equipada com aparelhos Technogym"></div>
+      <div class="amenity-copy">
+        <div class="num">ÁREA COMUM · Fitness</div>
+        <h3>Academia equipada, com vista para o bairro.</h3>
+        <p>Equipamentos Technogym e grandes janelas compõem a academia. Um espaço de treino dentro do empreendimento, mostrado aqui em foto real.</p>
+      </div>
+    </div>
+
+    <div class="amenity-row">
+      <div class="amenity-media"><img loading="lazy" decoding="async" src="/assets/villa/piscina.webp" alt="Foto real da piscina do VILLA"></div>
+      <div class="amenity-copy">
+        <div class="num">ÁREA COMUM · Rooftop</div>
+        <h3>Piscina com identidade Versace Home.</h3>
+        <p>Os detalhes dourados e o desenho da piscina traduzem a identidade do empreendimento. Foto real da área comum; consulte as regras e os horários de uso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="plan" id="planta">
+  <div class="wrap">
+    <div class="plan-grid">
+      <div class="plan-media">
+        <img loading="lazy" decoding="async" src="/assets/villa/planta-studio-r.webp" alt="Planta tipo Studio R reproduzida do book do empreendimento">
+      </div>
+      <div class="plan-copy">
+        <span class="intro-label">Planta e unidade</span>
+        <h2>Veja o espaço.<br>Planeje as possibilidades.</h2>
+        <ul class="plan-specs">
+          <li><span>Área privativa</span><span>28,52 m²</span></li>
+          <li><span>Andar</span><span>16º · Torre 1</span></li>
+          <li><span>Ar-condicionado</span><span>Instalado</span></li>
+          <li><span>Varanda</span><span>Privativa</span></li>
+          <li><span>Interior da unidade</span><span>Contrapiso, sem mobília</span></li>
+          <li><span>Situação</span><span>Entregue</span></li>
+          
+          
+        </ul><p class="photo-note">Planta tipo ilustrativa do book. Confirme a correspondência com a unidade e as medidas durante o atendimento. Mobiliário representado não incluso.</p><a class="btn-ghost" href="/assets/villa/planta-studio-r.webp" target="_blank" rel="noopener">Ampliar planta</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="location" id="localizacao">
+  <div class="wrap">
+    <div class="loc-grid">
+      <div class="loc-copy">
+        <span class="intro-label">Localização</span>
+        <h2>Moema, na esquina de três avenidas.</h2>
+        <p>O terreno ocupa a esquina da Av. Ibirapuera com as avenidas Ministro Gabriel de Rezende Passos e Agami — cerca de 100 m de frente para a Ibirapuera. A Av. República do Líbano, o Parque das Bicicletas e o Clube Atlético Monte Líbano ficam a poucos minutos a pé.</p>
+        <div class="loc-list">
+          <div>Parque do Ibirapuera e Parque das Bicicletas próximos</div>
+          <div>Região do Clube Atlético Monte Líbano</div>
+          <div>Acesso direto pela Av. Ministro Gabriel de Rezende Passos</div>
+        </div>
+      </div>
+      <div class="loc-media">
+        <img loading="lazy" decoding="async" src="/assets/villa/vista.webp" alt="Vista panorâmica da região de Moema a partir do empreendimento">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lead" id="lead"><div class="wrap"><div class="lead-panel">
+<div class="lead-info"><span class="intro-label">ATENDIMENTO ZN</span><h2>Vamos conhecer o VILLA?</h2><p>Receba informações sobre a unidade, consulte o valor e combine uma visita com a ZN Empreendimentos.</p><a class="lead-contact" href="https://wa.me/5511926271721?text=Ol%C3%A1%21%20Tenho%20interesse%20no%20VILLA%20em%20Moema." target="_blank" rel="noopener">WhatsApp · (11) 92627-1721</a><p>Leonardo Madeira<br>Corretor de Imóveis · CRECI-SP 331393</p></div>
+<form class="lead-form" id="leadForm">
+<div class="field"><label for="name">Seu nome</label><input name="name" id="name" autocomplete="name" maxlength="100" required></div>
+<div class="field"><label for="interest">O que você procura?</label><select name="interest" id="interest"><option>Quero morar</option><option>Quero investir</option><option>Quero conhecer as opções</option></select></div>
+<div class="field"><label for="msg">Como podemos ajudar? (opcional)</label><textarea name="message" id="msg" maxlength="500" placeholder="Quero consultar o valor e agendar uma visita."></textarea></div>
+<button class="submit-btn" type="submit">Continuar no WhatsApp</button><p class="form-note">Você poderá revisar e enviar a mensagem no WhatsApp. Seus dados não são enviados por este formulário. <a href="/privacidade/">Política de privacidade</a>.</p><noscript><p>Use o link de WhatsApp ao lado para falar com a ZN.</p></noscript>
+</form></div></div></section>
+</main>
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <a class="brand" href="/" aria-label="ZN Empreendimentos — início">
+        <span class="zs">ZN Empreendimentos</span>
+        <span class="sub">EMPREENDIMENTOS EM SÃO PAULO</span>
+      </a>
+      <div class="footer-meta">
+        VILLA · Moema, São Paulo. Torre 1 Studios.<br>Fotos reais da unidade e das áreas comuns. Planta tipo ilustrativa. Consulte disponibilidade e condições.<br><a href="/">Conheça a ZN</a> · <a href="/gamboas/">Gamboas</a> · <a href="/privacidade/">Privacidade</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ZN Empreendimentos.</span>
+      <span>CRECI-SP 331393</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/villa/app.js" defer></script>
+
+</body>
+</html>
