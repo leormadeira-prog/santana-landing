@@ -131,6 +131,7 @@
     .footer-row{align-items:flex-start;flex-direction:column;}
     .footer-meta{text-align:left;}
   }
+.hero h1{max-width:14ch}.featured{grid-template-columns:1fr 1fr}.featured .property-card{display:flex;flex-direction:column}.featured .property-card>img{min-height:0;height:auto;aspect-ratio:4/3}.featured .property-copy{padding:36px;flex:1}.featured .property-copy p{flex:1}.property-copy small{display:block;font-size:13px;line-height:1.5;color:var(--ink-soft);margin-top:18px}.villa-card{background:#191612;color:#ede7da}.villa-card .property-copy p,.villa-card .property-copy small{color:#c1b6a7}.villa-card .property-tag,.villa-card .property-location{color:#d2b17b}.villa-card .btn{background:#b08d57;color:#14110d}.portfolio-heading{margin-top:80px}.other-properties{grid-template-columns:1fr 1fr}.other-properties .property-card{display:block}.other-properties .property-card>img{height:300px;min-height:0}.other-properties .property-copy{padding:28px}.other-properties h3{font-size:32px}.eyebrow,.property-tag,.property-location{font-size:14px}a:focus-visible{outline:3px solid var(--brick);outline-offset:5px}#contato p{font-size:18px;color:var(--ink-soft);margin-top:0}section[id]{scroll-margin-top:28px}@media(max-width:850px){.featured,.other-properties{grid-template-columns:1fr}.featured .property-copy{padding:28px}.other-properties .property-card>img{height:auto;aspect-ratio:4/3}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -152,8 +153,8 @@
   <section class="wrap hero">
     <div>
       <div class="eyebrow">ZN Empreendimentos</div>
-      <h1>Imóveis para viver <em>bem.</em></h1>
-      <p>Conheça os empreendimentos da ZN em São Paulo e encontre um novo lugar para chamar de seu.</p>
+      <h1>Seu próximo endereço.<br><em>Com a ZN.</em></h1>
+      <p>Do Gamboas, na Vila Mazzei, ao VILLA, em Moema. Conheça os imóveis, veja os detalhes e converse com a ZN sobre seu próximo passo.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#imoveis">Conhecer os imóveis</a>
         <a class="btn btn-outline" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20falar%20com%20a%20ZN%20Empreendimentos." target="_blank" rel="noopener">Conversar com a ZN</a>
@@ -168,22 +169,29 @@
     <div class="wrap">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">Nossos imóveis</div>
+          <div class="eyebrow">Em destaque</div>
           <h2>Encontre seu próximo endereço.</h2>
         </div>
-        <p>Cada empreendimento possui uma página própria com informações, fotos, condições e localização.</p>
+        <p>Explore o Gamboas e o VILLA: dois endereços, com propostas diferentes para o seu próximo imóvel.</p>
       </div>
-      <div class="properties">
+      <div class="properties featured">
         <article class="property-card">
-          <img src="assets/sala-ampliada.jpeg" alt="Sala do empreendimento Gamboas" loading="lazy">
+          <img src="assets/sala-ampliada.jpeg" alt="Apartamento decorado ilustrativo do Gamboas" loading="lazy">
           <div class="property-copy">
             <span class="property-tag">Disponível</span>
             <h3>Gamboas</h3>
             <div class="property-location">Vila Nova Mazzei · São Paulo</div>
             <p>Conheça os ambientes, veja o tour completo, consulte as plantas disponíveis e confira a localização do empreendimento.</p>
-            <a class="btn btn-primary" href="/gamboas/">Conhecer o Gamboas</a>
+            <a class="btn btn-primary" href="/gamboas/">Conhecer o Gamboas</a><small>Imagem do decorado, meramente ilustrativa. Móveis e decoração não inclusos.</small>
           </div>
         </article>
+        <article class="property-card villa-card">
+          <img src="/assets/villa/piscina.webp" alt="Foto real da piscina, área comum do VILLA" width="1280" height="960" loading="lazy">
+          <div class="property-copy"><span class="property-tag">Studio entregue</span><h3>VILLA</h3><div class="property-location">Milano Life Style by Versace Home<br>Moema · São Paulo</div><p>O encontro de Versace Home com Moema. Conheça as áreas comuns e o studio entregue, com varanda e ar-condicionado, para finalizar do seu jeito.</p><a class="btn btn-primary" href="/villa/">Conhecer o VILLA</a><small>Foto real da área comum.</small></div>
+        </article>
+      </div>
+      <div class="section-heading portfolio-heading"><div><div class="eyebrow">Mais opções</div><h2>Outros imóveis da ZN.</h2></div></div>
+      <div class="properties other-properties">
         <article class="property-card">
           <img src="assets/residencial-inglesa-sala.webp" alt="Simulação de decoração da sala do Residencial Inglesa" width="941" height="1672" loading="lazy">
           <div class="property-copy">
@@ -217,7 +225,7 @@
       <p>A ZN Empreendimentos apresenta seus imóveis com informações claras e atendimento direto para ajudar você a conhecer cada opção e agendar sua visita.</p>
     </div>
   </section>
-</main>
+<section class="section" id="contato"><div class="wrap about-grid"><div><div class="eyebrow">Fale com a ZN</div><h2>Qual será seu próximo endereço?</h2></div><div><p>Conte o que você procura. Nossa equipe apresenta as opções e ajuda a organizar sua visita.</p><a class="btn btn-primary" href="https://wa.me/5511926271721?text=Ol%C3%A1%21%20Quero%20conhecer%20os%20im%C3%B3veis%20da%20ZN." target="_blank" rel="noopener">Conversar no WhatsApp</a></div></div></section></main>
 
 <footer>
   <div class="wrap footer-row">
