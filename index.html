@@ -124,8 +124,8 @@
   }
   @media(max-width:620px){
     .wrap{width:min(100% - 36px,1180px);}
-    .nav-links>a:not(.btn){display:none;}
-    .nav-links{gap:0;}
+    .nav{flex-wrap:wrap;padding-block:16px;gap:14px}.nav-links{width:100%;flex-wrap:wrap;justify-content:space-between}.nav-links>a:not(.btn){display:inline-flex;}
+    .nav-links{gap:12px 18px;}
     .nav .btn{padding:10px 13px;font-size:12px;}
     .section{padding:70px 0;}
     .footer-row{align-items:flex-start;flex-direction:column;}
@@ -142,6 +142,7 @@
     </a>
     <nav class="nav-links" aria-label="Navegação principal">
       <a href="#imoveis">Imóveis</a>
+      <a href="/regioes/">Regiões</a>
       <a href="/conteudos/">Conteúdos</a>
       <a href="#sobre">Sobre a ZN</a>
       <a class="btn btn-primary" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20conhecer%20os%20im%C3%B3veis%20da%20ZN%20Empreendimentos." target="_blank" rel="noopener">Fale conosco</a>
