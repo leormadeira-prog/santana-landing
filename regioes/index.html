@@ -189,8 +189,9 @@
   }
   @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
 </style>
+<link rel="stylesheet" href="/assets/css/site-measurement.css">
 </head>
-<body>
+<body data-measurement-page="regioes">
 
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <nav aria-label="Navegação principal">
@@ -346,7 +347,13 @@
   <div>Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</div>
   <a href="/privacidade/">Política de Privacidade</a>
   <div>© 2026 ZN Empreendimentos. Todos os direitos reservados.</div>
+<button type="button" class="zn-consent-manage" id="measurement-manage">Preferências de medição</button>
 </footer>
 
+<aside class="zn-consent" id="measurement-banner" aria-label="Preferências de medição" hidden>
+<p>Podemos usar o Google Analytics para entender a navegação e melhorar o site? Você pode recusar e continuar acessando os imóveis e o atendimento. <a href="/privacidade/">Política de privacidade</a>.</p>
+<div class="zn-consent-actions"><button type="button" id="measurement-accept">Aceitar medição</button><button type="button" id="measurement-reject">Recusar</button></div>
+</aside>
+<script src="/assets/js/site-measurement.js" defer></script>
 </body>
 </html>

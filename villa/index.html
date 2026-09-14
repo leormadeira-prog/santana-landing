@@ -268,7 +268,8 @@
 :root{--stone:#b4a99b}h1,h2,h3{line-height:1.15}header{background:rgba(20,17,13,.97);padding:18px 32px;gap:16px}.brand .sub{font-size:12px;letter-spacing:.08em}.hero-content{padding-top:170px}.hero h1{max-width:940px}.hero-img img{object-position:55% center}.hero-scrim{background:linear-gradient(180deg,rgba(20,17,13,.18),rgba(20,17,13,.88))}section[id]{scroll-margin-top:100px}.hero-eyebrow{font-size:14px}.stat-label,.intro-label,.num,.field label,.form-note,.footer-meta,.footer-bottom{font-size:14px}.amenity-copy p,.loc-copy p,.lead-info p{font-size:16px}.photo-note{font-size:14px;color:var(--stone);margin:18px 0 26px}.plan-media{padding:0;background:white}.plan-media img{aspect-ratio:auto;height:auto}.plan-specs li{gap:18px}.plan-specs li span:last-child{text-align:right;font-family:inherit}.field select{font:inherit;color:var(--ivory);background:var(--black);padding:12px 0;border:0;border-bottom:1px solid var(--line);max-width:100%}.field input:focus-visible,.field textarea:focus-visible,select:focus-visible{outline:2px solid var(--gold-soft);outline-offset:4px}.form-note a{text-decoration:underline}.skip{position:fixed;top:-100px;left:16px;z-index:200;background:var(--gold);color:var(--black);padding:14px}.skip:focus{top:8px}.lead-form-wrap{min-width:0}main{overflow:hidden}
 @media(max-width:640px){header{padding:16px 20px}.brand .zs{font-size:19px}.brand .sub{font-size:12px;max-width:180px}.nav-cta{padding:10px;font-size:13px}.hero{min-height:90svh}.hero-content{padding:150px 0 48px}.hero h1{font-size:44px}.hero-sub{font-size:16px}.hero-actions>*{width:100%;text-align:center}.intro,.amenities,.location,.lead{padding:64px 0}.plan{padding:64px 0}.amenity-head{margin-bottom:36px}.amenity-row{margin-bottom:56px}.lead-info,.lead-form{padding:28px 24px}.stat-item{padding:24px 12px}.stat-num{font-size:25px}.gallery-grid{grid-auto-rows:190px}.plan-grid,.loc-grid{gap:30px}.footer-meta{margin-top:14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "ZN Empreendimentos", "item": "https://znempreendimentos.com.br/"}, {"@type": "ListItem", "position": 2, "name": "VILLA", "item": "https://znempreendimentos.com.br/villa/"}]}</script></head>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "ZN Empreendimentos", "item": "https://znempreendimentos.com.br/"}, {"@type": "ListItem", "position": 2, "name": "VILLA", "item": "https://znempreendimentos.com.br/villa/"}]}</script><link rel="stylesheet" href="/assets/css/site-measurement.css">
+</head>
 <body data-property-id="villa">
 <a class="skip" href="#principal">Ir para o conteúdo</a>
 
@@ -461,8 +462,14 @@
       <span>CRECI-SP 331393</span>
     </div>
   </div>
+<button type="button" class="zn-consent-manage" id="measurement-manage">Preferências de medição</button>
 </footer>
 
+<aside class="zn-consent" id="measurement-banner" aria-label="Preferências de medição" hidden>
+<p>Podemos usar o Google Analytics para entender a navegação e melhorar o site? Você pode recusar e continuar acessando os imóveis e o atendimento. <a href="/privacidade/">Política de privacidade</a>.</p>
+<div class="zn-consent-actions"><button type="button" id="measurement-accept">Aceitar medição</button><button type="button" id="measurement-reject">Recusar</button></div>
+</aside>
+<script src="/assets/js/site-measurement.js" defer></script>
 <script src="/villa/app.js" defer></script>
 
 </body>

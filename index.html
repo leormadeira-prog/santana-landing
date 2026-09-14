@@ -133,8 +133,9 @@
   }
 .hero h1{max-width:14ch}.featured{grid-template-columns:1fr 1fr}.featured .property-card{display:flex;flex-direction:column}.featured .property-card>img{min-height:0;height:auto;aspect-ratio:4/3}.featured .property-copy{padding:36px;flex:1}.featured .property-copy p{flex:1}.property-copy small{display:block;font-size:13px;line-height:1.5;color:var(--ink-soft);margin-top:18px}.villa-card{background:#191612;color:#ede7da}.villa-card .property-copy p,.villa-card .property-copy small{color:#c1b6a7}.villa-card .property-tag,.villa-card .property-location{color:#d2b17b}.villa-card .btn{background:#b08d57;color:#14110d}.portfolio-heading{margin-top:80px}.other-properties{grid-template-columns:1fr 1fr}.other-properties .property-card{display:block}.other-properties .property-card>img{height:300px;min-height:0}.other-properties .property-copy{padding:28px}.other-properties h3{font-size:32px}.eyebrow,.property-tag,.property-location{font-size:14px}a:focus-visible{outline:3px solid var(--brick);outline-offset:5px}#contato p{font-size:18px;color:var(--ink-soft);margin-top:0}section[id]{scroll-margin-top:28px}@media(max-width:850px){.featured,.other-properties{grid-template-columns:1fr}.featured .property-copy{padding:28px}.other-properties .property-card>img{height:auto;aspect-ratio:4/3}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
+<link rel="stylesheet" href="/assets/css/site-measurement.css">
 </head>
-<body>
+<body data-measurement-page="home">
 <header>
   <div class="wrap nav">
     <a href="/" aria-label="ZN Empreendimentos — início">
@@ -237,6 +238,12 @@
       <a href="/privacidade/">Política de Privacidade</a>
     </div>
   </div>
+<button type="button" class="zn-consent-manage" id="measurement-manage">Preferências de medição</button>
 </footer>
+<aside class="zn-consent" id="measurement-banner" aria-label="Preferências de medição" hidden>
+<p>Podemos usar o Google Analytics para entender a navegação e melhorar o site? Você pode recusar e continuar acessando os imóveis e o atendimento. <a href="/privacidade/">Política de privacidade</a>.</p>
+<div class="zn-consent-actions"><button type="button" id="measurement-accept">Aceitar medição</button><button type="button" id="measurement-reject">Recusar</button></div>
+</aside>
+<script src="/assets/js/site-measurement.js" defer></script>
 </body>
 </html>
