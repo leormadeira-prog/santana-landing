@@ -11,6 +11,7 @@
     var extra = document.getElementById("msg").value.trim();
     if (extra) message += "\n" + extra;
     message += "\nEmpreendimento: villa";
+    if (window.znMeasurement) window.znMeasurement.whatsappIntent();
     window.location.assign("https://wa.me/5511926271721?text=" + encodeURIComponent(message));
   });
 })();
