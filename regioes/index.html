@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regiões — ZN Empreendimentos</title>
+<meta name="description" content="Conheça os imóveis da ZN Empreendimentos em cada região de São Paulo.">
+<link rel="canonical" href="https://znempreendimentos.com.br/regioes/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#1B2430">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Regiões — ZN Empreendimentos">
+<meta property="og:description" content="Explore os imóveis por região de São Paulo e registre seu interesse em novos endereços.">
+<meta property="og:url" content="https://znempreendimentos.com.br/regioes/">
+<meta property="og:image" content="https://znempreendimentos.com.br/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1B2430;
+    --bg-deep: #141C26;
+    --surface: #212B38;
+    --surface-hi: #283242;
+    --line: #34404F;
+    --text: #F5F3EE;
+    --text-muted: #9AA4B2;
+    --accent: #C69A56;
+    --accent-soft: #C69A5622;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+
+  .wrap{max-width: 1080px; margin: 0 auto; padding: 0 24px;}
+
+  /* NAV */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo{font-family:'Fraunces', serif; font-size: 1.15rem; letter-spacing:0.02em;}
+  .logo span{color: var(--accent);}
+  .nav-links{display:flex; gap: 28px; font-size: 0.92rem; color: var(--text-muted);}
+  .nav-links a:hover{color: var(--text);}
+  .nav-cta{
+    background: var(--accent); color: var(--bg-deep);
+    padding: 9px 18px; border-radius: 3px; font-size: 0.88rem; font-weight: 600;
+  }
+  @media (max-width: 720px){ .nav-links{display:none;} }
+
+  /* HERO */
+  .hero{ padding: 72px 24px 56px; }
+  .eyebrow-plain{ color: var(--accent); font-size: 0.95rem; margin-bottom: 14px; }
+  .hero h1{
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    max-width: 14ch;
+    line-height: 1.12;
+    margin-bottom: 20px;
+  }
+  .hero p{
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 46ch;
+  }
+
+  /* COMPASS */
+  .compass-section{ padding: 20px 24px 80px; }
+  .compass{
+    display:grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    grid-template-areas:
+      ".     norte  ."
+      "oeste centro leste"
+      ".     sul    .";
+    gap: 12px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .zone-cell{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 22px 18px;
+    min-height: 110px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  a.zone-cell:hover{ border-color: var(--accent); background: var(--surface-hi); }
+  .zone-cell.centro{
+    background: transparent; border: 1px dashed var(--line);
+    align-items:center; justify-content:center; text-align:center;
+    color: var(--text-muted); font-size: 0.82rem;
+  }
+  .zone-cell.soon{ opacity: 0.6; }
+  .zone-name{ font-family:'Fraunces', serif; font-size: 1.05rem; }
+  .zone-status{ font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+  .zone-status.active{ color: var(--accent); }
+  #norte{grid-area:norte;} #sul{grid-area:sul;} #leste{grid-area:leste;}
+  #oeste{grid-area:oeste;} #centro{grid-area:centro;}
+  @media (max-width: 640px){
+    .compass{ grid-template-columns: 1fr; grid-template-areas: "norte" "sul" "leste" "oeste" "centro"; max-width: 420px; }
+  }
+
+  .interior-strip{
+    max-width: 620px; margin: 12px auto 0;
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: 16px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+    color: var(--text-muted); font-size: 0.88rem;
+  }
+  .interior-strip strong{ color: var(--text); font-weight: 500; }
+
+  /* REGION SECTIONS */
+  .region-section{ padding: 64px 24px; border-top: 1px solid var(--line); }
+  .region-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom: 36px; flex-wrap:wrap; gap:10px; }
+  .region-head h2{ font-size: 1.7rem; }
+  .region-count{ color: var(--text-muted); font-size: 0.9rem; }
+
+  .property-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .property-card{
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+    overflow: hidden; display:flex; flex-direction:column;
+  }
+  .property-card img{ width:100%; height: 180px; object-fit: cover; }
+  .property-body{ padding: 20px; display:flex; flex-direction:column; gap: 8px; flex:1; }
+  .status-badge{
+    font-size: 0.72rem; color: var(--accent); text-transform: none;
+    display:inline-block; width: fit-content;
+    border: 1px solid var(--accent-soft); padding: 3px 9px; border-radius: 2px;
+  }
+  .property-body h3{ font-size: 1.2rem; margin-top: 4px; }
+  .property-loc{ color: var(--text-muted); font-size: 0.86rem; }
+  .property-desc{ color: var(--text-muted); font-size: 0.92rem; margin-top: 4px; flex:1; }
+  .property-link{
+    margin-top: 10px; font-size: 0.9rem; font-weight: 600; color: var(--text);
+    border-top: 1px solid var(--line); padding-top: 12px;
+  }
+  .property-link:hover{ color: var(--accent); }
+
+  /* SOON SECTION */
+  .soon-card{
+    background: var(--surface); border: 1px dashed var(--line); border-radius: 4px;
+    padding: 40px 28px; text-align:left; max-width: 640px;
+  }
+  .soon-card h3{ font-size: 1.3rem; margin-bottom: 10px; }
+  .soon-card p{ color: var(--text-muted); font-size: 0.95rem; margin-bottom: 22px; max-width: 48ch; }
+  .soon-cta{
+    display:inline-block; background: var(--accent); color: var(--bg-deep);
+    padding: 11px 20px; border-radius: 3px; font-size: 0.9rem; font-weight: 600;
+  }
+
+  footer{
+    padding: 48px 24px; border-top: 1px solid var(--line);
+    display:flex; flex-direction:column; gap: 6px;
+    color: var(--text-muted); font-size: 0.85rem;
+  }
+
+  :focus-visible{outline:3px solid var(--accent);outline-offset:5px;}
+  .skip-link{position:absolute;top:-100px;left:16px;background:var(--text);color:var(--bg);padding:12px;z-index:50;}
+  .skip-link:focus{top:12px;}
+  nav{gap:20px;flex-wrap:wrap;}
+  .nav-links a[aria-current="page"]{color:var(--accent);}
+  .image-note{color:var(--text-muted);font-size:.78rem;}
+  .property-grid{grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));}
+  .interior-strip{gap:16px;flex-wrap:wrap;}
+  .interior-strip:hover{border-color:var(--accent);}
+  section[id]{scroll-margin-top:24px;}
+  @media(max-width:720px){
+    nav{padding:18px 20px;gap:16px;}
+    .nav-links{display:flex;order:3;flex-basis:100%;gap:12px 24px;flex-wrap:wrap;}
+    .logo{font-size:1rem;}.nav-cta{padding:10px 12px;}
+    .hero{padding-top:48px;}.region-section{padding-top:40px;padding-bottom:40px;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<nav aria-label="Navegação principal">
+  <a class="logo" href="/" aria-label="ZN Empreendimentos — início">ZN <span>Empreendimentos</span></a>
+  <div class="nav-links">
+    <a href="/#imoveis">Imóveis</a>
+    <a href="/regioes/" aria-current="page">Regiões</a>
+    <a href="/conteudos/">Conteúdos</a>
+    <a href="/#sobre">Sobre a ZN</a>
+  </div>
+  <a class="nav-cta" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20conhecer%20os%20im%C3%B3veis%20da%20ZN.">Fale conosco</a>
+</nav>
+
+<main id="conteudo">
+<header class="hero wrap">
+  <div class="eyebrow-plain">Regiões</div>
+  <h1>Um endereço ZN em cada canto de São Paulo.</h1>
+  <p>A ZN nasceu na Zona Norte e já chegou à Zona Sul. Escolha a região que te interessa e conheça os imóveis disponíveis — ou avise que quer ser o primeiro a saber quando chegarmos na sua.</p>
+</header>
+
+<section class="compass-section wrap" id="compass">
+  <div class="compass">
+    <a class="zone-cell" href="#zona-norte" id="norte">
+      <span class="zone-name">Zona Norte</span>
+      <span class="zone-status active">3 imóveis</span>
+    </a>
+    <a class="zone-cell" href="#zona-oeste" id="oeste">
+      <span class="zone-name">Zona Oeste</span>
+      <span class="zone-status">Em breve</span>
+    </a>
+    <div class="zone-cell centro" id="centro">São Paulo<br>capital</div>
+    <a class="zone-cell" href="#zona-leste" id="leste">
+      <span class="zone-name">Zona Leste</span>
+      <span class="zone-status">Em breve</span>
+    </a>
+    <a class="zone-cell" href="#zona-sul" id="sul">
+      <span class="zone-name">Zona Sul</span>
+      <span class="zone-status active">1 imóvel</span>
+    </a>
+  </div>
+  <a class="interior-strip" href="#interior">
+    <span>Fora da capital: <strong>interior de São Paulo</strong></span>
+    <span>Em breve →</span>
+  </a>
+</section>
+
+<!-- ZONA NORTE -->
+<section class="region-section wrap" id="zona-norte">
+  <div class="region-head">
+    <h2>Zona Norte</h2>
+    <span class="region-count">3 imóveis disponíveis</span>
+  </div>
+  <div class="property-grid">
+
+    <div class="property-card">
+      <img loading="lazy" src="/assets/fachada-gamboas.png" alt="Fachada do empreendimento Gamboas">
+      <div class="property-body">
+        <span class="status-badge">Disponível</span>
+        <h3>Gamboas</h3>
+        <div class="property-loc">Vila Nova Mazzei · São Paulo</div>
+        <p class="property-desc">Conheça os ambientes, veja o tour completo, consulte as plantas disponíveis e confira a localização do empreendimento.</p>
+        <a class="property-link" href="/gamboas/">Conhecer o Gamboas →</a>
+      </div>
+    </div>
+
+    <div class="property-card">
+      <img loading="lazy" src="/assets/residencial-inglesa-sala.webp" alt="Simulação de decoração da sala do Residencial Inglesa">
+      <div class="property-body">
+        <span class="status-badge">Disponível</span>
+        <h3>Residencial Inglesa</h3>
+        <small class="image-note">Decoração virtual ilustrativa. Móveis e decoração não incluídos.</small>
+        <div class="property-loc">Parada Inglesa · São Paulo</div>
+        <p class="property-desc">Apartamentos novos de 36 m², com dois dormitórios, dois banheiros e sacada, a partir de R$ 310 mil.</p>
+        <a class="property-link" href="/residencial-inglesa/">Conhecer o Residencial Inglesa →</a>
+      </div>
+    </div>
+
+    <div class="property-card">
+      <img loading="lazy" src="/assets/sobrado-isolina-fachada.jpg" alt="Fachada real do sobrado na Vila Isolina Mazzei">
+      <div class="property-body">
+        <span class="status-badge">Disponível</span>
+        <h3>Sobrado Isolina</h3>
+        <div class="property-loc">Vila Isolina Mazzei · São Paulo</div>
+        <p class="property-desc">100 m², 3 dormitórios — todos suítes —, 4 banheiros, 2 vagas e espaço gourmet privativo. Valor: R$ 790 mil.</p>
+        <a class="property-link" href="/sobrado-isolina/">Conhecer o sobrado →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ZONA SUL -->
+<section class="region-section wrap" id="zona-sul">
+  <div class="region-head">
+    <h2>Zona Sul</h2>
+    <span class="region-count">1 imóvel disponível</span>
+  </div>
+  <div class="property-grid">
+
+    <div class="property-card">
+      <img loading="lazy" src="/assets/villa/piscina.webp" alt="Foto real da piscina, área comum do VILLA">
+      <div class="property-body">
+        <span class="status-badge">Studio entregue</span>
+        <h3>VILLA</h3>
+        <div class="property-loc">Milano Life Style by Versace Home · Moema</div>
+        <p class="property-desc">O encontro de Versace Home com Moema. Conheça as áreas comuns e o studio entregue, com varanda e ar-condicionado, para finalizar do seu jeito.</p>
+        <a class="property-link" href="/villa/">Conhecer o VILLA →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ZONA LESTE -->
+<section class="region-section wrap" id="zona-leste">
+  <div class="region-head">
+    <h2>Zona Leste</h2>
+  </div>
+  <div class="soon-card">
+    <h3>Ainda não temos imóveis na Zona Leste.</h3>
+    <p>A ZN está avaliando os próximos endereços. Deixe seu contato e avisamos assim que o primeiro imóvel da região for lançado.</p>
+    <a class="soon-cta" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20ser%20avisado%20quando%20a%20ZN%20tiver%20im%C3%B3veis%20na%20Zona%20Leste.">Avise-me na Zona Leste</a>
+  </div>
+</section>
+
+<!-- ZONA OESTE -->
+<section class="region-section wrap" id="zona-oeste">
+  <div class="region-head">
+    <h2>Zona Oeste</h2>
+  </div>
+  <div class="soon-card">
+    <h3>Ainda não temos imóveis na Zona Oeste.</h3>
+    <p>A ZN está avaliando os próximos endereços. Deixe seu contato e avisamos assim que o primeiro imóvel da região for lançado.</p>
+    <a class="soon-cta" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20ser%20avisado%20quando%20a%20ZN%20tiver%20im%C3%B3veis%20na%20Zona%20Oeste.">Avise-me na Zona Oeste</a>
+  </div>
+</section>
+
+<!-- INTERIOR -->
+<section class="region-section wrap" id="interior">
+  <div class="region-head">
+    <h2>Interior de São Paulo</h2>
+  </div>
+  <div class="soon-card">
+    <h3>A ZN ainda atua só na capital.</h3>
+    <p>Quando chegarmos ao interior, você fica sabendo primeiro. Deixe seu contato e sua cidade de interesse.</p>
+    <a class="soon-cta" href="https://wa.me/5511926271721?text=Ol%C3%A1!%20Quero%20ser%20avisado%20quando%20a%20ZN%20tiver%20im%C3%B3veis%20no%20interior%20de%20SP.">Avise-me no interior</a>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div>ZN Empreendimentos</div>
+  <div>Leonardo Madeira — Corretor de Imóveis • CRECI-SP 331393</div>
+  <a href="/privacidade/">Política de Privacidade</a>
+  <div>© 2026 ZN Empreendimentos. Todos os direitos reservados.</div>
+</footer>
+
+</body>
+</html>
